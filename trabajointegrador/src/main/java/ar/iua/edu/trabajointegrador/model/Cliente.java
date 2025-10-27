@@ -1,15 +1,10 @@
-package ar.iua.edu.trabajointegrador.models;
+package ar.iua.edu.trabajointegrador.model;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,18 +16,17 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name="camiones")
-public class Camion {
-	
+@Table(name="clientes")
+public class Cliente {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	
-	@Column(length = 50, unique = true, nullable = false)
-	private String patente;
+	@Column(length = 100, unique = true)	
+	private String razonSocial;
 	
-	@OneToMany(mappedBy = "camion",cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<Sisterna> sisternas = new HashSet<>();
 	
-	private String descripcion;
+	@Column(length = 100)
+	private String email;
+	
 }

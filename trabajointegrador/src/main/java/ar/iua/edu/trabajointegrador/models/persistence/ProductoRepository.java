@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import ar.iua.edu.trabajointegrador.models.Producto;
+import ar.iua.edu.trabajointegrador.model.Producto;
 
 public interface ProductoRepository extends JpaRepository <Producto, Long>{
 	Optional<Producto> findByProducto(String producto);

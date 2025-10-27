@@ -1,4 +1,4 @@
-package ar.iua.edu.trabajointegrador.models;
+package ar.iua.edu.trabajointegrador.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

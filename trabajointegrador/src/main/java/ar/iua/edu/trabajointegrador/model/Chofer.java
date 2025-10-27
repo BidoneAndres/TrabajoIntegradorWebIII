@@ -1,4 +1,4 @@
-package ar.iua.edu.trabajointegrador.models;
+package ar.iua.edu.trabajointegrador.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,17 +16,18 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name="clientes")
-public class Cliente {
+@Table(name="choferes")
+public class Chofer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	
-	@Column(length = 100, unique = true)	
-	private String razonSocial;
-	
+	@Column(length = 200)
+	private String nombre;
 	
 	@Column(length = 100)
-	private String email;
+	private String apellido;
 	
+	@Column(length = 50, unique = true)
+	private String documento;
 }

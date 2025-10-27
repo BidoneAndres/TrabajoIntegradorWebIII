@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import ar.iua.edu.trabajointegrador.models.Sisterna;
+import ar.iua.edu.trabajointegrador.model.Sisterna;
 
 public interface SisternaRepository extends JpaRepository<Sisterna, Long>{
 	public Optional<Sisterna> findByLicencia(String licencia);

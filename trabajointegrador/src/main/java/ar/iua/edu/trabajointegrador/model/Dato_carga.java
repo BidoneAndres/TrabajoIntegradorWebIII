@@ -1,4 +1,4 @@
-package ar.iua.edu.trabajointegrador.models;
+package ar.iua.edu.trabajointegrador.model;
 
 import java.time.Instant;
 import java.util.Date;

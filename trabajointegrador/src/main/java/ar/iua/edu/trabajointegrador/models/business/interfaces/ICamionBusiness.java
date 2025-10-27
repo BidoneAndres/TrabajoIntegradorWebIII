@@ -2,7 +2,7 @@ package ar.iua.edu.trabajointegrador.models.business.interfaces;
 
 import java.util.List;
 
-import ar.iua.edu.trabajointegrador.models.Camion;
+import ar.iua.edu.trabajointegrador.model.Camion;
 import ar.iua.edu.trabajointegrador.models.business.exceptions.*;
 
 public interface ICamionBusiness {

@@ -4,17 +4,17 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class FoundExeception extends Exception{
+public class FoundException extends Exception{
 	@Builder
-	public FoundExeception(String message, Throwable ex) {
+	public FoundException(String message, Throwable ex) {
 		super(message, ex);
 	}
 	@Builder
-	public FoundExeception(String message) {
+	public FoundException(String message) {
 		super(message);
 	}
 	@Builder
-	public FoundExeception(Throwable ex) {
+	public FoundException(Throwable ex) {
 		super(ex);
 	}
 }

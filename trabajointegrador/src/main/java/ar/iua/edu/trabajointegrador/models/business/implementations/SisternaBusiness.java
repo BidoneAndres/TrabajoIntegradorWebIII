@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import ar.iua.edu.trabajointegrador.models.Sisterna;
+import ar.iua.edu.trabajointegrador.model.Sisterna;
 import ar.iua.edu.trabajointegrador.models.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.models.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.models.business.interfaces.ISisternaBusiness;

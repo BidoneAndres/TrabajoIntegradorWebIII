@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import ar.iua.edu.trabajointegrador.models.Orden;
+import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.models.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.models.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.models.business.interfaces.IOrdenBusiness;

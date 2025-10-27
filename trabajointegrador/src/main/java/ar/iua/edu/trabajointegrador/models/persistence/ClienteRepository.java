@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import ar.iua.edu.trabajointegrador.models.Cliente;
+import ar.iua.edu.trabajointegrador.model.Cliente;
 
 public interface ClienteRepository extends JpaRepository<Cliente, Long>{
 	public Optional<Cliente> findByRazonSocial(String razonSocial);

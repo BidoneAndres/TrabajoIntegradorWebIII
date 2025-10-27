@@ -2,7 +2,7 @@ package ar.iua.edu.trabajointegrador.models.business.interfaces;
 
 import java.util.List;
 
-import ar.iua.edu.trabajointegrador.models.Cliente;
+import ar.iua.edu.trabajointegrador.model.Cliente;
 import ar.iua.edu.trabajointegrador.models.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.models.business.exceptions.NotFoundException;
 
