@@ -15,9 +15,9 @@ public interface ChoferCli1Repository extends JpaRepository<ChoferCli1, Long>{
 	
 	Optional<ChoferCli1> findByDocumentoAndIdCli1NotAndCodCli1Temp(String documento, String idCli1, boolean codCli1Temp);
 	
-	Optional<ChoferCli1> findbyDocumento(String documento);
+	Optional<ChoferCli1> findByDocumento(String documento);
 	
-	@Modifying
+/*	@Modifying
     @Query(value = "INSERT INTO cli1_choferes (id_chofer, id_cli1, cod_cli1temp) VALUES (:idChofer, :idCli1, false)", nativeQuery = true)
-    void insertChoferCli1(@Param("idChofer") Long idChofer, @Param("idCli1") String idCli1);
+    void insertChoferCli1(@Param("idChofer") Long idChofer, @Param("idCli1") String idCli1);*/
 }

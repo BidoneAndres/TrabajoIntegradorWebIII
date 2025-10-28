@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
+//import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -32,8 +32,8 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 public class AuthRestController extends BaseRestController {
-	@Autowired
-	private AuthenticationManager authManager;
+	/*@Autowired
+	private AuthenticationManager authManager;*/
 	@Autowired
 	private IStandartResponseBusiness response;
 	
@@ -45,7 +45,7 @@ public class AuthRestController extends BaseRestController {
 	public ResponseEntity<?> loginExternalOnlyToken(@RequestParam String username, @RequestParam String password, HttpServletRequest request) {
 		Authentication auth = null;
 		try {
-			auth = authManager.authenticate(((CustomAuthenticationManager) authManager).authWrap(username, password));
+			//auth = authManager.authenticate(((CustomAuthenticationManager) authManager).authWrap(username, password));
 		} catch (AuthenticationServiceException e0) {
 			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e0, e0.getMessage()),
 					HttpStatus.INTERNAL_SERVER_ERROR);
