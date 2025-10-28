@@ -28,7 +28,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "datos_carga")
 @EntityListeners(AuditingEntityListener.class) // para las timestamps
-public class Dato_carga {
+public class DatoCarga {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
