@@ -8,4 +8,5 @@ public interface IDatoCargaBusiness {
 	
 	public DatoCarga add(DatoCarga datoCarga) throws  BusinessException, InvalidLoadException;
 	
+	
 }
