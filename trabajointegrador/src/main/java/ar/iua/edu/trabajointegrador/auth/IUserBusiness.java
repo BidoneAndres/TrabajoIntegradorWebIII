@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import ar.iua.edu.trabajointegrador.models.business.exceptions.BusinessException;
-import ar.iua.edu.trabajointegrador.models.business.exceptions.NotFoundException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 
 
 

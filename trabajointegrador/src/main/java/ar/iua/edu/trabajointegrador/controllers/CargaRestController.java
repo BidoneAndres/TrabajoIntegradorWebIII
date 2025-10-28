@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ar.iua.edu.trabajointegrador.model.DatoCarga;
-import ar.iua.edu.trabajointegrador.models.business.exceptions.BusinessException;
-import ar.iua.edu.trabajointegrador.models.business.exceptions.InvalidLoadException;
-import ar.iua.edu.trabajointegrador.models.business.interfaces.IDatoCargaBusiness;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.InvalidLoadException;
+import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaBusiness;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 
 @RestController

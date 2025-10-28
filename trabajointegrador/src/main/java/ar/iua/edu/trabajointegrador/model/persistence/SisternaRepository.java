@@ -1,0 +1,12 @@
+package ar.iua.edu.trabajointegrador.model.persistence;
+
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import ar.iua.edu.trabajointegrador.model.Sisterna;
+
+public interface SisternaRepository extends JpaRepository<Sisterna, Long>{
+	public Optional<Sisterna> findByLicencia(String licencia);
+	public Optional<Sisterna> findByLicenciaAndIdNot(String licencia, long id);
+}

@@ -1,0 +1,16 @@
+package ar.iua.edu.trabajointegrador.model.business.interfaces;
+
+import java.util.List;
+
+import ar.iua.edu.trabajointegrador.model.Camion;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.*;
+
+public interface ICamionBusiness {
+	
+	public List<Camion> list() throws BusinessException;
+	
+	public Camion load(long id) throws NotFoundException, BusinessException;
+	
+	public Camion load(String patente) throws NotFoundException, BusinessException;
+
+}
