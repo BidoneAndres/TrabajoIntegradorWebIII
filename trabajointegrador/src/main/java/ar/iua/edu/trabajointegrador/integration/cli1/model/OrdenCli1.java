@@ -19,7 +19,7 @@ import lombok.Setter;
 @Setter
 public class OrdenCli1 extends Orden{
 	@Column(nullable = false, unique = true)
-    private String idCli1;
+    private String ordenNumberCli1;
 
     private boolean codCli1Temp=false;
 }

@@ -21,7 +21,7 @@ import lombok.Setter;
 public class ClienteCli1 extends Cliente{
 	
 	@Column(nullable = false, unique = true)
-	private String id_cli1;
+	private String idCli1;
 	
 	private boolean codCli1Temp = false;
 
