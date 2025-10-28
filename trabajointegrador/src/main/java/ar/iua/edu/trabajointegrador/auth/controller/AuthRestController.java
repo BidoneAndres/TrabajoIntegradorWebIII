@@ -33,7 +33,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 public class AuthRestController extends BaseRestController {
 	/*@Autowired
-	private AuthenticationManager authManager;*/
+	private AuthenticationManager authManager;
 	@Autowired
 	private IStandartResponseBusiness response;
 	
@@ -79,4 +79,5 @@ public class AuthRestController extends BaseRestController {
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	*/
 }
