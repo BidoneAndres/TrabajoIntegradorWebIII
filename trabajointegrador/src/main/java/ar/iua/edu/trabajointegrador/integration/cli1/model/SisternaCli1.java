@@ -1,5 +1,6 @@
 package ar.iua.edu.trabajointegrador.integration.cli1.model;
 
+import ar.iua.edu.trabajointegrador.model.Sisterna;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PrimaryKeyJoinColumn;
@@ -16,7 +17,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class SisternaCli1 {
+public class SisternaCli1 extends Sisterna{
 	@Column(nullable = false, unique = true)
     private String idCli1;
 
