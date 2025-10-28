@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import ar.iua.edu.trabajointegrador.models.business.exceptions.BusinessException;
-import ar.iua.edu.trabajointegrador.models.business.exceptions.NotFoundException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Service

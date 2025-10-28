@@ -18,8 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import ar.iua.edu.trabajointegrador.auth.IUserBusiness;
 import ar.iua.edu.trabajointegrador.auth.User;
-import ar.iua.edu.trabajointegrador.models.business.exceptions.BusinessException;
-import ar.iua.edu.trabajointegrador.models.business.exceptions.NotFoundException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
