@@ -9,7 +9,7 @@ import ar.iua.edu.trabajointegrador.model.Orden;
 
 public interface OrdenCli1Repository extends JpaRepository<OrdenCli1, Long>{
 
-	 Optional<OrdenCli1> findOneByIdCli1(String IdCli1);
+	 Optional<OrdenCli1> findOneByOrdenNumberCli1(String ordenNumberCli1);
 	 
 	 Optional<OrdenCli1> findByCamion_idAndEstado(Long idTruck, Orden.Estado estado);
 }
