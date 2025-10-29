@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 public class ProductoJsonSerializer  extends StdSerializer<Producto>{
 
+    //Comenzamos la generacion de Jsons....
     
     protected ProductoJsonSerializer(Class<Producto> t){
         super (t);
@@ -29,6 +30,7 @@ public class ProductoJsonSerializer  extends StdSerializer<Producto>{
         
         gen.writeNumberField("id", value.getId()); //"id" :
         gen.writeStringField("producto", value.getProducto()); //"producto" : 
+
         gen.writeEndObject(); //}
 
     }
