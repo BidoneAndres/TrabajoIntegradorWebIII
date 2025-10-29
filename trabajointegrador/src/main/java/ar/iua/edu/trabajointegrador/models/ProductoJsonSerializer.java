@@ -29,7 +29,7 @@ public class ProductoJsonSerializer  extends StdSerializer<Producto>{
         gen.writeStartObject(); //{
         
         gen.writeNumberField("id", value.getId()); //"id" :
-        gen.writeStringField("producto", value.getProducto()); //"producto" : 
+        gen.writeStringField("nombre", value.getProducto()); //"producto" : 
 
         gen.writeEndObject(); //}
 
