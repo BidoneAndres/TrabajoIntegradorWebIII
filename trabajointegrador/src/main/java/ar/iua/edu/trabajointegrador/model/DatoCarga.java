@@ -1,8 +1,10 @@
 package ar.iua.edu.trabajointegrador.model;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Date;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -36,8 +38,8 @@ public class DatoCarga {
 	//asociamos al numero de orden
 	
 	@ManyToOne(fetch = FetchType.LAZY)  // ->importante, sino me va a traer en cada coNSULTA todas las veces la otden entera
-	@JoinColumn(name="clave_activacion", nullable = false)//da mas detalles, clave foranea, 
-	private Orden clave_orden;
+	@JoinColumn(name="clave_activacion_orden",nullable = false)//da mas detalles, clave foranea, 
+	private Orden orden;
 	
 	private double ultima_masa_acumulada;
 	private double ultima_densidad_producto;
@@ -46,7 +48,7 @@ public class DatoCarga {
 	
 	// --- TIMESTAMPS AUTOMÁTICOS ---
 
-    @CreatedDate //  Anotación para la fecha de creación
+    @CreationTimestamp //  Anotación para la fecha de creación
     @Column(nullable = false, updatable = false) // No se puede actualizar
-    private Instant timestamp;
+    private LocalDateTime timestamp;
 }

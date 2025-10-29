@@ -21,12 +21,13 @@ public class DatoCargaBusiness implements IDatoCargaBusiness{
 	public DatoCarga add(DatoCarga datoCarga) throws InvalidLoadException, BusinessException {
 		//Caudal <= 0
 		//Masa acumulada  <= 0 o menor que el valor anterior
-		if (datoCarga.getUltimo_caudal() <= 0) {
-			log.error("Se recibio un dato de carga <=0");
-			throw InvalidLoadException.builder().build();
-			}
+		
 		
 		try {
+			if (datoCarga.getUltimo_caudal() <= 0) {
+				log.error("Se recibio un dato de carga <=0");
+				throw InvalidLoadException.builder().build();
+				}
 			return datoCargaDAO.save(datoCarga);
 		}
 		catch( Exception e) {

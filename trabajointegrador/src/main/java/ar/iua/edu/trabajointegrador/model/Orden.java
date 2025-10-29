@@ -63,6 +63,6 @@ public class Orden {
     @JoinColumn(name = "id_camion", nullable = false)
 	private Camion camion;
 	
-	@Column(length = 10)
+	@Column(length = 10, unique = true)
     private String claveActivacion;
 }
