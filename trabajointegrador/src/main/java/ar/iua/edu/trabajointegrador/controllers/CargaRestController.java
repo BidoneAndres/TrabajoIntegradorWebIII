@@ -3,7 +3,10 @@ package ar.iua.edu.trabajointegrador.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +28,18 @@ public class CargaRestController {
 	// response http
 	@Autowired
 	private IStandartResponseBusiness response;
+	
+	@GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> list() {
+		try {
+			return new ResponseEntity<>(datoCargaBusiness.list(), HttpStatus.OK);
+		} catch (BusinessException e) {
+			return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
+		} /*catch (NotFoundException e) {
+			return new ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()), HttpStatus.FOUND);
+		}*/
+	}
+
 
 	@PostMapping(value = "")
 	public ResponseEntity<?> add(@RequestBody DatoCarga datoCarga) {
@@ -48,5 +63,17 @@ public class CargaRestController {
 
 		}
 	}
-
+	
+	@GetMapping(value = "/orden/{ordenId}")
+	public ResponseEntity<?> listByOrden(@PathVariable Long ordenId) {
+		try {
+			return new ResponseEntity<>(datoCargaBusiness.listByOrden(ordenId), HttpStatus.OK);
+		} catch (BusinessException e) {
+			return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
+		} /*catch (NotFoundException e) {
+			return new ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()), HttpStatus.FOUND);
+		}*/
+	}
+	
+	
 }

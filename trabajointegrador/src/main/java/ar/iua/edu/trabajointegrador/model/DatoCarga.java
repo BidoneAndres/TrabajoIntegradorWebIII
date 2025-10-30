@@ -1,11 +1,11 @@
 package ar.iua.edu.trabajointegrador.model;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,7 +37,8 @@ public class DatoCarga {
 	//asociamos al numero de orden
 	
 	@ManyToOne(fetch = FetchType.LAZY)  // ->importante, sino me va a traer en cada coNSULTA todas las veces la otden entera
-	@JoinColumn(name="clave_activacion_orden",nullable = false)//da mas detalles, clave foranea, 
+	@JoinColumn(name="orden_id",nullable = false)//da mas detalles, clave foranea, 
+	@JsonIgnore //hasta ahora no hay ningun metodo get que traiga, asi que no lo traemos el orden
 	private Orden orden;
 	
 	private double ultima_masa_acumulada;
