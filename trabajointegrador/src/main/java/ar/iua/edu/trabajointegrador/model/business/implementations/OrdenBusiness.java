@@ -3,12 +3,23 @@ package ar.iua.edu.trabajointegrador.model.business.implementations;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.UnProcessableException;
+import ar.iua.edu.trabajointegrador.model.business.interfaces.ICamionBusiness;
+import ar.iua.edu.trabajointegrador.model.business.interfaces.IChoferBusiness;
+import ar.iua.edu.trabajointegrador.model.business.interfaces.IClienteBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IOrdenBusiness;
+import ar.iua.edu.trabajointegrador.model.business.interfaces.ISisternaBusiness;
 import ar.iua.edu.trabajointegrador.model.persistence.OrdenRepository;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,6 +28,19 @@ import lombok.extern.slf4j.Slf4j;
 public class OrdenBusiness implements IOrdenBusiness {
 	
 	public OrdenRepository ordenDAO;
+	
+	@Autowired
+	private IClienteBusiness clienteBusineness;
+	
+	@Autowired
+	private ICamionBusiness camionBusineness;
+	
+	@Autowired
+	private ISisternaBusiness sisternaBusineness;
+	
+	@Autowired
+	private IChoferBusiness choferBusineness;
+	
 	@Override
 	public List<Orden> list() throws BusinessException {
 		try {
@@ -40,15 +64,32 @@ public class OrdenBusiness implements IOrdenBusiness {
 			throw NotFoundException.builder().message("El orden "+ id + "no se encuentra").build();
 		return ordenFound.get();
 	}
-
+	
 	@Override
-	public Orden cargaExterna(String json) throws BusinessException {
-		// TODO Auto-generated method stub
+	public Orden cargaExterna(String json) throws FoundException, BusinessException, BadRequestException, UnProcessableException{
+		/*
+		ObjectMapper mapper = JsonUtils.getObjectMapper(Orden.class, new OrdenJsonDeserializer(
+                Orden.class, choferBusiness, camionBusiness, clienteBusiness, productoBusiness), null);
+        Orden orden;
+
+        try {
+            orden = mapper.readValue(json, Orden.class);
+        } catch (JsonProcessingException e) {
+            log.error(e.getMessage(), e);
+            throw UnProcessableException.builder().message("El formato JSON es incorrecto").build();
+        }
+
+        if (orden.getOrderNumber() == null || orden.getOrderNumber().isBlank()) {
+            String codeCli1Temp = orden.getPreset() + System.currentTimeMillis() + "";
+            orden.setOrderNumber(codeCli1Temp);
+            orden.setCoTemp(true);
+        }
+
+        return add(orden);
+        */
 		return null;
 	}
-	@Override
-	public Orden cancelarExterna(String codExt) throws BusinessException {
-		// TODO Auto-generated method stub
+	public Orden load(String codExt) throws NotFoundException, BusinessException{
 		return null;
 	}
 

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ar.iua.edu.trabajointegrador.model.Chofer;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IChoferBusiness;
 import ar.iua.edu.trabajointegrador.model.persistence.ChoferRepository;
@@ -41,8 +42,7 @@ public class ChoferBusiness implements IChoferBusiness {
 			throw NotFoundException.builder().message("El chofer "+ id + "no se encuentra").build();
 		return choferFound.get();
 	}
-
-	@Override
+	
 	public Chofer load(String documento) throws NotFoundException, BusinessException {
 		Optional<Chofer> choferFound;
 		try {
@@ -52,8 +52,31 @@ public class ChoferBusiness implements IChoferBusiness {
 			throw BusinessException.builder().ex(e).build();
 		}
 		if (choferFound.isEmpty())
-			throw NotFoundException.builder().message("El chofer de documento "+ documento + " no se encuentra").build();
+			throw NotFoundException.builder().message("El chofer "+ documento + "no se encuentra").build();
 		return choferFound.get();
+	}
+
+	@Override
+	public Chofer addChofer(Chofer chofer) throws FoundException, BusinessException {
+
+	    //Verificar si el Chofer ya existe (Recomendación: Mover la búsqueda al inicio)
+	    Optional<Chofer> foundChofer = choferDAO.findByDocumento(chofer.getDocumento());
+
+	    //Controlar la FoundException si ya existe un Chofer con ese documento
+	    if (foundChofer.isPresent()) {
+	        // Si ya existe, lanzamos la excepción específica FoundException
+	        throw new FoundException("Ya existe un Chofer registrado con el documento: " + chofer.getDocumento());
+	    }
+
+	    try {
+	        //Persistir (guardar) el nuevo Chofer
+	        return choferDAO.save(chofer);
+	    } catch (Exception e) {
+	        //Manejo de errores de persistencia
+	        log.error("Error al intentar guardar el Chofer con documento {}: {}", chofer.getDocumento(), e.getMessage(), e);
+
+	        throw BusinessException.builder().ex(e).build();
+	    }
 	}
 }
 
