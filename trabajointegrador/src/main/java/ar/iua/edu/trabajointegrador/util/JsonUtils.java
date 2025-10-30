@@ -1,13 +1,14 @@
 package ar.iua.edu.trabajointegrador.util;
-
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.CAMION_NODE_ATTRIBUTES;
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.CHOFER_NODE_ATTRIBUTES;
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.CLIENTE_NODE_ATTRIBUTES;
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.PRODUCTO_NODE_ATTRIBUTES;
 
+//import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
-
+import java.text.ParseException;
 import org.apache.coyote.BadRequestException;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -234,6 +235,43 @@ public class JsonUtils {
             throw new BadRequestException("El nodo producto no se recibió correctamente");
         }
     }
-	
+    
+    public static Date getFecha(JsonNode node, String[] attrs, String defaultValue) {
+        Date parsedDate = null;
+
+        SimpleDateFormat[] formats = {
+                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault()), // Con zona horaria
+                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())   // Sin zona horaria
+        };
+
+        for (String attr : attrs) {
+            if (node.get(attr) != null) {
+                String dateStr = node.get(attr).asText();
+                for (SimpleDateFormat format : formats) {
+                    try {
+                        parsedDate = format.parse(dateStr);
+                        if (parsedDate != null) {
+                            return parsedDate;
+                        }
+                    } catch (ParseException e) {
+                    }
+                }
+            }
+        }
+
+        if (defaultValue != null) {
+            for (SimpleDateFormat format : formats) {
+                try {
+                    parsedDate = format.parse(defaultValue);
+                    if (parsedDate != null) {
+                        return parsedDate; 
+                    }
+                } catch (ParseException e) {
+                   
+                }
+            }
+        }
+        return parsedDate;
+    }
 }
 

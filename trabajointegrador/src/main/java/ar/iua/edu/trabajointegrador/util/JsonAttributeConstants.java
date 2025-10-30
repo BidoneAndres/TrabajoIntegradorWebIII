@@ -1,7 +1,7 @@
 package ar.iua.edu.trabajointegrador.util;
 
 public class JsonAttributeConstants {
-    public static final String[] ORDEN_NUMERO_ATTRIBUTES = {"numbero", "Numero", "numero_orden", "order", "Order", "order_number", "code"};
+    public static final String[] ORDEN_NUMERO_ATTRIBUTES = {"numero", "Numero", "numero_orden", "order", "Order", "order_number", "code"};
     public static final String[] ORDEN_FECHA_ESTIMADA_ATTRIBUTES = {"fecha_estimada", "fechaEstimada", "estimated_date", "estimatedDate"};
     public static final String[] ORDEN_PESO_INICIAL_ATTRIBUTES = {"peso_inicial", "pesoInicial", "initial_weight", "initialWeight"};
 
