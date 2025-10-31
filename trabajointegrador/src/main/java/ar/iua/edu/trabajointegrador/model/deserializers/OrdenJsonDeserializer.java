@@ -91,6 +91,7 @@ public class OrdenJsonDeserializer extends StdDeserializer<Orden>{
 			r.setCodExt(codExt);
 			r.setFechaEstimada(fecha_estimada);
 			r.setPreset(preset);
+			r.setFechaRecepcionOrden(new Date(System.currentTimeMillis()));
 		
 			if (producto != null && cliente != null && camion != null && chofer != null) {
 				r.setCamion(camion);

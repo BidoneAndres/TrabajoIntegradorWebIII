@@ -167,8 +167,14 @@ public class JsonUtils {
                 }
             }
             if (choferDocumento != null) {
-            	Chofer chofer = BuildEntityUtils.buildChofer(choferNode);
-                return ChoferBusiness.addChofer(chofer);
+                // Primero intentamos cargar el chofer existente por documento
+                try {
+                    return ChoferBusiness.load(choferDocumento);
+                } catch (NotFoundException e) {
+                    // Si no existe, creamos uno nuevo con los datos recibidos
+                    Chofer chofer = BuildEntityUtils.buildChofer(choferNode);
+                    return ChoferBusiness.addChofer(chofer);
+                }
             } else {
                 throw new BadRequestException("El campo documento del conductor no se recibió correctamente");
             }
@@ -183,7 +189,12 @@ public class JsonUtils {
             String patente = getString(camionNode, attrs, null);  // Obtener placa del camión desde los atributos
             if (patente != null) {
                 JsonNode sisternaNode = camionNode.get("sisternas");
-                return camionBusiness.addCamion(BuildEntityUtils.buildCamion(camionNode, sisternaNode));
+                // Intentamos usar el camion existente si ya está en la BD
+                try {
+                    return camionBusiness.load(patente);
+                } catch (NotFoundException e) {
+                    return camionBusiness.addCamion(BuildEntityUtils.buildCamion(camionNode, sisternaNode));
+                }
             } else {
                 throw new BadRequestException("El campo placa del camión no se recibió correctamente");
             }
@@ -195,17 +206,22 @@ public class JsonUtils {
     public static Cliente getCliente(JsonNode node, String[] attrs, IClienteBusiness clienteBusiness) throws FoundException, BusinessException, NotFoundException, BadRequestException {
         JsonNode clienteNode = getJsonNode(node, CLIENTE_NODE_ATTRIBUTES); // Buscar el nodo padre "customer"
         if (clienteNode != null) {
-            String customerName = null;
+            String clienteName = null;
             // Recorremos los atributos dentro del nodo "customer"
             for (String attr : attrs) {
                 if (clienteNode.get(attr) != null) {
-                    customerName = clienteNode.get(attr).asText();
+                    clienteName = clienteNode.get(attr).asText();
                     break;
                 }
             }
-            if (customerName != null) {
-            	Cliente cliente = BuildEntityUtils.buildCliente(clienteNode);
-                return clienteBusiness.addCliente(cliente); // Cargar el customer desde el business
+            if (clienteName != null) {
+                // Intentamos cargar cliente existente por razon social
+                try {
+                    return clienteBusiness.load(clienteName);
+                } catch (NotFoundException e) {
+                    Cliente cliente = BuildEntityUtils.buildCliente(clienteNode);
+                    return clienteBusiness.addCliente(cliente);
+                }
             } else {
                 throw new BadRequestException("El campo cliente no se recibió correctamente");
             }
@@ -219,7 +235,7 @@ public class JsonUtils {
         JsonNode productoNode = getJsonNode(node, PRODUCTO_NODE_ATTRIBUTES); // Buscar el nodo padre "product"
         if (productoNode != null) {
             String productoName= null;
-            // Recorremos los atributos dentro del nodo "product"
+            // Recorremos los atributos dentro del nodo "producto"
             for (String attr : attrs) {
                 if (productoNode.get(attr) != null) {
                     productoName = productoNode.get(attr).asText();
@@ -227,7 +243,12 @@ public class JsonUtils {
                 }
             }
             if (productoName != null) {
-                return productoBusiness.addProducto(BuildEntityUtils.buildProducto(productoNode)); // Cargar el producto desde el business
+                // Intentamos cargar producto existente por nombre
+                try {
+                    return productoBusiness.load(productoName);
+                } catch (NotFoundException e) {
+                    return productoBusiness.addProducto(BuildEntityUtils.buildProducto(productoNode));
+                }
             } else {
                 throw new BadRequestException("El campo producto no se recibió correctamente");
             }

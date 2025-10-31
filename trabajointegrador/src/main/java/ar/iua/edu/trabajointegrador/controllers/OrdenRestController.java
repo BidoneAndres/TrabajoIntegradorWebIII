@@ -1,7 +1,12 @@
 package ar.iua.edu.trabajointegrador.controllers;
 
+import java.io.IOException;
+import java.io.StringWriter;
+
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,16 +15,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.HttpHeaders;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.UnProcessableException;
-import org.apache.coyote.BadRequestException;
 import ar.iua.edu.trabajointegrador.model.business.implementations.OrdenBusiness;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
+import ar.iua.edu.trabajointegrador.util.JsonUtils;
 import lombok.SneakyThrows;
 
 
@@ -39,7 +46,7 @@ public class OrdenRestController extends BaseRestController{
         return new ResponseEntity<>(ordenBusiness.list(), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/{codExt}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/codExt/{codExt}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> loadByCodExt(@PathVariable(value = "codExt") String codExt) {
         try {
             return new ResponseEntity<>(ordenBusiness.loadByCodExt(codExt), HttpStatus.OK);
@@ -52,7 +59,7 @@ public class OrdenRestController extends BaseRestController{
         }
     }
 
-    @PostMapping(value = "/b2b", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> addExternal(HttpEntity<String> httpEntity) {
         try {
             Orden ordenCreada = ordenBusiness.cargaExterna(httpEntity.getBody());
@@ -71,4 +78,5 @@ public class OrdenRestController extends BaseRestController{
             return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+     
 }

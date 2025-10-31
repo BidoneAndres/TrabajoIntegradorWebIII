@@ -19,7 +19,6 @@ import ar.iua.edu.trabajointegrador.model.business.interfaces.ICamionBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IChoferBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IClienteBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IOrdenBusiness;
-import ar.iua.edu.trabajointegrador.model.business.interfaces.ISisternaBusiness;
 import ar.iua.edu.trabajointegrador.model.persistence.OrdenRepository;
 import lombok.extern.slf4j.Slf4j;
 import ar.iua.edu.trabajointegrador.model.deserializers.OrdenJsonDeserializer;
@@ -29,16 +28,14 @@ import ar.iua.edu.trabajointegrador.model.business.interfaces.IProductoBusiness;
 @Slf4j
 public class OrdenBusiness implements IOrdenBusiness {
 
-	public OrdenRepository ordenDAO;
+	@Autowired
+	private OrdenRepository ordenDAO;
 
 	@Autowired
 	private IClienteBusiness clienteBusiness;
 
 	@Autowired
 	private ICamionBusiness camionBusiness;
-
-	@Autowired
-	private ISisternaBusiness sisternaBusiness;
 
 	@Autowired
 	private IChoferBusiness choferBusiness;

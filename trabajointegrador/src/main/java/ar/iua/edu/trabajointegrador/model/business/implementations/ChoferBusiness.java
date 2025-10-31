@@ -4,6 +4,7 @@ package ar.iua.edu.trabajointegrador.model.business.implementations;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ar.iua.edu.trabajointegrador.model.Chofer;
@@ -17,7 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class ChoferBusiness implements IChoferBusiness {
-	public ChoferRepository choferDAO;
+	@Autowired
+	private ChoferRepository choferDAO;
 	
 	@Override
 	public List<Chofer> list() throws BusinessException {

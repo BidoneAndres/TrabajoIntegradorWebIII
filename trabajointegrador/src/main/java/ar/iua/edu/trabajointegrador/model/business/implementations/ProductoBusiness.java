@@ -3,9 +3,9 @@ package ar.iua.edu.trabajointegrador.model.business.implementations;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ar.iua.edu.trabajointegrador.model.Chofer;
 import ar.iua.edu.trabajointegrador.model.Producto;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
@@ -18,7 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProductoBusiness implements IProductoBusiness {
 
-	public ProductoRepository productoDAO;
+	@Autowired
+	private ProductoRepository productoDAO;
 	@Override
 	public List<Producto> list() throws BusinessException {
 		try {
