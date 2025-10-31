@@ -14,8 +14,8 @@ public interface IOrdenBusiness {
 	public List<Orden> list() throws BusinessException;
 	
 	public Orden load(long id) throws NotFoundException, BusinessException;
-
+	
+	public Orden loadByCodExt(String codExt) throws NotFoundException, BusinessException;
+	
 	public Orden cargaExterna(String json) throws FoundException, BusinessException, BadRequestException, UnProcessableException;
-
-	public Orden cancelarExterna(String codExt) throws BusinessException;
 }
