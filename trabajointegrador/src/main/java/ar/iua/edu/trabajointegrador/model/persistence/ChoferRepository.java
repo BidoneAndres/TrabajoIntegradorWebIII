@@ -1,11 +1,10 @@
-package ar.iua.edu.trabajointegrador.models.persistence;
+package ar.iua.edu.trabajointegrador.model.persistence;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import ar.iua.edu.trabajointegrador.models.Chofer;
-import ar.iua.edu.trabajointegrador.models.Cliente;
+import ar.iua.edu.trabajointegrador.model.Chofer;
 
 public interface ChoferRepository extends JpaRepository<Chofer, Long>{
 	public Optional<Chofer> findByDocumento(String documento);

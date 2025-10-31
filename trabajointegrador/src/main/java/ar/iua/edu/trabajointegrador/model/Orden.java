@@ -1,4 +1,4 @@
-package ar.iua.edu.trabajointegrador.models;
+package ar.iua.edu.trabajointegrador.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -7,6 +7,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -21,6 +23,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name="ordenes")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Orden {
 	
 	public enum Estado{
@@ -33,6 +36,9 @@ public class Orden {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
+
+	@Column(nullable = false, unique = true)
+	private String codExt;
 	
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
@@ -57,6 +63,6 @@ public class Orden {
     @JoinColumn(name = "id_camion", nullable = false)
 	private Camion camion;
 	
-	@Column(length = 10)
+	@Column(length = 10, unique = true)
     private String claveActivacion;
 }
