@@ -8,4 +8,13 @@
     <fullyQualifiedTypeName name="com.fasterxml.jackson.databind.module.SimpleModule"/>
     <fullyQualifiedTypeName name="com.fasterxml.jackson.databind.ser.std.InetAddressSerializer"/>
     <fullyQualifiedTypeName name="com.fasterxml.jackson.databind.deser.std.StdDeserializer"/>
+    <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.RestController"/>
+    <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.RequestMapping"/>
+    <fullyQualifiedTypeName name="ar.iua.edu.trabajointegrador.model.business.interfaces.IProductoBusiness"/>
+    <fullyQualifiedTypeName name="org.springframework.beans.factory.annotation.Autowired"/>
+    <fullyQualifiedTypeName name="ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness"/>
+    <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.GetMapping"/>
+    <fullyQualifiedTypeName name="org.springframework.http.ResponseEntity"/>
+    <fullyQualifiedTypeName name="org.springframework.http.HttpStatus"/>
+    <fullyQualifiedTypeName name="ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException"/>
 </qualifiedTypeNameHistroy>
