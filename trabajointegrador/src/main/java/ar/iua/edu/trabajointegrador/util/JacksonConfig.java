@@ -5,6 +5,13 @@ import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.datatype.hibernate6.Hibernate6Module;
 
+
+
+
+// -------------- Esto es para que no haya problemas con la devolucion en json de tipo lazy -----------------------------
+
+
+
 @Configuration
 public class JacksonConfig {
 

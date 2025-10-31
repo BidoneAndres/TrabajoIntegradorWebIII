@@ -64,7 +64,7 @@ public class CargaRestController {
 		}
 	}
 	
-	@GetMapping(value = "/orden/{ordenId}")
+	/*@GetMapping(value = "/orden/{ordenId}")
 	public ResponseEntity<?> listByOrden(@PathVariable Long ordenId) {
 		try {
 			return new ResponseEntity<>(datoCargaBusiness.listByOrden(ordenId), HttpStatus.OK);
@@ -72,8 +72,8 @@ public class CargaRestController {
 			return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
 		} /*catch (NotFoundException e) {
 			return new ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()), HttpStatus.FOUND);
-		}*/
+		}
 	}
-	
+	*/
 	
 }

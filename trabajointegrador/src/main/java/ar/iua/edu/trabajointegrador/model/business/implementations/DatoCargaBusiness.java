@@ -25,14 +25,34 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		// Caudal <= 0
 		// Masa acumulada <= 0 o menor que el valor anterior
 
-		Optional<Long> lastValue = datoCargaDAO.findUltimaMasaAcumuladaFirstByOrdenIdOrderByTimestampDesc(datoCarga.getOrden().getId());
-
-		if (datoCarga.getUltimo_caudal() <= 0) {
+		Long idOrden = datoCarga.getOrden().getId();
+		Optional<Double> ultimaMasa = this.loadLastMasaAcumulada(idOrden);
+		Double masaActual = datoCarga.getUltimaMasaAcumulada();
+		Double caudalActual = datoCarga.getUltimoCaudal();
+		
+		
+		// check de valores invalidos
+		if (caudalActual<= 0) {
 			log.error("Se recibio un dato de carga <=0");
 			throw InvalidLoadException.builder()
-					.message("Se ingreso un caudal de " + lastValue + ",  menor o igual a 0")
+					.message("ERROR: Se ingreso un caudal de " + caudalActual + ",  menor o igual a 0")
 					.build();
-		} else {
+		}
+		if(masaActual <= 0 ){
+			log.error("Se recibio un dato de masa acumulada <=0");
+			throw InvalidLoadException.builder()
+					.message("ERROR: Se ingreso una masa de " + masaActual + ",  menor o igual a 0")
+					.build();
+		}
+		
+		//chcek de validez en cuanto a valores anteriores
+		if (ultimaMasa.isPresent() &&  masaActual < ultimaMasa.get()) {
+			log.error("Se recibio una masa acumulada menor a la anterior");
+			throw InvalidLoadException.builder()
+					.message("ERROR: se recibio una masa acumulada menor a la anterior, " + masaActual + ", menor a " + ultimaMasa.get())
+					.build();
+		}
+		else {
 			try {
 
 				return datoCargaDAO.save(datoCarga);
@@ -47,7 +67,7 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 
 	}
 
-	@Override
+	/*@Override
 	public List<DatoCarga> listByOrden(Long ordenId) throws BusinessException {
 
 		try {
@@ -57,7 +77,7 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 			throw BusinessException.builder().ex(e).message(e.getMessage()).build();
 		}
 
-	}
+	}*/
 
 	@Override
 	public List<DatoCarga> list() throws BusinessException {
@@ -72,10 +92,10 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 	}
 
 	@Override
-	public Optional<Long> loadLastMasaAcumulada(Long cargaId) throws BusinessException {
+	public Optional<Double> loadLastMasaAcumulada(Long cargaId) throws BusinessException {
 
 		try {
-			return datoCargaDAO.findUltimaMasaAcumuladaFirstByOrdenIdOrderByTimestampDesc(cargaId);
+			return datoCargaDAO.findLastMasaAcumulada(cargaId);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw BusinessException.builder().ex(e).message(e.getMessage()).build();

@@ -40,10 +40,10 @@ public class DatoCarga {
 	@JoinColumn(name="orden_id",nullable = false)//da mas detalles, clave foranea, 
 	private Orden orden;
 	
-	private double ultima_masa_acumulada;
-	private double ultima_densidad_producto;
-	private int ultima_temperatura;
-	private double ultimo_caudal;
+	private double ultimaMasaAcumulada;
+	private double ultimaDensidadProducto;
+	private int ultimaTemperatura;
+	private double ultimoCaudal;
 	
 	// --- TIMESTAMPS AUTOMÁTICOS ---
 
