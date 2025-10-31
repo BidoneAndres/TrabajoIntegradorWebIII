@@ -25,12 +25,12 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		// Caudal <= 0
 		// Masa acumulada <= 0 o menor que el valor anterior
 
-		//Optional<Long> lastValue = datoCargaDAO.findUltimaMasaAcumuladaFirstByOrdenIdOrderByTimestampDesc(datoCarga.getOrden_id());
+		Optional<Long> lastValue = datoCargaDAO.findUltimaMasaAcumuladaFirstByOrdenIdOrderByTimestampDesc(datoCarga.getOrden().getId());
 
 		if (datoCarga.getUltimo_caudal() <= 0) {
 			log.error("Se recibio un dato de carga <=0");
 			throw InvalidLoadException.builder()
-					.message("Se ingreso un caudal de " + datoCarga.getUltimo_caudal() + ",  menor o igual a 0")
+					.message("Se ingreso un caudal de " + lastValue + ",  menor o igual a 0")
 					.build();
 		} else {
 			try {

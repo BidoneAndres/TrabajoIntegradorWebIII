@@ -38,7 +38,7 @@ public class DatoCarga {
 	
 	@ManyToOne(fetch = FetchType.LAZY)  // ->importante, sino me va a traer en cada coNSULTA todas las veces la otden entera
 	@JoinColumn(name="orden_id",nullable = false)//da mas detalles, clave foranea, 
-	@JsonIgnore //hasta ahora no hay ningun metodo get que traiga, asi que no lo traemos el orden
+	//@JsonIgnore //hasta ahora no hay ningun metodo get que traiga, asi que no lo traemos el orden
 	private Orden orden;
 	
 	private double ultima_masa_acumulada;
