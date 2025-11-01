@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.InetAddressSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 /*Esta es una clase utilitaria, la cual tiene como objetivo simplificarnos la serealizacion de deserealizacion*/
