@@ -12,6 +12,8 @@ public interface IDatoCargaBusiness {
 	public DatoCarga add(DatoCarga datoCarga) throws  BusinessException, InvalidLoadException;
 	//public List<DatoCarga> listByOrden(Long ordenId) throws BusinessException;
 	public List<DatoCarga> list() throws BusinessException;
+	
+	//utils
 	public Optional<Double> loadLastMasaAcumulada(Long orderId) throws BusinessException;
 
 

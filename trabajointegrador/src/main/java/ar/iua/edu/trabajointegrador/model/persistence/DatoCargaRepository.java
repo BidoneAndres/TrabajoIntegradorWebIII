@@ -12,5 +12,6 @@ public interface DatoCargaRepository extends JpaRepository<DatoCarga, Long> {
 	
 	@Query("SELECT dc.ultimaMasaAcumulada FROM DatoCarga dc WHERE dc.orden.id = :ordenId ORDER BY dc.timestamp DESC LIMIT 1")
 	Optional<Double>findLastMasaAcumulada(Long ordenId);
-
+	
+	
 }
