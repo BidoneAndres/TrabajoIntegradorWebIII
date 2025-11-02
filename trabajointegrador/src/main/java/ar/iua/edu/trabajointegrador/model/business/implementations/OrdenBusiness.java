@@ -71,8 +71,8 @@ public class OrdenBusiness implements IOrdenBusiness {
 	public Orden cargaExterna(String json)
 			throws FoundException, BusinessException, BadRequestException, UnProcessableException {
 
-		ObjectMapper mapper = JsonUtils.getObjectMapper(Orden.class, new OrdenJsonDeserializer(
-				Orden.class, choferBusiness, camionBusiness, clienteBusiness, productoBusiness), null);
+		ObjectMapper mapper = JsonUtils.getObjectMapper(Orden.class, new OrdenJsonDeserializer(Orden.class,
+				choferBusiness, camionBusiness, clienteBusiness, productoBusiness), null);
 		Orden orden;
 
 		try {
@@ -91,38 +91,63 @@ public class OrdenBusiness implements IOrdenBusiness {
 	}
 
 	public Orden loadByCodExt(String codExt) throws NotFoundException, BusinessException {
-		 Optional<Orden> r;
-        try {
-            r = ordenDAO.findOneByCodExt(codExt);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw BusinessException.builder().ex(e).build();
-        }
-        if (r.isEmpty()) {
-            throw NotFoundException.builder().message("No se encuentra la orden codExt=" + codExt).build();
-        }
-        return r.get();
-		
+		Optional<Orden> r;
+		try {
+			r = ordenDAO.findOneByCodExt(codExt);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+		if (r.isEmpty()) {
+			throw NotFoundException.builder().message("No se encuentra la orden codExt=" + codExt).build();
+		}
+		return r.get();
+
 	}
 
 	public Orden add(Orden orden) throws FoundException, BusinessException {
 		Optional<Orden> ordenFound;
 
-        ordenFound = ordenDAO.findOneByCodExt(orden.getCodExt());
-        if (ordenFound.isPresent()) {
-            throw FoundException.builder().message("Ya existe una orden con el número " + orden.getCodExt()).build();
-        }
-        ordenFound = ordenDAO.findByCamion_IdAndEstado(orden.getCamion().getId(), Orden.Estado.RECIBIDA);
-        if (ordenFound.isPresent()) {
-            throw FoundException.builder().message("Ya existe una orden para el camion id=" + orden.getCamion().getId()).build();
-        }
+		ordenFound = ordenDAO.findOneByCodExt(orden.getCodExt());
+		if (ordenFound.isPresent()) {
+			throw FoundException.builder().message("Ya existe una orden con el número " + orden.getCodExt()).build();
+		}
+		ordenFound = ordenDAO.findByCamion_IdAndEstado(orden.getCamion().getId(), Orden.Estado.RECIBIDA);
+		if (ordenFound.isPresent()) {
+			throw FoundException.builder().message("Ya existe una orden para el camion id=" + orden.getCamion().getId())
+					.build();
+		}
 
-        try {
-            return ordenDAO.save(orden);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw BusinessException.builder().ex(e).build();
-        }
+		try {
+			return ordenDAO.save(orden);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+	}
+
+	// esto se usa en carga
+	public Orden activarCarga(Integer claveActivacion) throws NotFoundException, BusinessException {
+		Optional<Orden> ordenFound;
+
+		ordenFound = ordenDAO.findByClaveActivacion(claveActivacion);
+		if (ordenFound.isPresent()) {
+			ordenFound.get().setEstado(Orden.Estado.LISTO_PARA_CARGA);
+
+			try {
+				return ordenDAO.save(ordenFound.get());
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+				throw BusinessException.builder().ex(e).build();
+			}
+		}
+
+		else {
+			throw NotFoundException.builder()
+					.message("No se encontro la orden con clave de activacion " + claveActivacion).build();
+
+		}
+
 	}
 
 }

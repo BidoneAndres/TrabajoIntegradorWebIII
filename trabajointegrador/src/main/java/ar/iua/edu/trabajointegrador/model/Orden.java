@@ -31,8 +31,9 @@ public class Orden {
 	public enum Estado{
 		RECIBIDA,
 		REGISTRADA_PESAJE_INICIAL,
-		CERRADA,
+		LISTO_PARA_CARGA,
 		REGISTRADA_PESAJE_FINAL,
+		CERRADA,
 		CANCELADA		
 	}
 	@Id
@@ -65,8 +66,9 @@ public class Orden {
     @JoinColumn(name = "id_chofer", nullable = false)
 	private Chofer chofer;
 	
+	//es de 4 digitos la clave de activacion
 	@Column(length = 10, unique = true)
-    private String claveActivacion;
+    private Integer claveActivacion;
 	
 	private float pesoInicial;
 	

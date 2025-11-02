@@ -26,6 +26,8 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 
 	@Autowired
 	private OrdenRepository ordenDAO;
+	
+	
 
 	@Override
 	public DatoCarga add(DatoCarga datoCarga) throws InvalidLoadException, BusinessException, StateLoadException {
@@ -44,7 +46,7 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		Double caudalActual = datoCarga.getUltimoCaudal();
 
 		// check de que la orden este habilitada
-		if (estado == Estado.REGISTRADA_PESAJE_INICIAL) {
+		if (estado == Estado.LISTO_PARA_CARGA) {
 
 			// check de valores invalidos
 			if (caudalActual <= 0) {
@@ -89,9 +91,9 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 			}
 		}
 		else {
-			log.error("La orden no esta en el estado REGISTRADA PESAJE INICIAL");
+			log.error("La orden no esta en el estado LISTO_PARA_CARGA");
 			throw StateLoadException.builder()
-					.message("ERROR: La orden no esta en el estado REGISTRADA PESAJE INICIAL").build();
+					.message("ERROR: La orden no esta en el estado LISTO_PARA_CARGA").build();
 
 		}
 	}

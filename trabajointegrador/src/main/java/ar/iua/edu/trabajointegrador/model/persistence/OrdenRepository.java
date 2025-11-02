@@ -9,16 +9,20 @@ import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.Orden.Estado;
 
 public interface OrdenRepository extends JpaRepository<Orden, Long>{
-	public Optional<Orden> findByClaveActivacion(String claveActivacion);
+	public Optional<Orden> findByClaveActivacion(Integer claveActivacion);
 	public Optional<Orden> findByIdAndEstado(long id, Estado estado);
 	public Optional<Orden> findOneByCodExt(String codExt);
 	
-	@Query("SELECT dc.preset FROM Orden dc WHERE dc.id = :ordenId")
-	Integer findPreset(Long ordenId);
 	
 
+	//esto se usa en dato carga
+	@Query("SELECT dc.preset FROM Orden dc WHERE dc.id = :ordenId")
+	public Integer findPreset(Long ordenId);
+
 	@Query("SELECT dc.estado FROM Orden dc WHERE dc.id = :ordenId")
-	Orden.Estado findEstado(Long ordenId);
+	public Orden.Estado findEstado(Long ordenId);
+	
+	//
 
 	public Optional<Orden> findByCamion_IdAndEstado(Long camion_id, Orden.Estado estado);
 	

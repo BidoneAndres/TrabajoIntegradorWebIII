@@ -13,10 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ar.iua.edu.trabajointegrador.model.DatoCarga;
+import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.InvalidLoadException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.StateLoadException;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaBusiness;
+import ar.iua.edu.trabajointegrador.model.business.interfaces.IOrdenBusiness;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 
 @RestController
@@ -25,6 +28,10 @@ public class CargaRestController {
 
 	@Autowired
 	private IDatoCargaBusiness datoCargaBusiness;
+	
+	@Autowired
+	private IOrdenBusiness ordenBusiness;
+
 
 	// response http
 	@Autowired
@@ -63,6 +70,29 @@ public class CargaRestController {
 			// conflict es cuando distingen el estado del receptor
 			return new ResponseEntity<>(response.build(HttpStatus.CONFLICT, e, e.getMessage()),
 					HttpStatus.CONFLICT);
+		} catch (BusinessException e) {
+			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+
+		}
+	}
+	
+	@PostMapping(value = "/activacion")
+	public ResponseEntity<?> activate(@RequestBody Integer claveActivacion) {
+		try {
+			Orden response = ordenBusiness.activarCarga(claveActivacion);
+
+			// resposnse
+			HttpHeaders responseHeaders = new HttpHeaders();
+			
+			return new ResponseEntity<>(response,responseHeaders, HttpStatus.CREATED);
+
+		}
+
+		 catch (NotFoundException e) {
+			// conflict es cuando distingen el estado del receptor
+			return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()),
+					HttpStatus.NOT_FOUND);
 		} catch (BusinessException e) {
 			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
 					HttpStatus.INTERNAL_SERVER_ERROR);

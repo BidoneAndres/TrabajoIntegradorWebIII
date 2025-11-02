@@ -12,6 +12,7 @@ public interface IDatoCargaBusiness {
 	
 	public DatoCarga add(DatoCarga datoCarga) throws  BusinessException, InvalidLoadException, StateLoadException;
 	//public List<DatoCarga> listByOrden(Long ordenId) throws BusinessException;
+
 	public List<DatoCarga> list() throws BusinessException;
 	
 	//utils
