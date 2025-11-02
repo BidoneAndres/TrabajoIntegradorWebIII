@@ -15,6 +15,10 @@ public interface OrdenRepository extends JpaRepository<Orden, Long>{
 	
 	@Query("SELECT dc.preset FROM Orden dc WHERE dc.id = :ordenId")
 	Integer findPreset(Long ordenId);
+	
+
+	@Query("SELECT dc.estado FROM Orden dc WHERE dc.id = :ordenId")
+	Orden.Estado findEstado(Long ordenId);
 
 	public Optional<Orden> findByCamion_IdAndEstado(Long camion_id, Orden.Estado estado);
 	

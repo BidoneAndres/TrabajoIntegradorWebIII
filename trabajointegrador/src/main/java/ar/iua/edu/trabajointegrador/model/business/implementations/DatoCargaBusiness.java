@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 
 import ar.iua.edu.trabajointegrador.model.DatoCarga;
 import ar.iua.edu.trabajointegrador.model.Orden;
+import ar.iua.edu.trabajointegrador.model.Orden.Estado;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.InvalidLoadException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.StateLoadException;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaBusiness;
 import ar.iua.edu.trabajointegrador.model.persistence.DatoCargaRepository;
 import ar.iua.edu.trabajointegrador.model.persistence.OrdenRepository;
@@ -21,12 +23,12 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 
 	@Autowired
 	private DatoCargaRepository datoCargaDAO;
-	
+
 	@Autowired
 	private OrdenRepository ordenDAO;
 
 	@Override
-	public DatoCarga add(DatoCarga datoCarga) throws InvalidLoadException, BusinessException {
+	public DatoCarga add(DatoCarga datoCarga) throws InvalidLoadException, BusinessException, StateLoadException {
 		// Caudal <= 0
 		// Masa acumulada <= 0 o menor que el valor anterior
 
@@ -35,51 +37,63 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		// busqueda de orden
 		Optional<Double> ultimaMasa = this.loadLastMasaAcumulada(idOrden);
 		Integer preset = ordenDAO.findPreset(idOrden);
-		Orden.Estado estado = datoCarga.getOrden().getEstado();
+		Orden.Estado estado = ordenDAO.findEstado(idOrden);
 
 		// getters de la que me llego recien
 		Double masaActual = datoCarga.getUltimaMasaAcumulada();
 		Double caudalActual = datoCarga.getUltimoCaudal();
 
-		// check de valores invalidos
-		if (caudalActual <= 0) {
-			log.error("Se recibio un dato de carga <=0");
-			throw InvalidLoadException.builder()
-					.message("ERROR: Se ingreso un caudal de " + caudalActual + ",  menor o igual a 0").build();
-		}
-		if (masaActual <= 0) {
-			log.error("Se recibio un dato de masa acumulada <=0");
-			throw InvalidLoadException.builder()
-					.message("ERROR: Se ingreso una masa de " + masaActual + ",  menor o igual a 0").build();
-		}
+		// check de que la orden este habilitada
+		if (estado == Estado.REGISTRADA_PESAJE_INICIAL) {
 
-		// chcek de validez en cuanto a valores anteriores
-		if (ultimaMasa.isPresent() && masaActual < ultimaMasa.get()) {
-			log.error("Se recibio una masa acumulada menor a la anterior");
-			throw InvalidLoadException.builder().message("ERROR: se recibio una masa acumulada menor a la anterior, "
-					+ masaActual + ", menor a " + ultimaMasa.get()).build();
-		} else {
-
-			// pesaje llega al preset, cierre de carga
-			if (masaActual > preset) {
-				log.error("Se quiso enviar una masa mayor al preset: " + masaActual + " es mayor a " + preset);
-				throw InvalidLoadException.builder().message("ERROR: Se quiso enviar una masa mayor al preset " + masaActual + " es mayor a " + preset ).build();
+			// check de valores invalidos
+			if (caudalActual <= 0) {
+				log.error("Se recibio un dato de carga <=0");
+				throw InvalidLoadException.builder()
+						.message("ERROR: Se ingreso un caudal de " + caudalActual + ",  menor o igual a 0").build();
 			}
-			else {
-				try {
+			if (masaActual <= 0) {
+				log.error("Se recibio un dato de masa acumulada <=0");
+				throw InvalidLoadException.builder()
+						.message("ERROR: Se ingreso una masa de " + masaActual + ",  menor o igual a 0").build();
+			}
 
-					return datoCargaDAO.save(datoCarga);
+			// chcek de validez en cuanto a valores anteriores
+			if (ultimaMasa.isPresent() && masaActual < ultimaMasa.get()) {
+				log.error("Se recibio una masa acumulada menor a la anterior");
+				throw InvalidLoadException.builder()
+						.message("ERROR: se recibio una masa acumulada menor a la anterior, " + masaActual
+								+ ", menor a " + ultimaMasa.get())
+						.build();
+			} else {
 
-				} catch (Exception e) {
+				// pesaje llega al preset, cierre de carga
+				if (masaActual > preset) {
+					log.error("Se quiso enviar una masa mayor al preset: " + masaActual + " es mayor a " + preset);
+					throw InvalidLoadException.builder().message(
+							"ERROR: Se quiso enviar una masa mayor al preset " + masaActual + " es mayor a " + preset)
+							.build();
+				} else {
+					try {
 
-					log.error(e.getMessage(), e);
-					throw BusinessException.builder().ex(e).build();
+						return datoCargaDAO.save(datoCarga);
 
+					} catch (Exception e) {
+
+						log.error(e.getMessage(), e);
+						throw BusinessException.builder().ex(e).build();
+
+					}
 				}
+
 			}
+		}
+		else {
+			log.error("La orden no esta en el estado REGISTRADA PESAJE INICIAL");
+			throw StateLoadException.builder()
+					.message("ERROR: La orden no esta en el estado REGISTRADA PESAJE INICIAL").build();
 
 		}
-
 	}
 
 	/*

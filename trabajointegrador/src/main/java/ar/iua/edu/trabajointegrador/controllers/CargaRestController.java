@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ar.iua.edu.trabajointegrador.model.DatoCarga;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.InvalidLoadException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.StateLoadException;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaBusiness;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 
@@ -28,18 +29,19 @@ public class CargaRestController {
 	// response http
 	@Autowired
 	private IStandartResponseBusiness response;
-	
+
 	@GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> list() {
 		try {
 			return new ResponseEntity<>(datoCargaBusiness.list(), HttpStatus.OK);
 		} catch (BusinessException e) {
 			return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
-		} /*catch (NotFoundException e) {
-			return new ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()), HttpStatus.FOUND);
-		}*/
+		} /*
+			 * catch (NotFoundException e) { return new
+			 * ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()),
+			 * HttpStatus.FOUND); }
+			 */
 	}
-
 
 	@PostMapping(value = "")
 	public ResponseEntity<?> add(@RequestBody DatoCarga datoCarga) {
@@ -57,6 +59,10 @@ public class CargaRestController {
 			return new ResponseEntity<>(response.build(HttpStatus.UNPROCESSABLE_ENTITY, e, e.getMessage()),
 					HttpStatus.UNPROCESSABLE_ENTITY);
 
+		} catch (StateLoadException e) {
+			// conflict es cuando distingen el estado del receptor
+			return new ResponseEntity<>(response.build(HttpStatus.CONFLICT, e, e.getMessage()),
+					HttpStatus.CONFLICT);
 		} catch (BusinessException e) {
 			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
 					HttpStatus.INTERNAL_SERVER_ERROR);
@@ -64,16 +70,17 @@ public class CargaRestController {
 		}
 	}
 	
-	/*@GetMapping(value = "/orden/{ordenId}")
-	public ResponseEntity<?> listByOrden(@PathVariable Long ordenId) {
-		try {
-			return new ResponseEntity<>(datoCargaBusiness.listByOrden(ordenId), HttpStatus.OK);
-		} catch (BusinessException e) {
-			return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
-		} /*catch (NotFoundException e) {
-			return new ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()), HttpStatus.FOUND);
-		}
-	}
-	*/
 	
+
+	/*
+	 * @GetMapping(value = "/orden/{ordenId}") public ResponseEntity<?>
+	 * listByOrden(@PathVariable Long ordenId) { try { return new
+	 * ResponseEntity<>(datoCargaBusiness.listByOrden(ordenId), HttpStatus.OK); }
+	 * catch (BusinessException e) { return new
+	 * ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()),
+	 * HttpStatus.NOT_FOUND); } /*catch (NotFoundException e) { return new
+	 * ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()),
+	 * HttpStatus.FOUND); } }
+	 */
+
 }
