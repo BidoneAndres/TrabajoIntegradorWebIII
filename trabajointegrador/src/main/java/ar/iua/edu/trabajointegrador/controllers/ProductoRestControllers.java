@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ar.iua.edu.trabajointegrador.model.Producto;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
+import ar.iua.edu.trabajointegrador.model.business.implementations.ProductoBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IProductoBusiness;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 
@@ -22,12 +23,18 @@ import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 @RequestMapping(Constants.URL_PRODUCTOS)
 
 public class ProductoRestControllers {
+
+    private final ProductoBusiness productoBusiness_1;
 	
 	@Autowired
 	private IProductoBusiness productoBusiness;
 	
 	@Autowired
 	private IStandartResponseBusiness response;
+
+    ProductoRestControllers(ProductoBusiness productoBusiness_1) {
+        this.productoBusiness_1 = productoBusiness_1;
+    }
 	
 	@GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> list(){
@@ -41,7 +48,8 @@ public class ProductoRestControllers {
 	@PostMapping(value = "")
 	public ResponseEntity<?> add(@RequestBody Producto producto){
 		try {
-			Producto response = productoBusiness.add(producto);
+			
+			Producto response = productoBusiness_1.addProducto(producto);
 			HttpHeaders responseHeaders = new HttpHeaders();
 			responseHeaders.set("location", Constants.URL_PRODUCTOS + "/" + response.getId());
 			return new ResponseEntity<>(responseHeaders, HttpStatus.CREATED);

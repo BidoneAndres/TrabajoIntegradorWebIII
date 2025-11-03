@@ -24,9 +24,9 @@ public class OrdenJsonSerializer extends StdSerializer<Orden>{
         
         gen.writeNumberField("id", value.getId()); //"id" :
 
-        gen.writeNumberField("peso inicial",value.getPeso_inicial()); //"peso inicial" :
+        gen.writeNumberField("peso inicial",value.getPesoFinal()); //"peso inicial" :
 
-        gen.writeNumberField("peso final",value.getPeso_final()); //"peso final" :
+        gen.writeNumberField("peso final",value.getPesoFinal()); //"peso final" :
         
         if(value.getCliente() != null){
                 /*
@@ -78,7 +78,7 @@ public class OrdenJsonSerializer extends StdSerializer<Orden>{
             //Aca tenemos que poner que tire una excepcion
         }
 
-        gen.writeStringField("clave", value.getClaveActivacion()); // "clave: "
+        gen.writeNumberField("clave", value.getClaveActivacion()); // "clave: "
 
         gen.writeEndObject(); //}
 
