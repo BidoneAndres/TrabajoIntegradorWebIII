@@ -14,6 +14,6 @@ public interface IProductoBusiness {
 	public Producto load(long id) throws NotFoundException, BusinessException;
 	
 	public Producto load(String producto) throws NotFoundException, BusinessException;
-
-	Producto add(Producto product) throws FoundException, BusinessException;
+	
+	public Producto addProducto(Producto producto) throws NotFoundException, BusinessException, FoundException;
 }

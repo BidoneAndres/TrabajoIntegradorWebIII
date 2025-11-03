@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToMany;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,6 +36,7 @@ public class Camion {
 	private String patente;
 	
 	@OneToMany(mappedBy = "camion",cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference
 	private Set<Sisterna> sisternas = new HashSet<>();
 	
 	private String descripcion;

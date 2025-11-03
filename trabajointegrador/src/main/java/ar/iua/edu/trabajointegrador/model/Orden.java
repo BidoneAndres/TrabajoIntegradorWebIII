@@ -1,5 +1,7 @@
 package ar.iua.edu.trabajointegrador.model;
 
+import java.util.Date;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -29,8 +31,9 @@ public class Orden {
 	public enum Estado{
 		RECIBIDA,
 		REGISTRADA_PESAJE_INICIAL,
-		CERRADA,
+		LISTO_PARA_CARGA,
 		REGISTRADA_PESAJE_FINAL,
+		CERRADA,
 		CANCELADA		
 	}
 	@Id
@@ -47,10 +50,6 @@ public class Orden {
 	@Column(length = 100, nullable = false)
 	private int preset;
 	
-	private float peso_inicial;
-	
-	private float peso_final;
-	
 	@ManyToOne
     @JoinColumn(name = "id_cliente", nullable = false)
 	private Cliente cliente;
@@ -63,6 +62,19 @@ public class Orden {
     @JoinColumn(name = "id_camion", nullable = false)
 	private Camion camion;
 	
+	@ManyToOne
+    @JoinColumn(name = "id_chofer", nullable = false)
+	private Chofer chofer;
+	
+	//es de 4 digitos la clave de activacion
 	@Column(length = 10, unique = true)
-    private String claveActivacion;
+    private Integer claveActivacion;
+	
+	private float pesoInicial;
+	
+	private float pesoFinal;
+	
+	private Date fechaEstimada;
+	
+	private Date fechaRecepcionOrden;
 }
