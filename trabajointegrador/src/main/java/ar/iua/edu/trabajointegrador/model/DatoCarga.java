@@ -37,7 +37,7 @@ public class DatoCarga {
 	//asociamos al numero de orden
 	
 	@ManyToOne(fetch = FetchType.LAZY)  // ->importante, sino me va a traer en cada coNSULTA todas las veces la otden entera
-	@JoinColumn(name="orden_id",nullable = false)//da mas detalles, clave foranea, 
+	@JoinColumn(name="claveActivacion",nullable = false, referencedColumnName = "claveActivacion")//da mas detalles, clave foranea, 
 	private Orden orden;
 	
 	private double ultimaMasaAcumulada;

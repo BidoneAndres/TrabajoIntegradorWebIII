@@ -10,13 +10,13 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.StateLoadException
 
 public interface IDatoCargaBusiness {
 	
-	public DatoCarga add(DatoCarga datoCarga) throws  BusinessException, InvalidLoadException, StateLoadException;
+	public DatoCarga add(String json) throws  BusinessException, InvalidLoadException, StateLoadException;
 	//public List<DatoCarga> listByOrden(Long ordenId) throws BusinessException;
 
 	public List<DatoCarga> list() throws BusinessException;
 	
 	//utils
-	public Optional<Double> loadLastMasaAcumulada(Long orderId) throws BusinessException;
+	public Optional<Double> loadLastMasaAcumulada(Integer claveActivacion) throws BusinessException;
 
 
 	

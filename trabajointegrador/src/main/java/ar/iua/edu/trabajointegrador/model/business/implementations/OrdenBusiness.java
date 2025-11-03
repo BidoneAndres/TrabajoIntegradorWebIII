@@ -149,5 +149,21 @@ public class OrdenBusiness implements IOrdenBusiness {
 		}
 
 	}
+	
+	public Orden loadByClaveActivacion(Integer claveActivacion) throws NotFoundException, BusinessException {
+		Optional<Orden> r;
+		try {
+			r = ordenDAO.findByClaveActivacion(claveActivacion);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+		if (r.isEmpty()) {
+			throw NotFoundException.builder().message("No se encuentra la orden con clave=" + claveActivacion).build();
+		}
+		return r.get();
+
+	}
+
 
 }

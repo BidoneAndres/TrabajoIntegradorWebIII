@@ -6,6 +6,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import ar.iua.edu.trabajointegrador.model.DatoCarga;
 import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.Orden.Estado;
@@ -13,8 +16,11 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.InvalidLoadException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.StateLoadException;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaBusiness;
+import ar.iua.edu.trabajointegrador.model.business.interfaces.IOrdenBusiness;
+import ar.iua.edu.trabajointegrador.model.deserializers.DatoCargaJsonDeserializer;
 import ar.iua.edu.trabajointegrador.model.persistence.DatoCargaRepository;
 import ar.iua.edu.trabajointegrador.model.persistence.OrdenRepository;
+import ar.iua.edu.trabajointegrador.util.JsonUtiles;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -29,17 +35,33 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 	
 	
 
+
+	@Autowired(required = false)
+	private IOrdenBusiness ordenBusiness;
 	@Override
-	public DatoCarga add(DatoCarga datoCarga) throws InvalidLoadException, BusinessException, StateLoadException {
+	public DatoCarga add(String json) throws InvalidLoadException, BusinessException, StateLoadException {
+		
+		
+		//deserializacion
+		ObjectMapper mapper = JsonUtiles.getObjectMapper(DatoCarga.class,
+				new DatoCargaJsonDeserializer(DatoCarga.class, ordenBusiness),null);
+		DatoCarga datoCarga = null;
+		
+		try {
+			datoCarga = mapper.readValue(json, DatoCarga.class);
+		} catch (JsonProcessingException e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
 		// Caudal <= 0
 		// Masa acumulada <= 0 o menor que el valor anterior
 
-		Long idOrden = datoCarga.getOrden().getId();
+		Integer claveActivacion = datoCarga.getOrden().getClaveActivacion();
 
 		// busqueda de orden
-		Optional<Double> ultimaMasa = this.loadLastMasaAcumulada(idOrden);
-		Integer preset = ordenDAO.findPreset(idOrden);
-		Orden.Estado estado = ordenDAO.findEstado(idOrden);
+		Optional<Double> ultimaMasa = this.loadLastMasaAcumulada(claveActivacion);
+		Integer preset = ordenDAO.findPreset(claveActivacion);
+		Orden.Estado estado = ordenDAO.findEstado(claveActivacion);
 
 		// getters de la que me llego recien
 		Double masaActual = datoCarga.getUltimaMasaAcumulada();
@@ -93,7 +115,7 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		else {
 			log.error("La orden no esta en el estado LISTO_PARA_CARGA");
 			throw StateLoadException.builder()
-					.message("ERROR: La orden no esta en el estado LISTO_PARA_CARGA").build();
+					.message("ERROR: La orden no esta en el estado LISTO_PARA_CARGA, esta en estado " + estado).build();
 
 		}
 	}
@@ -122,10 +144,10 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 	}
 
 	@Override
-	public Optional<Double> loadLastMasaAcumulada(Long cargaId) throws BusinessException {
+	public Optional<Double> loadLastMasaAcumulada(Integer claveActivacion) throws BusinessException {
 
 		try {
-			return datoCargaDAO.findLastMasaAcumulada(cargaId);
+			return datoCargaDAO.findLastMasaAcumulada(claveActivacion);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw BusinessException.builder().ex(e).message(e.getMessage()).build();

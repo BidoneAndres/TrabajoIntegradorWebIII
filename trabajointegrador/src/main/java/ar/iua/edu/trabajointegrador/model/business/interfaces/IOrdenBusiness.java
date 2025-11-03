@@ -17,6 +17,9 @@ public interface IOrdenBusiness {
 	
 	public Orden loadByCodExt(String codExt) throws NotFoundException, BusinessException;
 	
+	public Orden loadByClaveActivacion(Integer claveActivacion) throws NotFoundException, BusinessException;
+
+	
 	public Orden cargaExterna(String json) throws FoundException, BusinessException, BadRequestException, UnProcessableException;
 
 	public Orden activarCarga(Integer claveActivacion) throws NotFoundException, BusinessException;
