@@ -28,10 +28,9 @@ public class CargaRestController {
 
 	@Autowired
 	private IDatoCargaBusiness datoCargaBusiness;
-	
+
 	@Autowired
 	private IOrdenBusiness ordenBusiness;
-
 
 	// response http
 	@Autowired
@@ -68,15 +67,18 @@ public class CargaRestController {
 
 		} catch (StateLoadException e) {
 			// conflict es cuando distingen el estado del receptor
-			return new ResponseEntity<>(response.build(HttpStatus.CONFLICT, e, e.getMessage()),
-					HttpStatus.CONFLICT);
+			return new ResponseEntity<>(response.build(HttpStatus.CONFLICT, e, e.getMessage()), HttpStatus.CONFLICT);
 		} catch (BusinessException e) {
 			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 
+		} catch (NotFoundException e) {
+			return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
+
 		}
+
 	}
-	
+
 	@PostMapping(value = "/activacion")
 	public ResponseEntity<?> activate(@RequestBody Integer claveActivacion) {
 		try {
@@ -84,15 +86,14 @@ public class CargaRestController {
 
 			// resposnse
 			HttpHeaders responseHeaders = new HttpHeaders();
-			
-			return new ResponseEntity<>(response,responseHeaders, HttpStatus.CREATED);
+
+			return new ResponseEntity<>(response, responseHeaders, HttpStatus.CREATED);
 
 		}
 
-		 catch (NotFoundException e) {
+		catch (NotFoundException e) {
 			// conflict es cuando distingen el estado del receptor
-			return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()),
-					HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
 		} catch (BusinessException e) {
 			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
 					HttpStatus.INTERNAL_SERVER_ERROR);
@@ -100,7 +101,28 @@ public class CargaRestController {
 		}
 	}
 	
-	
+	@PostMapping(value = "/desactivacion")
+	public ResponseEntity<?> desactivate(@RequestBody Integer claveActivacion) {
+		try {
+			Orden response = ordenBusiness.desactivarCarga(claveActivacion);
+
+			// resposnse
+			HttpHeaders responseHeaders = new HttpHeaders();
+
+			return new ResponseEntity<>(response, responseHeaders, HttpStatus.ACCEPTED);
+
+		}
+
+		catch (NotFoundException e) {
+			// conflict es cuando distingen el estado del receptor
+			return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
+		} catch (BusinessException e) {
+			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+
+		}
+	}
+
 
 	/*
 	 * @GetMapping(value = "/orden/{ordenId}") public ResponseEntity<?>

@@ -23,4 +23,7 @@ public interface IOrdenBusiness {
 	public Orden cargaExterna(String json) throws FoundException, BusinessException, BadRequestException, UnProcessableException;
 
 	public Orden activarCarga(Integer claveActivacion) throws NotFoundException, BusinessException;
+	
+	public Orden desactivarCarga(Integer claveActivacion) throws NotFoundException, BusinessException;
+
 }

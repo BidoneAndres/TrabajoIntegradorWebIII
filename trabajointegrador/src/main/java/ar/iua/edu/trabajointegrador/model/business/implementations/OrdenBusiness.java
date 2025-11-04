@@ -126,7 +126,7 @@ public class OrdenBusiness implements IOrdenBusiness {
 		}
 	}
 
-	// esto se usa en carga
+	// esto se usa en carga estado 2
 	public Orden activarCarga(Integer claveActivacion) throws NotFoundException, BusinessException {
 		Optional<Orden> ordenFound;
 
@@ -149,6 +149,29 @@ public class OrdenBusiness implements IOrdenBusiness {
 		}
 
 	}
+	public Orden desactivarCarga(Integer claveActivacion) throws NotFoundException, BusinessException {
+		Optional<Orden> ordenFound;
+
+		ordenFound = ordenDAO.findByClaveActivacion(claveActivacion);
+		if (ordenFound.isPresent()) {
+			ordenFound.get().setEstado(Orden.Estado.CERRADA);
+
+			try {
+				return ordenDAO.save(ordenFound.get());
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+				throw BusinessException.builder().ex(e).build();
+			}
+		}
+
+		else {
+			throw NotFoundException.builder()
+					.message("No se encontro la orden con clave de activacion " + claveActivacion).build();
+
+		}
+
+	}
+
 	
 	public Orden loadByClaveActivacion(Integer claveActivacion) throws NotFoundException, BusinessException {
 		Optional<Orden> r;

@@ -1,5 +1,6 @@
 package ar.iua.edu.trabajointegrador.model.business.implementations;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +15,7 @@ import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.Orden.Estado;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.InvalidLoadException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.StateLoadException;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IOrdenBusiness;
@@ -32,92 +34,106 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 
 	@Autowired
 	private OrdenRepository ordenDAO;
-	
-	
-
 
 	@Autowired(required = false)
 	private IOrdenBusiness ordenBusiness;
+
 	@Override
-	public DatoCarga add(String json) throws InvalidLoadException, BusinessException, StateLoadException {
-		
-		
-		//deserializacion
+	public DatoCarga add(String json)
+			throws InvalidLoadException, BusinessException, StateLoadException, NotFoundException {
+
+		// deserializacion
 		ObjectMapper mapper = JsonUtiles.getObjectMapper(DatoCarga.class,
-				new DatoCargaJsonDeserializer(DatoCarga.class, ordenBusiness),null);
+				new DatoCargaJsonDeserializer(DatoCarga.class, ordenBusiness), null);
 		DatoCarga datoCarga = null;
-		
+
 		try {
 			datoCarga = mapper.readValue(json, DatoCarga.class);
 		} catch (JsonProcessingException e) {
 			log.error(e.getMessage(), e);
-			throw BusinessException.builder().ex(e).build();
+			throw BusinessException.builder().message(e.getMessage()).build();
 		}
 		// Caudal <= 0
 		// Masa acumulada <= 0 o menor que el valor anterior
 
-		Integer claveActivacion = datoCarga.getOrden().getClaveActivacion();
+		try {
+		    //  Validación inicial
+		    if (datoCarga.getOrden() == null) {
+		        log.error("No se encontro la orden con esa clave de activacion");
+		        throw NotFoundException.builder()
+		                .message("No se encontro la orden con esa clave de activacion")
+		                .build();
+		    }
 
-		// busqueda de orden
-		Optional<Double> ultimaMasa = this.loadLastMasaAcumulada(claveActivacion);
-		Integer preset = ordenDAO.findPreset(claveActivacion);
-		Orden.Estado estado = ordenDAO.findEstado(claveActivacion);
+		    Integer claveActivacion = datoCarga.getOrden().getClaveActivacion();
+		    
+		    Optional<Double> ultimaMasa = this.loadLastMasaAcumulada(claveActivacion);
+		    Integer preset = ordenDAO.findPreset(claveActivacion);
+		    Orden.Estado estado = ordenDAO.findEstado(claveActivacion);
 
-		// getters de la que me llego recien
-		Double masaActual = datoCarga.getUltimaMasaAcumulada();
-		Double caudalActual = datoCarga.getUltimoCaudal();
+		    Double masaActual = datoCarga.getUltimaMasaAcumulada();
+		    Double caudalActual = datoCarga.getUltimoCaudal();
 
-		// check de que la orden este habilitada
-		if (estado == Estado.LISTO_PARA_CARGA) {
+		    if (estado != Estado.LISTO_PARA_CARGA) {
+		        log.error("La orden no está en el estado LISTO_PARA_CARGA");
+		        throw StateLoadException.builder()
+		                .message("ERROR: La orden no está en el estado LISTO_PARA_CARGA (actual: " + estado + ")")
+		                .build();
+		    }
 
-			// check de valores invalidos
-			if (caudalActual <= 0) {
-				log.error("Se recibio un dato de carga <=0");
-				throw InvalidLoadException.builder()
-						.message("ERROR: Se ingreso un caudal de " + caudalActual + ",  menor o igual a 0").build();
-			}
-			if (masaActual <= 0) {
-				log.error("Se recibio un dato de masa acumulada <=0");
-				throw InvalidLoadException.builder()
-						.message("ERROR: Se ingreso una masa de " + masaActual + ",  menor o igual a 0").build();
-			}
+		    if (caudalActual == null || caudalActual <= 0) {
+		        log.error("Se recibió un caudal inválido: " + caudalActual);
+		        throw InvalidLoadException.builder()
+		                .message("ERROR: Caudal inválido (" + caudalActual + ")")
+		                .build();
+		    }
 
-			// chcek de validez en cuanto a valores anteriores
-			if (ultimaMasa.isPresent() && masaActual < ultimaMasa.get()) {
-				log.error("Se recibio una masa acumulada menor a la anterior");
-				throw InvalidLoadException.builder()
-						.message("ERROR: se recibio una masa acumulada menor a la anterior, " + masaActual
-								+ ", menor a " + ultimaMasa.get())
-						.build();
-			} else {
+		    if (masaActual == null || masaActual <= 0) {
+		        log.error("Se recibió una masa inválida: " + masaActual);
+		        throw InvalidLoadException.builder()
+		                .message("ERROR: Masa acumulada inválida (" + masaActual + ")")
+		                .build();
+		    }
 
-				// pesaje llega al preset, cierre de carga
-				if (masaActual > preset) {
-					log.error("Se quiso enviar una masa mayor al preset: " + masaActual + " es mayor a " + preset);
-					throw InvalidLoadException.builder().message(
-							"ERROR: Se quiso enviar una masa mayor al preset " + masaActual + " es mayor a " + preset)
-							.build();
-				} else {
-					try {
+		    //  Validación de consistencia con la masa anterior
+		    if (ultimaMasa.isPresent() && masaActual < ultimaMasa.get()) {
+		        log.error("Masa acumulada menor a la anterior: actual=" + masaActual + ", anterior=" + ultimaMasa.get());
+		        throw InvalidLoadException.builder()
+		                .message("ERROR: Masa acumulada menor a la anterior (" + masaActual + " < " + ultimaMasa.get() + ")")
+		                .build();
+		    }
 
-						return datoCargaDAO.save(datoCarga);
+		    //  Verificación de preset
+		    if (preset != null && masaActual > preset) {
+		        log.error("Se quiso enviar una masa mayor al preset: " + masaActual + " > " + preset);
+		        throw InvalidLoadException.builder()
+		                .message("ERROR: Masa mayor al preset (" + masaActual + " > " + preset + ")")
+		                .build();
+		    }
 
-					} catch (Exception e) {
+		    //  Guardado final
+		    try {
+		        return datoCargaDAO.save(datoCarga);
+		    } catch (Exception e) {
+		        log.error("Error al guardar DatoCarga", e);
+		        throw BusinessException.builder()
+		                .message("Error interno al guardar el dato de carga")
+		                .ex(e)
+		                .build();
+		    }
 
-						log.error(e.getMessage(), e);
-						throw BusinessException.builder().ex(e).build();
-
-					}
-				}
-
-			}
+		} catch (NotFoundException | InvalidLoadException | StateLoadException | BusinessException e) {
+		    // Excepciones esperadas (controladas)
+		    throw e;
+		} catch (Exception e) {
+		    // Cualquier otro error inesperado
+		    log.error("Error inesperado en el proceso de carga", e);
+		    throw BusinessException.builder()
+		            .message("Error inesperado en el proceso de carga")
+		            .ex(e)
+		            .build();
 		}
-		else {
-			log.error("La orden no esta en el estado LISTO_PARA_CARGA");
-			throw StateLoadException.builder()
-					.message("ERROR: La orden no esta en el estado LISTO_PARA_CARGA, esta en estado " + estado).build();
 
-		}
 	}
 
 	/*
