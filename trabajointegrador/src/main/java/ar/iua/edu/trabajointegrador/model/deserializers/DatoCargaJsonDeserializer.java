@@ -49,10 +49,10 @@ public class DatoCargaJsonDeserializer extends StdDeserializer<DatoCarga> {
 		
 		Integer claveActivacion = JsonUtils.getInt(node, "clave_activacion,claveActivacion".split(","), 0); 
 		
-		datoCarga.setUltimaDensidadProducto(densidad);
-		datoCarga.setUltimaTemperatura(temperatura);
-		datoCarga.setUltimaMasaAcumulada(masa);
-		datoCarga.setUltimoCaudal(caudal);
+		datoCarga.setDensidadProducto(densidad);
+		datoCarga.setTemperatura(temperatura);
+		datoCarga.setMasaAcumulada(masa);
+		datoCarga.setCaudal(caudal);
 		
 		try {
 			Orden ordenEncontrada = ordenBusiness.loadByClaveActivacion(claveActivacion);

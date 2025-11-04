@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -27,9 +25,9 @@ import lombok.Setter;
 @Setter
 @Getter
 @Entity
-@Table(name = "datos_carga")
+@Table(name = "datos_carga_header")
 @EntityListeners(AuditingEntityListener.class) // para las timestamps
-public class DatoCarga {
+public class DatoCargaHeader  {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
@@ -40,10 +38,10 @@ public class DatoCarga {
 	@JoinColumn(name="claveActivacion",nullable = false, referencedColumnName = "claveActivacion")//da mas detalles, clave foranea, 
 	private Orden orden;
 	
-	private double masaAcumulada;
-	private double densidadProducto;
-	private int temperatura;
-	private double caudal;
+	private double ultimaMasaAcumulada;
+	private double ultimaDensidadProducto;
+	private int ultimaTemperatura;
+	private double ultimoCaudal;
 	
 	// --- TIMESTAMPS AUTOMÁTICOS ---
 

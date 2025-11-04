@@ -19,6 +19,7 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.InvalidLoadExcepti
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.StateLoadException;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaBusiness;
+import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaHeaderBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IOrdenBusiness;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 
@@ -28,6 +29,9 @@ public class CargaRestController {
 
 	@Autowired
 	private IDatoCargaBusiness datoCargaBusiness;
+
+	@Autowired
+	private IDatoCargaHeaderBusiness datoCargaHeaderBusiness;
 
 	@Autowired
 	private IOrdenBusiness ordenBusiness;

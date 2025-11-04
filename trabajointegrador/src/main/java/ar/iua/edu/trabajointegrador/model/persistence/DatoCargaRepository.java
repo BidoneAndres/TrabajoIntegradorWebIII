@@ -10,8 +10,8 @@ import ar.iua.edu.trabajointegrador.model.DatoCarga;
 
 public interface DatoCargaRepository extends JpaRepository<DatoCarga, Long> {
 	
-	@Query("SELECT dc.ultimaMasaAcumulada FROM DatoCarga dc WHERE dc.orden.claveActivacion = :claveActivacion ORDER BY dc.timestamp DESC LIMIT 1")
-	Optional<Double>findLastMasaAcumulada(Integer claveActivacion);
+	@Query("SELECT dc.masaAcumulada FROM DatoCarga dc WHERE dc.orden.claveActivacion = :claveActivacion ORDER BY dc.timestamp DESC LIMIT 1")
+	Optional<Double>findMasaAcumulada(Integer claveActivacion);
 	
 	
 }

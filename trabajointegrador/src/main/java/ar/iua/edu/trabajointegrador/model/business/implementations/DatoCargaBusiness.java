@@ -31,6 +31,9 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 
 	@Autowired
 	private DatoCargaRepository datoCargaDAO;
+	
+	@Autowired
+	private DatoCargaHeaderBusiness datoCargaHeaderBusiness;
 
 	@Autowired
 	private OrdenRepository ordenDAO;
@@ -57,6 +60,8 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		// Masa acumulada <= 0 o menor que el valor anterior
 
 		try {
+			//guardamos en el header, no importa si es valido o no
+			datoCargaHeaderBusiness.add(datoCarga);
 		    //  Validación inicial
 		    if (datoCarga.getOrden() == null) {
 		        log.error("No se encontro la orden con esa clave de activacion");
@@ -71,10 +76,10 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		    Integer preset = ordenDAO.findPreset(claveActivacion);
 		    Orden.Estado estado = ordenDAO.findEstado(claveActivacion);
 
-		    Double masaActual = datoCarga.getUltimaMasaAcumulada();
-		    Double caudalActual = datoCarga.getUltimoCaudal();
+		    Double masaActual = datoCarga.getMasaAcumulada();
+		    Double caudalActual = datoCarga.getCaudal();
 
-		    if (estado != Estado.LISTO_PARA_CARGA) {
+		    if (estado != Estado.ESTADO_2_EN_PROCESO_DE_CARGA) {
 		        log.error("La orden no está en el estado LISTO_PARA_CARGA");
 		        throw StateLoadException.builder()
 		                .message("ERROR: La orden no está en el estado LISTO_PARA_CARGA (actual: " + estado + ")")
@@ -163,7 +168,7 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 	public Optional<Double> loadLastMasaAcumulada(Integer claveActivacion) throws BusinessException {
 
 		try {
-			return datoCargaDAO.findLastMasaAcumulada(claveActivacion);
+			return datoCargaDAO.findMasaAcumulada(claveActivacion);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw BusinessException.builder().ex(e).message(e.getMessage()).build();

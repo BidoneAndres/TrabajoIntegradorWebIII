@@ -1,5 +1,5 @@
 
-package ar.iua.edu.trabajointegrador.models.serializers;
+package ar.iua.edu.trabajointegrador.model.serializers;
 
 import java.io.IOException;
 

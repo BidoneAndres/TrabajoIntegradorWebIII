@@ -112,7 +112,7 @@ public class OrdenBusiness implements IOrdenBusiness {
 		if (ordenFound.isPresent()) {
 			throw FoundException.builder().message("Ya existe una orden con el número " + orden.getCodExt()).build();
 		}
-		ordenFound = ordenDAO.findByCamion_IdAndEstado(orden.getCamion().getId(), Orden.Estado.RECIBIDA);
+		ordenFound = ordenDAO.findByCamion_IdAndEstado(orden.getCamion().getId(), Orden.Estado.ESTADO_1_PENDIENTE_PESAJE_INICIAL);
 		if (ordenFound.isPresent()) {
 			throw FoundException.builder().message("Ya existe una orden para el camion id=" + orden.getCamion().getId())
 					.build();
@@ -132,7 +132,7 @@ public class OrdenBusiness implements IOrdenBusiness {
 
 		ordenFound = ordenDAO.findByClaveActivacion(claveActivacion);
 		if (ordenFound.isPresent()) {
-			ordenFound.get().setEstado(Orden.Estado.LISTO_PARA_CARGA);
+			ordenFound.get().setEstado(Orden.Estado.ESTADO_2_EN_PROCESO_DE_CARGA);
 
 			try {
 				return ordenDAO.save(ordenFound.get());
@@ -154,7 +154,7 @@ public class OrdenBusiness implements IOrdenBusiness {
 
 		ordenFound = ordenDAO.findByClaveActivacion(claveActivacion);
 		if (ordenFound.isPresent()) {
-			ordenFound.get().setEstado(Orden.Estado.CERRADA);
+			ordenFound.get().setEstado(Orden.Estado.ESTADO_3_CERRADA_PARA_CARGA);
 
 			try {
 				return ordenDAO.save(ordenFound.get());
