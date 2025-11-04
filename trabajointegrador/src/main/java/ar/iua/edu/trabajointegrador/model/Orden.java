@@ -75,4 +75,6 @@ public class Orden {
 	private Date fechaEstimada;
 	
 	private Date fechaRecepcionOrden;
+
+	private Date fechaPesajeInicial;
 }

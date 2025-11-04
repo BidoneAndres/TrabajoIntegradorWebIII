@@ -18,4 +18,6 @@ public interface IOrdenBusiness {
 	public Orden loadByCodExt(String codExt) throws NotFoundException, BusinessException;
 	
 	public Orden cargaExterna(String json) throws FoundException, BusinessException, BadRequestException, UnProcessableException;
+
+	public Orden registrarPesajeInicial(String patente, float pesoInicial) throws NotFoundException, BusinessException, UnProcessableException;
 }

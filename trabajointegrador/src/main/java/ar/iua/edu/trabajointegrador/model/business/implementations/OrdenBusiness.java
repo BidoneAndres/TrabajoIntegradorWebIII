@@ -23,6 +23,7 @@ import ar.iua.edu.trabajointegrador.model.persistence.OrdenRepository;
 import lombok.extern.slf4j.Slf4j;
 import ar.iua.edu.trabajointegrador.model.deserializers.OrdenJsonDeserializer;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IProductoBusiness;
+import ar.iua.edu.trabajointegrador.util.generadorPassword;
 
 @Service
 @Slf4j
@@ -112,7 +113,7 @@ public class OrdenBusiness implements IOrdenBusiness {
         if (ordenFound.isPresent()) {
             throw FoundException.builder().message("Ya existe una orden con el número " + orden.getCodExt()).build();
         }
-        ordenFound = ordenDAO.findByCamion_IdAndEstado(orden.getCamion().getId(), Orden.Estado.RECIBIDA);
+        ordenFound = ordenDAO.findByCamion_PatenteAndEstado(orden.getCamion().getPatente(), Orden.Estado.RECIBIDA);
         if (ordenFound.isPresent()) {
             throw FoundException.builder().message("Ya existe una orden para el camion id=" + orden.getCamion().getId()).build();
         }
@@ -123,6 +124,34 @@ public class OrdenBusiness implements IOrdenBusiness {
             log.error(e.getMessage(), e);
             throw BusinessException.builder().ex(e).build();
         }
+	}
+
+	public Orden registrarPesajeInicial(String patente, float pesoInicial) throws NotFoundException, BusinessException, UnProcessableException {
+		Optional<Orden> ordenFound;
+		try {
+			ordenFound = ordenDAO.findByCamion_PatenteAndEstado(patente, Orden.Estado.RECIBIDA);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+		if (ordenFound.isEmpty()) {
+			throw NotFoundException.builder().message("No se encuentra la orden para el camion de patente=" + patente).build();
+		}
+		Orden orden = ordenFound.get();
+		if (orden.getEstado() != Orden.Estado.RECIBIDA) {
+			throw UnProcessableException.builder().message("La orden para el camion de patente=" + patente + " no se encuentra en estado RECIBIDA").build();
+		}
+		String password = generadorPassword.generarPassword();
+		orden.setClaveActivacion(password);
+		orden.setFechaPesajeInicial(new java.util.Date());
+		orden.setPesoInicial(pesoInicial);
+		orden.setEstado(Orden.Estado.REGISTRADA_PESAJE_INICIAL);
+		try {
+			return ordenDAO.save(orden);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
 	}
 
 }

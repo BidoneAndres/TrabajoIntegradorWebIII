@@ -13,11 +13,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpHeaders;
 
 import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
@@ -91,5 +93,36 @@ public class OrdenRestController extends BaseRestController{
             return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-     
+
+    @PostMapping(value = "/pesajeInicial", produces = MediaType.TEXT_PLAIN_VALUE)
+        public ResponseEntity<?> registrarPesajeInicial(
+            @RequestHeader("patente") String patente,
+            @RequestHeader("pesoInicial") float pesoInicial) { 
+    
+            try {
+            // La línea que lanza las excepciones:
+            Orden orden = ordenBusiness.registrarPesajeInicial(patente, pesoInicial);
+        
+            // Si tiene éxito:
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.set("idOrden", String.valueOf(orden.getId()));
+            return new ResponseEntity<>(orden.getClaveActivacion(), responseHeaders, HttpStatus.OK); 
+
+        } catch (NotFoundException e) {
+            // 404 Not Found: La orden no existe para la patente
+            return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
+        
+            } catch (UnProcessableException e) {
+            // 422 Unprocessable Entity: La orden no está en el estado correcto
+            return new ResponseEntity<>(response.build(HttpStatus.UNPROCESSABLE_ENTITY, e, e.getMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
+        
+        } catch (BusinessException e) {
+            // 500 Internal Server Error: Error genérico de la capa de negocio/DAO
+            return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        
+        } catch (Exception e) {
+            // 500 Internal Server Error: Cualquier otra excepción no esperada
+            return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
