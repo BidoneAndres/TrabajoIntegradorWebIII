@@ -1,6 +1,7 @@
 package ar.iua.edu.trabajointegrador.model.business.interfaces;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.coyote.BadRequestException;
 
@@ -25,5 +26,11 @@ public interface IOrdenBusiness {
 	public Orden activarCarga(Integer claveActivacion) throws NotFoundException, BusinessException;
 	
 	public Orden desactivarCarga(Integer claveActivacion) throws NotFoundException, BusinessException;
+	
+	public Integer findPreset(Long ordenId) throws NotFoundException, BusinessException;
+	
+	public Orden.Estado findEstado(Long ordenId) throws NotFoundException, BusinessException ;
+	
+	public Optional<Orden> findById(long ordenId) throws NotFoundException, BusinessException;
 
 }

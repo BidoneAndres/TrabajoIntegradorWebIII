@@ -187,6 +187,44 @@ public class OrdenBusiness implements IOrdenBusiness {
 		return r.get();
 
 	}
+	
+	public Optional<Orden> findById(long ordenId) throws NotFoundException, BusinessException{
+		Optional<Orden> r;
+		try {
+			r = ordenDAO.findById(ordenId);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+		if (r.isEmpty()) {
+			throw NotFoundException.builder().message("No se encuentra la orden con clave=" + ordenId).build();
+		}
+		return r;
+
+	}
+	
+	
+	public Integer findPreset(Long ordenId) throws NotFoundException, BusinessException {
+		Integer r;
+		try {
+			r = ordenDAO.findPreset(ordenId);
+			return r;
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+	}
+	
+	public Orden.Estado findEstado(Long ordenId) throws NotFoundException, BusinessException {
+		Orden.Estado r;
+		try {
+			r = ordenDAO.findEstado(ordenId);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+		return r;
+	}
 
 
 }

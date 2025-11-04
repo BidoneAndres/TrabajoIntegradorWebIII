@@ -16,11 +16,11 @@ public interface OrdenRepository extends JpaRepository<Orden, Long>{
 	
 
 	//esto se usa en dato carga
-	@Query("SELECT dc.preset FROM Orden dc WHERE dc.claveActivacion = :claveActivacion")
-	public Integer findPreset(Integer claveActivacion);
+	@Query("SELECT dc.preset FROM Orden dc WHERE dc.id = :ordenId")
+	public Integer findPreset(Long ordenId);
 
-	@Query("SELECT dc.estado FROM Orden dc WHERE dc.claveActivacion = :claveActivacion")
-	public Orden.Estado findEstado(Integer claveActivacion);
+	@Query("SELECT dc.estado FROM Orden dc WHERE dc.id = :ordenId")
+	public Orden.Estado findEstado(Long ordenId);
 	
 	//
 

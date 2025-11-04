@@ -67,7 +67,7 @@ public class Orden {
 	private Chofer chofer;
 	
 	//es de 4 digitos la clave de activacion
-	@Column(length = 10, unique = true)
+	@Column(length = 10)
     private Integer claveActivacion;
 	
 	private float pesoInicial;

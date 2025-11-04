@@ -31,9 +31,6 @@ public class CargaRestController {
 	private IDatoCargaBusiness datoCargaBusiness;
 
 	@Autowired
-	private IDatoCargaHeaderBusiness datoCargaHeaderBusiness;
-
-	@Autowired
 	private IOrdenBusiness ordenBusiness;
 
 	// response http

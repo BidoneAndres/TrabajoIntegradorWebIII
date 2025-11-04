@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ar.iua.edu.trabajointegrador.model.DatoCarga;
+import ar.iua.edu.trabajointegrador.model.DatoCargaHeader;
 import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.Orden.Estado;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
@@ -36,9 +37,6 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 	private DatoCargaHeaderBusiness datoCargaHeaderBusiness;
 
 	@Autowired
-	private OrdenRepository ordenDAO;
-
-	@Autowired(required = false)
 	private IOrdenBusiness ordenBusiness;
 
 	@Override
@@ -60,9 +58,8 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		// Masa acumulada <= 0 o menor que el valor anterior
 
 		try {
-			//guardamos en el header, no importa si es valido o no
-			datoCargaHeaderBusiness.add(datoCarga);
 		    //  Validación inicial
+			
 		    if (datoCarga.getOrden() == null) {
 		        log.error("No se encontro la orden con esa clave de activacion");
 		        throw NotFoundException.builder()
@@ -70,11 +67,17 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		                .build();
 		    }
 
-		    Integer claveActivacion = datoCarga.getOrden().getClaveActivacion();
+		    Long ordenId = datoCarga.getOrden().getId();
 		    
-		    Optional<Double> ultimaMasa = this.loadLastMasaAcumulada(claveActivacion);
-		    Integer preset = ordenDAO.findPreset(claveActivacion);
-		    Orden.Estado estado = ordenDAO.findEstado(claveActivacion);
+		    Double ultimaMasa = null;
+		    Optional<DatoCargaHeader> headerAnterior = datoCargaHeaderBusiness.findByOrdenId(ordenId);
+		    if (headerAnterior.isPresent()) {
+		    	ultimaMasa=headerAnterior.get().getUltimaMasaAcumulada();
+		    	
+		    }
+		    Integer preset = ordenBusiness.findPreset(ordenId);
+		    Orden.Estado estado = ordenBusiness.findEstado(ordenId);
+		    log.error("sksosks" + preset + ultimaMasa + estado);
 
 		    Double masaActual = datoCarga.getMasaAcumulada();
 		    Double caudalActual = datoCarga.getCaudal();
@@ -101,10 +104,10 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		    }
 
 		    //  Validación de consistencia con la masa anterior
-		    if (ultimaMasa.isPresent() && masaActual < ultimaMasa.get()) {
-		        log.error("Masa acumulada menor a la anterior: actual=" + masaActual + ", anterior=" + ultimaMasa.get());
+		    if (ultimaMasa!= null && masaActual < ultimaMasa) {
+		        log.error("Masa acumulada menor a la anterior: actual=" + masaActual + ", anterior=" + ultimaMasa);
 		        throw InvalidLoadException.builder()
-		                .message("ERROR: Masa acumulada menor a la anterior (" + masaActual + " < " + ultimaMasa.get() + ")")
+		                .message("ERROR: Masa acumulada menor a la anterior (" + masaActual + " < " + ultimaMasa + ")")
 		                .build();
 		    }
 
@@ -118,6 +121,7 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 
 		    //  Guardado final
 		    try {
+		    	datoCargaHeaderBusiness.add(datoCarga);
 		        return datoCargaDAO.save(datoCarga);
 		    } catch (Exception e) {
 		        log.error("Error al guardar DatoCarga", e);
@@ -175,4 +179,17 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		}
 
 	}
+	
+	@Override
+	public Optional<Double> calculateDensidadProducto(Integer claveActivacion) throws BusinessException {
+
+		try {
+			return datoCargaDAO.calculateDensidadProductoAvg(claveActivacion);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).message(e.getMessage()).build();
+		}
+
+	}
+
 }
