@@ -8,7 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -103,9 +102,9 @@ public class CargaRestController {
 	}
 	
 	@PostMapping(value = "/desactivacion")
-	public ResponseEntity<?> desactivate(@RequestBody Integer claveActivacion) {
+	public ResponseEntity<?> desactivate(@RequestParam long ordenId) {
 		try {
-			Orden response = ordenBusiness.desactivarCarga(claveActivacion);
+			Orden response = ordenBusiness.desactivarCarga(ordenId);
 
 			// resposnse
 			HttpHeaders responseHeaders = new HttpHeaders();
