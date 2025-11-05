@@ -27,20 +27,7 @@ public class StandartResponse {
 		return httpStatus.value();
 	}
 
-	@JsonIgnore
-	private boolean devInfoEnabled;
-
-	public String getDevInfo() {
-		if(devInfoEnabled) {
-			if(ex!=null) {
-				return ExceptionUtils.getStackTrace(ex);
-			} else {
-				return "No stack trace";
-			}
-		} else {
-			return null;
-		}
-	}
+	
 
 	public String getMessage() {
 		if(message!=null) {

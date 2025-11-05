@@ -13,7 +13,6 @@ public class StandartResponseBusiness implements IStandartResponseBusiness {
 	@Override
 	public StandartResponse build(HttpStatus httpStatus, Throwable ex, String message) {
 		StandartResponse sr=new StandartResponse();
-		sr.setDevInfoEnabled(devInfoEnabled);
 		sr.setMessage(message);
 		sr.setHttpStatus(httpStatus);
 		sr.setEx(ex);

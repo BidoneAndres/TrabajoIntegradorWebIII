@@ -99,7 +99,7 @@ public class OrdenJsonDeserializer extends StdDeserializer<Orden>{
 				r.setCliente(cliente);
 				r.setProducto(producto);
 			}
-			r.setEstado(Orden.Estado.RECIBIDA);
+			r.setEstado(Orden.Estado.ESTADO_1_PENDIENTE_PESAJE_INICIAL);
 			return r;
 		}catch (Exception e) {
 			log.error(e.getMessage(), e);
