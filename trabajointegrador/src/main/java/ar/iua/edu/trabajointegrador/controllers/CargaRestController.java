@@ -139,7 +139,7 @@ public class CargaRestController {
 		catch (NotFoundException e) {
 			// conflict es cuando distingen el estado del receptor
 			return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
-		} catch (BusinessException e) {
+		} catch (Exception e) {
 			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 
