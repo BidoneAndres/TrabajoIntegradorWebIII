@@ -7,6 +7,6 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.StateLoadException;
 
 public interface IConciliacionBusiness {
-	public Conciliacion add(float pesajeFinal, long ordenId) throws NotFoundException, BusinessException,StateLoadException;
+	public Conciliacion add(float pesajeFinal, int numeroOrden) throws NotFoundException, BusinessException,StateLoadException;
 
 }

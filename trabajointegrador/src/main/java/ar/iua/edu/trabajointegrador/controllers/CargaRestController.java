@@ -80,9 +80,9 @@ public class CargaRestController {
 	}
 
 	@PostMapping(value = "/activacion")
-	public ResponseEntity<?> activate(@RequestParam Long ordenId, @RequestParam Integer claveActivacion) {
+	public ResponseEntity<?> activate(@RequestParam Integer numeroOrden, @RequestParam Integer claveActivacion) {
 		try {
-			Orden response = ordenBusiness.activarCarga(ordenId,claveActivacion);
+			Orden response = ordenBusiness.activarCarga(numeroOrden,claveActivacion);
 
 			// resposnse
 			HttpHeaders responseHeaders = new HttpHeaders();
@@ -102,9 +102,9 @@ public class CargaRestController {
 	}
 	
 	@PostMapping(value = "/desactivacion")
-	public ResponseEntity<?> desactivate(@RequestParam long ordenId) {
+	public ResponseEntity<?> desactivate(@RequestParam int numeroOrden) {
 		try {
-			Orden response = ordenBusiness.desactivarCarga(ordenId);
+			Orden response = ordenBusiness.desactivarCarga(numeroOrden);
 
 			// resposnse
 			HttpHeaders responseHeaders = new HttpHeaders();

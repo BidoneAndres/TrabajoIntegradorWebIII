@@ -39,9 +39,9 @@ public class ConciliacionBusiness implements IConciliacionBusiness {
 	
 
 	@Override
-	public Conciliacion add(float pesajeFinal, long ordenId) throws NotFoundException, BusinessException, StateLoadException {
+	public Conciliacion add(float pesajeFinal, int numeroOrden) throws NotFoundException, BusinessException, StateLoadException {
 		//busqueda de la orden
-		Optional<Orden> orden = ordenBusiness.findById(ordenId);
+		Optional<Orden> orden = ordenBusiness.findByNumeroOrden(numeroOrden);
 		Double productoCargado = datoCargaHeaderBusiness.findByOrdenId(orden.get().getId()).get().getUltimaMasaAcumulada();
 		if(productoCargado == null || orden.isEmpty() ) {
 			throw NotFoundException.builder().message("No se encontro la orden asociada a esa clave de activacion").build();			
@@ -63,7 +63,10 @@ public class ConciliacionBusiness implements IConciliacionBusiness {
 			conciliacion.setDiferenciaBalanzaCaudalimetro(neto - productoCargado);
 			
 			//promedios
-			conciliacion.setPromedioDensidad(datoCargaBusiness.calculateDensidadProducto(orden.get().getClaveActivacion()).get());
+			int numeroOrdem = orden.get().getNumeroOrden();
+			conciliacion.setPromedioDensidad(datoCargaBusiness.calculateDensidadProductoAvg(numeroOrdem).get());
+			conciliacion.setPromedioCaudal(datoCargaBusiness.calculateCaudalAvg(numeroOrdem).get());
+			conciliacion.setPromedioTemperatura(datoCargaBusiness.calculateTemperaturaAvg(numeroOrdem).get());
 			
 			return concilacionDAO.save(conciliacion);
 			

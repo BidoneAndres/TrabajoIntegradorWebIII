@@ -13,8 +13,13 @@ public interface DatoCargaRepository extends JpaRepository<DatoCarga, Long> {
 	@Query("SELECT dc.masaAcumulada FROM DatoCarga dc WHERE dc.orden.claveActivacion = :claveActivacion ORDER BY dc.timestamp DESC LIMIT 1")
 	Optional<Double>findMasaAcumulada(Integer claveActivacion);
 
-	@Query("SELECT avg(dc.densidadProducto) FROM DatoCarga dc WHERE dc.orden.claveActivacion = :claveActivacion GROUP BY dc.orden.claveActivacion")
-	Optional<Double> calculateDensidadProductoAvg(Integer claveActivacion);
+	@Query("SELECT avg(dc.densidadProducto) FROM DatoCarga dc WHERE dc.orden.numeroOrden = :numeroOrden GROUP BY dc.orden.numeroOrden")
+	Optional<Double> calculateDensidadProductoAvg(Integer numeroOrden);
 	
+	@Query("SELECT avg(dc.temperatura) FROM DatoCarga dc WHERE dc.orden.numeroOrden = :numeroOrden GROUP BY dc.orden.numeroOrden")
+	Optional<Double> calculateTemperaturaAvg(Integer numeroOrden);
+	
+	@Query("SELECT avg(dc.caudal) FROM DatoCarga dc WHERE dc.orden.numeroOrden = :numeroOrden GROUP BY dc.orden.numeroOrden")
+	Optional<Double> calculateCaudalAvg(Integer numeroOrden);
 	
 }

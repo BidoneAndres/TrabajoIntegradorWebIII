@@ -19,7 +19,11 @@ public interface IDatoCargaBusiness {
 	//utils
 	public Optional<Double> loadLastMasaAcumulada(Integer claveActivacion) throws BusinessException;
 
-	public Optional<Double> calculateDensidadProducto(Integer claveActivacion) throws BusinessException;
+	//usado en conciliacion
+	public Optional<Double> calculateDensidadProductoAvg(Integer numeroOrden) throws BusinessException;
+	public Optional<Double> calculateTemperaturaAvg(Integer numeroOrden) throws BusinessException;
+	public Optional<Double> calculateCaudalAvg(Integer numeroOrden) throws BusinessException;
+
 
 	
 }

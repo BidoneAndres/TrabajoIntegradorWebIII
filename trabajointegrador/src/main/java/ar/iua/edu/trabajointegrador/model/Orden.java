@@ -70,6 +70,9 @@ public class Orden {
 	@Column(length = 10)
     private Integer claveActivacion;
 	
+	@Column(unique = true)
+	private Integer numeroOrden;
+	
 	private float pesoInicial;
 	
 	private float pesoFinal;
