@@ -51,6 +51,7 @@ public class ConciliacionBusiness implements IConciliacionBusiness {
 				throw StateLoadException.builder().message("La orden no esta en ESTADO_3_CERRADA_PARA_CARGA, estado actual: " + orden.get().getEstado()).build();	
 				}
 			//guardamos en la orden el pesaje final
+			orden.get().setEstado(Orden.Estado.ESTADO_4_FINALIZADA);
 			orden.get().setPesoFinal(pesajeFinal);
 			
 			Conciliacion conciliacion = new Conciliacion();
@@ -63,10 +64,10 @@ public class ConciliacionBusiness implements IConciliacionBusiness {
 			conciliacion.setDiferenciaBalanzaCaudalimetro(neto - productoCargado);
 			
 			//promedios
-			int numeroOrdem = orden.get().getNumeroOrden();
-			conciliacion.setPromedioDensidad(datoCargaBusiness.calculateDensidadProductoAvg(numeroOrdem).get());
-			conciliacion.setPromedioCaudal(datoCargaBusiness.calculateCaudalAvg(numeroOrdem).get());
-			conciliacion.setPromedioTemperatura(datoCargaBusiness.calculateTemperaturaAvg(numeroOrdem).get());
+			int numeroOrden1 = orden.get().getNumeroOrden();
+			conciliacion.setPromedioDensidad(datoCargaBusiness.calculateDensidadProductoAvg(numeroOrden1).get());
+			conciliacion.setPromedioCaudal(datoCargaBusiness.calculateCaudalAvg(numeroOrden1).get());
+			conciliacion.setPromedioTemperatura(datoCargaBusiness.calculateTemperaturaAvg(numeroOrden1).get());
 			
 			return concilacionDAO.save(conciliacion);
 			

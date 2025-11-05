@@ -111,14 +111,7 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		                .build();
 		    }
 
-		    //  Verificación de preset
-		    if (preset != null && masaActual > preset) {
-		        log.error("Se quiso enviar una masa mayor al preset: " + masaActual + " > " + preset);
-		        throw InvalidLoadException.builder()
-		                .message("ERROR: Masa mayor al preset (" + masaActual + " > " + preset + ")")
-		                .build();
-		    }
-
+		
 		    //  Guardado final
 		    try {
 		    	datoCargaHeaderBusiness.add(datoCarga);

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -30,8 +31,10 @@ import ar.iua.edu.trabajointegrador.model.business.implementations.OrdenBusiness
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 import ar.iua.edu.trabajointegrador.util.JsonUtils;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 
+@Slf4j
 @RestController
 @RequestMapping(Constants.URL_ORDENES)
 public class OrdenRestController extends BaseRestController{
@@ -94,15 +97,15 @@ public class OrdenRestController extends BaseRestController{
         }
     }
 
-    @PostMapping(value = "/pesajeInicial", produces = MediaType.TEXT_PLAIN_VALUE)
+    @PostMapping(value = "/pesajeInicial")
         public ResponseEntity<?> registrarPesajeInicial(
-            @RequestHeader("patente") String patente,
-            @RequestHeader("pesoInicial") float pesoInicial) { 
+            @RequestParam("patente") String patente,
+            @RequestParam("pesoInicial") float pesoInicial) { 
     
             try {
             // La línea que lanza las excepciones:
             Orden orden = ordenBusiness.registrarPesajeInicial(patente, pesoInicial);
-        
+            
             // Si tiene éxito:
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.set("idOrden", String.valueOf(orden.getId()));

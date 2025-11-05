@@ -8,6 +8,7 @@ import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.ORDEN_PES
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.PRODUCTO_NOMBRE_ATTRIBUTES;
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.CLIENTE_RAZON_SOCIAL_ATTRIBUTES;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.apache.coyote.BadRequestException;
@@ -92,7 +93,7 @@ public class OrdenJsonDeserializer extends StdDeserializer<Orden>{
 			r.setNumeroOrden(numeroOrden);;
 			r.setFechaEstimada(fecha_estimada);
 			r.setPreset(preset);
-			r.setFechaRecepcionOrden(new Date(System.currentTimeMillis()));
+			r.setFechaRecepcionOrden(LocalDateTime.now());
 		
 			if (producto != null && cliente != null && camion != null && chofer != null) {
 				r.setCamion(camion);
@@ -100,7 +101,6 @@ public class OrdenJsonDeserializer extends StdDeserializer<Orden>{
 				r.setCliente(cliente);
 				r.setProducto(producto);
 			}
-			r.setEstado(Orden.Estado.ESTADO_1_PENDIENTE_PESAJE_INICIAL);
 			return r;
 		}catch (Exception e) {
 			log.error(e.getMessage(), e);
