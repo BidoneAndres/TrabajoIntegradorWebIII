@@ -24,9 +24,9 @@ public interface IOrdenBusiness {
 
 	public Orden registrarPesajeInicial(String patente, float pesoInicial) throws NotFoundException, BusinessException, UnProcessableException;
 	
-	public Orden activarCarga(Long ordenId, Integer claveActivacion) throws NotFoundException, BusinessException;
+	public Orden activarCarga(Integer numeroCarga, Integer claveActivacion) throws NotFoundException, BusinessException;
 	
-	public Orden desactivarCarga(Long ordenId) throws NotFoundException, BusinessException;
+	public Orden desactivarCarga(Integer numeroCarga) throws NotFoundException, BusinessException;
 	
 	public Integer findPreset(Long ordenId) throws NotFoundException, BusinessException;
 	
@@ -35,5 +35,9 @@ public interface IOrdenBusiness {
 	public Optional<Orden> findById(long ordenId) throws NotFoundException, BusinessException;
 	
 	public Optional<Orden> findByIdAndClaveActivacion(long ordenId, int claveActivacion) throws NotFoundException, BusinessException;
+
+	public Optional<Orden> findByNumeroOrden(int onumeroOrden) throws NotFoundException, BusinessException;
+	
+	public Optional<Orden> findByNumeroOrdenAndClaveActivacion(int numeroOrden, int claveActivacion) throws NotFoundException, BusinessException;
 
 }

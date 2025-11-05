@@ -1,5 +1,6 @@
 package ar.iua.edu.trabajointegrador.model.business.implementations;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,4 +61,17 @@ public class DatoCargaHeaderBusiness implements IDatoCargaHeaderBusiness {
 			throw NotFoundException.builder().message(e.getMessage()).build();
 		}
 	}
+	
+	@Override
+	public List<DatoCargaHeader> listHeaders() throws BusinessException {
+
+		try {
+			return datoCargaHeaderDAO.findAll();
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).message(e.getMessage()).build();
+		}
+
+	}
 }
+

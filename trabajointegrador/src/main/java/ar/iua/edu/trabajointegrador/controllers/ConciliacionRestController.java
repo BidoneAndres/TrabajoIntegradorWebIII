@@ -34,9 +34,9 @@ public class ConciliacionRestController extends BaseRestController {
 	private IStandartResponseBusiness response;
 	
 	@PostMapping(value = "")
-	public ResponseEntity<?> add(@RequestParam Long ordenId, @RequestParam Float pesajeFinal ) {
+	public ResponseEntity<?> add(@RequestParam Integer numeroOrden, @RequestParam Float pesajeFinal ) {
 		try {
-			Conciliacion response = conciliacionBusiness.add(pesajeFinal, ordenId);
+			Conciliacion response = conciliacionBusiness.add(pesajeFinal, numeroOrden);
 
 			// resposnse
 			HttpHeaders responseHeaders = new HttpHeaders();

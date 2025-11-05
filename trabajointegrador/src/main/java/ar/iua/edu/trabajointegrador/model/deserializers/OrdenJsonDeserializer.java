@@ -8,6 +8,7 @@ import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.ORDEN_PES
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.PRODUCTO_NOMBRE_ATTRIBUTES;
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.CLIENTE_RAZON_SOCIAL_ATTRIBUTES;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.apache.coyote.BadRequestException;
@@ -64,10 +65,11 @@ public class OrdenJsonDeserializer extends StdDeserializer<Orden>{
 	String codExt;
 	Date fecha_estimada;
 	int preset;
+	int numeroOrden;
 	try {
 			try {
-				codExt = JsonUtils.getString(node, ORDEN_NUMERO_ATTRIBUTES, "");
-				if (codExt == null || codExt.isEmpty()) {
+				numeroOrden = JsonUtils.getInt(node, ORDEN_NUMERO_ATTRIBUTES, 0);
+				if (numeroOrden == 0) {
                 	throw new BadRequestException("Número de orden inexistente o inválido");
             	}
 				fecha_estimada = JsonUtils.getFecha(node, ORDEN_FECHA_ESTIMADA_ATTRIBUTES, String.valueOf(new Date()));
@@ -88,10 +90,10 @@ public class OrdenJsonDeserializer extends StdDeserializer<Orden>{
 			Cliente cliente = JsonUtils.getCliente(node, CLIENTE_RAZON_SOCIAL_ATTRIBUTES, clienteBusiness);
 			Producto producto = JsonUtils.getProducto(node, PRODUCTO_NOMBRE_ATTRIBUTES, productoBusiness);
 		
-			r.setCodExt(codExt);
+			r.setNumeroOrden(numeroOrden);;
 			r.setFechaEstimada(fecha_estimada);
 			r.setPreset(preset);
-			r.setFechaRecepcionOrden(new Date(System.currentTimeMillis()));
+			r.setFechaRecepcionOrden(LocalDateTime.now());
 		
 			if (producto != null && cliente != null && camion != null && chofer != null) {
 				r.setCamion(camion);
@@ -99,7 +101,6 @@ public class OrdenJsonDeserializer extends StdDeserializer<Orden>{
 				r.setCliente(cliente);
 				r.setProducto(producto);
 			}
-			r.setEstado(Orden.Estado.ESTADO_1_PENDIENTE_PESAJE_INICIAL);
 			return r;
 		}catch (Exception e) {
 			log.error(e.getMessage(), e);

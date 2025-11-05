@@ -111,14 +111,7 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		                .build();
 		    }
 
-		    //  Verificación de preset
-		    if (preset != null && masaActual > preset) {
-		        log.error("Se quiso enviar una masa mayor al preset: " + masaActual + " > " + preset);
-		        throw InvalidLoadException.builder()
-		                .message("ERROR: Masa mayor al preset (" + masaActual + " > " + preset + ")")
-		                .build();
-		    }
-
+		
 		    //  Guardado final
 		    try {
 		    	datoCargaHeaderBusiness.add(datoCarga);
@@ -167,6 +160,18 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		}
 
 	}
+	
+	@Override
+	public List<DatoCarga> listByNumeroOrden(int numeroOrden) throws BusinessException {
+
+		try {
+			return datoCargaDAO.findAllByNumeroOrden(numeroOrden);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).message(e.getMessage()).build();
+		}
+
+	}
 
 	@Override
 	public Optional<Double> loadLastMasaAcumulada(Integer claveActivacion) throws BusinessException {
@@ -181,10 +186,34 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 	}
 	
 	@Override
-	public Optional<Double> calculateDensidadProducto(Integer claveActivacion) throws BusinessException {
+	public Optional<Double> calculateDensidadProductoAvg(Integer numeroOrden) throws BusinessException {
 
 		try {
-			return datoCargaDAO.calculateDensidadProductoAvg(claveActivacion);
+			return datoCargaDAO.calculateDensidadProductoAvg(numeroOrden);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).message(e.getMessage()).build();
+		}
+
+	}
+	
+	@Override
+	public Optional<Double> calculateTemperaturaAvg(Integer numeroOrden) throws BusinessException {
+
+		try {
+			return datoCargaDAO.calculateTemperaturaAvg(numeroOrden);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).message(e.getMessage()).build();
+		}
+
+	}
+	
+	@Override
+	public Optional<Double> calculateCaudalAvg(Integer numeroOrden) throws BusinessException {
+
+		try {
+			return datoCargaDAO.calculateCaudalAvg(numeroOrden);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw BusinessException.builder().ex(e).message(e.getMessage()).build();
