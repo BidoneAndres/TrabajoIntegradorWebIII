@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -35,13 +37,13 @@ public class DatoCarga {
 	//asociamos al numero de orden
 	
 	@ManyToOne(fetch = FetchType.LAZY)  // ->importante, sino me va a traer en cada coNSULTA todas las veces la otden entera
-	@JoinColumn(name="clave_activacion_orden",nullable = false)//da mas detalles, clave foranea, 
+	@JoinColumn(name="orden_id",nullable = false)//da mas detalles, clave foranea, 
 	private Orden orden;
 	
-	private double ultima_masa_acumulada;
-	private double ultima_densidad_producto;
-	private int ultima_temperatura;
-	private double ultimo_caudal;
+	private double masaAcumulada;
+	private double densidadProducto;
+	private int temperatura;
+	private double caudal;
 	
 	// --- TIMESTAMPS AUTOMÁTICOS ---
 

@@ -72,8 +72,8 @@ public class OrdenBusiness implements IOrdenBusiness {
 	public Orden cargaExterna(String json)
 			throws FoundException, BusinessException, BadRequestException, UnProcessableException {
 
-		ObjectMapper mapper = JsonUtils.getObjectMapper(Orden.class, new OrdenJsonDeserializer(
-				Orden.class, choferBusiness, camionBusiness, clienteBusiness, productoBusiness), null);
+		ObjectMapper mapper = JsonUtils.getObjectMapper(Orden.class, new OrdenJsonDeserializer(Orden.class,
+				choferBusiness, camionBusiness, clienteBusiness, productoBusiness), null);
 		Orden orden;
 
 		try {
@@ -92,66 +92,170 @@ public class OrdenBusiness implements IOrdenBusiness {
 	}
 
 	public Orden loadByCodExt(String codExt) throws NotFoundException, BusinessException {
-		 Optional<Orden> r;
-        try {
-            r = ordenDAO.findOneByCodExt(codExt);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw BusinessException.builder().ex(e).build();
-        }
-        if (r.isEmpty()) {
-            throw NotFoundException.builder().message("No se encuentra la orden codExt=" + codExt).build();
-        }
-        return r.get();
-		
+		Optional<Orden> r;
+		try {
+			r = ordenDAO.findOneByCodExt(codExt);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+		if (r.isEmpty()) {
+			throw NotFoundException.builder().message("No se encuentra la orden codExt=" + codExt).build();
+		}
+		return r.get();
+
 	}
 
 	public Orden add(Orden orden) throws FoundException, BusinessException {
 		Optional<Orden> ordenFound;
 
-        ordenFound = ordenDAO.findOneByCodExt(orden.getCodExt());
-        if (ordenFound.isPresent()) {
-            throw FoundException.builder().message("Ya existe una orden con el número " + orden.getCodExt()).build();
-        }
-        ordenFound = ordenDAO.findByCamion_PatenteAndEstado(orden.getCamion().getPatente(), Orden.Estado.RECIBIDA);
-        if (ordenFound.isPresent()) {
-            throw FoundException.builder().message("Ya existe una orden para el camion id=" + orden.getCamion().getId()).build();
-        }
+		ordenFound = ordenDAO.findOneByCodExt(orden.getCodExt());
+		if (ordenFound.isPresent()) {
+			throw FoundException.builder().message("Ya existe una orden con el número " + orden.getCodExt()).build();
+		}
+		ordenFound = ordenDAO.findByCamion_PatenteAndEstado(orden.getCamion().getPatente(), Orden.Estado.ESTADO_1_PENDIENTE_PESAJE_INICIAL);
+		if (ordenFound.isPresent()) {
+			throw FoundException.builder().message("Ya existe una orden para el camion id=" + orden.getCamion().getId())
+					.build();
+		}
 
-        try {
-            return ordenDAO.save(orden);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw BusinessException.builder().ex(e).build();
-        }
-	}
-
-	public Orden registrarPesajeInicial(String patente, float pesoInicial) throws NotFoundException, BusinessException, UnProcessableException {
-		Optional<Orden> ordenFound;
-		try {
-			ordenFound = ordenDAO.findByCamion_PatenteAndEstado(patente, Orden.Estado.RECIBIDA);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			throw BusinessException.builder().ex(e).build();
-		}
-		if (ordenFound.isEmpty()) {
-			throw NotFoundException.builder().message("No se encuentra la orden para el camion de patente=" + patente).build();
-		}
-		Orden orden = ordenFound.get();
-		if (orden.getEstado() != Orden.Estado.RECIBIDA) {
-			throw UnProcessableException.builder().message("La orden para el camion de patente=" + patente + " no se encuentra en estado RECIBIDA").build();
-		}
-		String password = generadorPassword.generarPassword();
-		orden.setClaveActivacion(password);
-		orden.setFechaPesajeInicial(new java.util.Date());
-		orden.setPesoInicial(pesoInicial);
-		orden.setEstado(Orden.Estado.REGISTRADA_PESAJE_INICIAL);
 		try {
 			return ordenDAO.save(orden);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw BusinessException.builder().ex(e).build();
 		}
+	}
+
+	public Orden registrarPesajeInicial(String patente, float pesoInicial)
+			throws NotFoundException, BusinessException, UnProcessableException {
+		Optional<Orden> ordenFound;
+		try {
+			ordenFound = ordenDAO.findByCamion_PatenteAndEstado(patente, Orden.Estado.ESTADO_1_PENDIENTE_PESAJE_INICIAL);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+		if (ordenFound.isEmpty()) {
+			throw NotFoundException.builder().message("No se encuentra la orden para el camion de patente=" + patente)
+					.build();
+		}
+		Orden orden = ordenFound.get();
+		if (orden.getEstado() != Orden.Estado.ESTADO_1_PENDIENTE_PESAJE_INICIAL) {
+			throw UnProcessableException.builder()
+					.message("La orden para el camion de patente=" + patente + " no se encuentra en estado RECIBIDA")
+					.build();
+		}
+		String password = generadorPassword.generarPassword();
+		orden.setClaveActivacion(1010);
+		orden.setFechaPesajeInicial(new java.util.Date());
+		orden.setPesoInicial(pesoInicial);
+		orden.setEstado(Orden.Estado.ESTADO_2_PESAJE_INICIAL_REGISTRADO);
+		try {
+			return ordenDAO.save(orden);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+
+	}// esto se usa en carga estado 2
+
+	public Orden activarCarga(Integer claveActivacion) throws NotFoundException, BusinessException {
+		Optional<Orden> ordenFound;
+
+		ordenFound = ordenDAO.findByClaveActivacion(claveActivacion);
+		if (ordenFound.isPresent()) {
+			ordenFound.get().setEstado(Orden.Estado.ESTADO_2_EN_PROCESO_DE_CARGA);
+
+			try {
+				return ordenDAO.save(ordenFound.get());
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+				throw BusinessException.builder().ex(e).build();
+			}
+		}
+
+		else {
+			throw NotFoundException.builder()
+					.message("No se encontro la orden con clave de activacion " + claveActivacion).build();
+
+		}
+
+	}
+
+	public Orden desactivarCarga(Integer claveActivacion) throws NotFoundException, BusinessException {
+		Optional<Orden> ordenFound;
+
+		ordenFound = ordenDAO.findByClaveActivacion(claveActivacion);
+		if (ordenFound.isPresent()) {
+			ordenFound.get().setEstado(Orden.Estado.ESTADO_3_CERRADA_PARA_CARGA);
+
+			try {
+				return ordenDAO.save(ordenFound.get());
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+				throw BusinessException.builder().ex(e).build();
+			}
+		}
+
+		else {
+			throw NotFoundException.builder()
+					.message("No se encontro la orden con clave de activacion " + claveActivacion).build();
+
+		}
+
+	}
+
+	public Orden loadByClaveActivacion(Integer claveActivacion) throws NotFoundException, BusinessException {
+		Optional<Orden> r;
+		try {
+			r = ordenDAO.findByClaveActivacion(claveActivacion);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+		if (r.isEmpty()) {
+			throw NotFoundException.builder().message("No se encuentra la orden con clave=" + claveActivacion).build();
+		}
+		return r.get();
+
+	}
+
+	public Optional<Orden> findById(long ordenId) throws NotFoundException, BusinessException {
+		Optional<Orden> r;
+		try {
+			r = ordenDAO.findById(ordenId);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+		if (r.isEmpty()) {
+			throw NotFoundException.builder().message("No se encuentra la orden con clave=" + ordenId).build();
+		}
+		return r;
+
+	}
+
+	public Integer findPreset(Long ordenId) throws NotFoundException, BusinessException {
+		Integer r;
+		try {
+			r = ordenDAO.findPreset(ordenId);
+			return r;
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+	}
+
+	public Orden.Estado findEstado(Long ordenId) throws NotFoundException, BusinessException {
+		Orden.Estado r;
+		try {
+			r = ordenDAO.findEstado(ordenId);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+		return r;
 	}
 
 }

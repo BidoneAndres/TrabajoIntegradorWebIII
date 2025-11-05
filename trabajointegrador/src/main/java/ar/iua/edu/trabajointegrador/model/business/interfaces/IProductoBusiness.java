@@ -7,6 +7,7 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 
+
 public interface IProductoBusiness {
 	public List<Producto> list() throws BusinessException;
 	

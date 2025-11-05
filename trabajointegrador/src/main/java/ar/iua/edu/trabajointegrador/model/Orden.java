@@ -29,11 +29,12 @@ import lombok.Setter;
 public class Orden {
 	
 	public enum Estado{
-		RECIBIDA,
-		REGISTRADA_PESAJE_INICIAL,
-		CERRADA,
-		REGISTRADA_PESAJE_FINAL,
-		CANCELADA		
+		ESTADO_1_PENDIENTE_PESAJE_INICIAL,
+		ESTADO_2_PESAJE_INICIAL_REGISTRADO,
+		ESTADO_2_EN_PROCESO_DE_CARGA,
+		ESTADO_3_CERRADA_PARA_CARGA,
+		ESTADO_4_FINALIZADA,
+				
 	}
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,8 +66,9 @@ public class Orden {
     @JoinColumn(name = "id_chofer", nullable = false)
 	private Chofer chofer;
 	
-	@Column(length = 10, unique = true)
-    private String claveActivacion;
+	//es de 4 digitos la clave de activacion
+	@Column(length = 10)
+    private Integer claveActivacion;
 	
 	private float pesoInicial;
 	

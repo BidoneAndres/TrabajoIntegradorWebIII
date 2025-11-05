@@ -114,6 +114,19 @@ public class JsonUtils {
 			r = defaultValue;
 		return r;
 	}
+	
+	public static int getInt(JsonNode node, String[] attrs, int defaultValue) {
+		Integer r = null;
+		for (String attr : attrs) {
+			if (node.get(attr) != null && node.get(attr).isInt()) {
+				r = node.get(attr).asInt();
+				break;
+			}
+		}
+		if (r == null)
+			r = defaultValue;
+		return r;
+	}
 
 	public static boolean getBoolean(JsonNode node, String[] attrs, boolean defaultValue) {
 		Boolean r = null;
