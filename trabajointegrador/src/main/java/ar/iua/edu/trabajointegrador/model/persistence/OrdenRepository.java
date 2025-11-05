@@ -12,9 +12,6 @@ public interface OrdenRepository extends JpaRepository<Orden, Long>{
 	public Optional<Orden> findByClaveActivacion(Integer claveActivacion);
 	public Optional<Orden> findByIdAndEstado(long id, Estado estado);
 	public Optional<Orden> findOneByCodExt(String codExt);
-	public Optional<Orden> findByCamion_PatenteAndEstado(String patente, Orden.Estado estado);
-	
-	
 
 	//esto se usa en dato carga
 	@Query("SELECT dc.preset FROM Orden dc WHERE dc.id = :ordenId")
@@ -23,8 +20,8 @@ public interface OrdenRepository extends JpaRepository<Orden, Long>{
 	@Query("SELECT dc.estado FROM Orden dc WHERE dc.id = :ordenId")
 	public Orden.Estado findEstado(Long ordenId);
 	
-	//
-
-	public Optional<Orden> findByCamion_IdAndEstado(Long camion_id, Orden.Estado estado);
+	//public Optional<Orden> findByCamion_IdAndEstado(Long camion_id, Orden.Estado estado);
 	
+	public Optional<Orden> findByCamion_PatenteAndEstado(String patente, Orden.Estado estado);
+	public Optional<Orden> findByIdAndClaveActivacion(long id, int claveActivacion);
 }
