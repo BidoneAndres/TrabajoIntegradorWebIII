@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ar.iua.edu.trabajointegrador.model.DatoCarga;
@@ -19,7 +20,6 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.InvalidLoadExcepti
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.StateLoadException;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaBusiness;
-import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaHeaderBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IOrdenBusiness;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 
@@ -81,9 +81,9 @@ public class CargaRestController {
 	}
 
 	@PostMapping(value = "/activacion")
-	public ResponseEntity<?> activate(@RequestBody Integer claveActivacion) {
+	public ResponseEntity<?> activate(@RequestParam Long ordenId, @RequestParam Integer claveActivacion) {
 		try {
-			Orden response = ordenBusiness.activarCarga(claveActivacion);
+			Orden response = ordenBusiness.activarCarga(ordenId,claveActivacion);
 
 			// resposnse
 			HttpHeaders responseHeaders = new HttpHeaders();

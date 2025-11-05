@@ -160,10 +160,10 @@ public class OrdenBusiness implements IOrdenBusiness {
 
 	}// esto se usa en carga estado 2
 
-	public Orden activarCarga(Integer claveActivacion) throws NotFoundException, BusinessException {
+	public Orden activarCarga(Long ordenId, Integer claveActivacion) throws NotFoundException, BusinessException {
 		Optional<Orden> ordenFound;
 
-		ordenFound = ordenDAO.findByClaveActivacion(claveActivacion);
+		ordenFound = ordenDAO.findByIdAndClaveActivacion(ordenId, claveActivacion);
 		if (ordenFound.isPresent()) {
 			ordenFound.get().setEstado(Orden.Estado.ESTADO_2_EN_PROCESO_DE_CARGA);
 
@@ -177,16 +177,16 @@ public class OrdenBusiness implements IOrdenBusiness {
 
 		else {
 			throw NotFoundException.builder()
-					.message("No se encontro la orden con clave de activacion " + claveActivacion).build();
+					.message("No se encontro la orden con id " + ordenId + " y clave de activacion " + claveActivacion).build();
 
 		}
 
 	}
 
-	public Orden desactivarCarga(Integer claveActivacion) throws NotFoundException, BusinessException {
+	public Orden desactivarCarga(Long ordenId) throws NotFoundException, BusinessException {
 		Optional<Orden> ordenFound;
 
-		ordenFound = ordenDAO.findByClaveActivacion(claveActivacion);
+		ordenFound = ordenDAO.findById(ordenId);
 		if (ordenFound.isPresent()) {
 			ordenFound.get().setEstado(Orden.Estado.ESTADO_3_CERRADA_PARA_CARGA);
 
@@ -200,7 +200,7 @@ public class OrdenBusiness implements IOrdenBusiness {
 
 		else {
 			throw NotFoundException.builder()
-					.message("No se encontro la orden con clave de activacion " + claveActivacion).build();
+					.message("No se encontro la orden con clave de activacion " + ordenId).build();
 
 		}
 
@@ -257,5 +257,21 @@ public class OrdenBusiness implements IOrdenBusiness {
 		}
 		return r;
 	}
+	
+	public Optional<Orden> findByIdAndClaveActivacion(long ordenId, int claveActivacion) throws NotFoundException, BusinessException {
+		Optional<Orden> r;
+		try {
+			r = ordenDAO.findByIdAndClaveActivacion(ordenId, claveActivacion);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+		if (r.isEmpty()) {
+			throw NotFoundException.builder().message("No se encuentra la orden con clave=" + ordenId + " y clave de activacion "+ claveActivacion).build();
+		}
+		return r;
+
+	}
+
 
 }
