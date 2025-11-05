@@ -22,4 +22,7 @@ public interface DatoCargaRepository extends JpaRepository<DatoCarga, Long> {
 	@Query("SELECT avg(dc.caudal) FROM DatoCarga dc WHERE dc.orden.numeroOrden = :numeroOrden GROUP BY dc.orden.numeroOrden")
 	Optional<Double> calculateCaudalAvg(Integer numeroOrden);
 	
+	@Query("SELECT dc FROM DatoCarga dc WHERE dc.orden.numeroOrden = :numeroOrden ORDER BY dc.timestamp")
+	List<DatoCarga> findAllByNumeroOrden(int numeroOrden);
+	
 }

@@ -15,6 +15,7 @@ public interface IDatoCargaBusiness {
 	//public List<DatoCarga> listByOrden(Long ordenId) throws BusinessException;
 
 	public List<DatoCarga> list() throws BusinessException;
+	public List<DatoCarga> listByNumeroOrden(int numeroOrden) throws BusinessException;
 	
 	//utils
 	public Optional<Double> loadLastMasaAcumulada(Integer claveActivacion) throws BusinessException;

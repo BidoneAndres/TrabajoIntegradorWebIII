@@ -160,6 +160,18 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		}
 
 	}
+	
+	@Override
+	public List<DatoCarga> listByNumeroOrden(int numeroOrden) throws BusinessException {
+
+		try {
+			return datoCargaDAO.findAllByNumeroOrden(numeroOrden);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).message(e.getMessage()).build();
+		}
+
+	}
 
 	@Override
 	public Optional<Double> loadLastMasaAcumulada(Integer claveActivacion) throws BusinessException {

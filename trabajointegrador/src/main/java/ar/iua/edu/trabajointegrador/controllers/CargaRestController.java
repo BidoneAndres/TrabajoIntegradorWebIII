@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +20,7 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.InvalidLoadExcepti
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.StateLoadException;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaBusiness;
+import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaHeaderBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IOrdenBusiness;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 
@@ -28,6 +30,10 @@ public class CargaRestController {
 
 	@Autowired
 	private IDatoCargaBusiness datoCargaBusiness;
+	
+
+	@Autowired
+	private IDatoCargaHeaderBusiness datoCargaHeaderBusiness;
 
 	@Autowired
 	private IOrdenBusiness ordenBusiness;
@@ -48,6 +54,45 @@ public class CargaRestController {
 			 * HttpStatus.FOUND); }
 			 */
 	}
+	
+	@GetMapping(value = "/{numeroOrden}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> listNumeroOrden(@PathVariable(value="numeroOrden") int numeroOrden) {
+		try {
+			return new ResponseEntity<>(datoCargaBusiness.listByNumeroOrden(numeroOrden), HttpStatus.OK);
+		} catch (BusinessException e) {
+			return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
+		} /*
+			 * catch (NotFoundException e) { return new
+			 * ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()),
+			 * HttpStatus.FOUND); }
+			 */
+	}
+	
+	@GetMapping(value = "/carga-header", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> listHeaders() {
+		try {
+			return new ResponseEntity<>(datoCargaHeaderBusiness.listHeaders(), HttpStatus.OK);
+		} catch (BusinessException e) {
+			return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
+		} /*
+			 * catch (NotFoundException e) { return new
+			 * ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()),
+			 * HttpStatus.FOUND); }
+			 */
+	}
+	
+	 @GetMapping(value = "/carga-header/orden/{ordenId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	    public ResponseEntity<?> loadHeader(@PathVariable(value="ordenId") long ordenId) {
+	    	try {
+	            return new ResponseEntity<>(datoCargaHeaderBusiness.findByOrdenId(ordenId), HttpStatus.OK);
+	        } catch (NotFoundException e) {
+	            return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
+	        } catch (BusinessException e) {
+	            return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+	        } catch (Exception e) {
+	            return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+	        }
+	    }
 
 	@PostMapping(value = "")
 	public ResponseEntity<?> add(HttpEntity<String> httpEntity) {
