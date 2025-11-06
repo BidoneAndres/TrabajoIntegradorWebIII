@@ -5,7 +5,7 @@ import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.CHOFER_DO
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.CLIENTE_RAZON_SOCIAL_ATTRIBUTES;
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.ORDEN_FECHA_ESTIMADA_ATTRIBUTES;
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.ORDEN_NUMERO_ATTRIBUTES;
-import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.ORDEN_PESO_INICIAL_ATTRIBUTES;
+import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.ORDEN_PRESET_ATTRIBUTES;
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.PRODUCTO_NOMBRE_ATTRIBUTES;
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.ORDEN_CODIGO_EXTERNO_ATTRIBUTES;
 
@@ -77,7 +77,7 @@ public class OrdenJsonDeserializer extends StdDeserializer<Orden>{
 				if (fecha_estimada == null) {
                 	throw new BadRequestException("Fecha estimada inexistente");
             	}
-				preset = (int) JsonUtils.getValue(node, ORDEN_PESO_INICIAL_ATTRIBUTES, 0);
+				preset = (int) JsonUtils.getValue(node, ORDEN_PRESET_ATTRIBUTES, 0);
 				if (preset < 0) {
                 	throw new BadRequestException("Preset falta o no es válido");
             	}

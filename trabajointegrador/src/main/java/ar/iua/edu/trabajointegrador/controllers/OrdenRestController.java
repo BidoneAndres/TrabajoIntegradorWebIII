@@ -85,7 +85,7 @@ public class OrdenRestController extends BaseRestController{
             responseHeaders.set("Location", Constants.URL_ORDENES + ordenCreada.getCodExt());
             return new ResponseEntity<>(responseHeaders, HttpStatus.CREATED);
         } catch (FoundException e) {
-            return new ResponseEntity<>(response.build(HttpStatus.CONFLICT, e, e.getMessage()), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()), HttpStatus.FOUND);
         } catch (BadRequestException e) {
             return new ResponseEntity<>(response.build(HttpStatus.BAD_REQUEST, e, e.getMessage()), HttpStatus.BAD_REQUEST);
         } catch (UnProcessableException e) {

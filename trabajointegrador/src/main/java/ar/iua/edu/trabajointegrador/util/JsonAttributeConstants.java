@@ -3,7 +3,7 @@ package ar.iua.edu.trabajointegrador.util;
 public class JsonAttributeConstants {
     public static final String[] ORDEN_NUMERO_ATTRIBUTES = {"numero", "Numero", "numero_orden", "order", "Order", "order_number"};
     public static final String[] ORDEN_FECHA_ESTIMADA_ATTRIBUTES = {"fecha_estimada", "fechaEstimada", "estimated_date", "estimatedDate"};
-    public static final String[] ORDEN_PESO_INICIAL_ATTRIBUTES = {"peso_inicial", "pesoInicial", "initial_weight", "initialWeight"};
+    public static final String[] ORDEN_PRESET_ATTRIBUTES = {"preset", "pesoEstimado"};
     public static final String[] ORDEN_CODIGO_EXTERNO_ATTRIBUTES = {"codigo", "codExt", "codigo_externo", "codigoExterno", "cod_ext", "codigo"};
 
     // Constantes para el nodo chofer

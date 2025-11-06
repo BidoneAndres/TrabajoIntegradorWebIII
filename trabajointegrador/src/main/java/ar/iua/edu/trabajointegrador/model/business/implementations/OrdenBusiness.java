@@ -109,14 +109,22 @@ public class OrdenBusiness implements IOrdenBusiness {
 	public Orden add(Orden orden) throws FoundException, BusinessException {
 		Optional<Orden> ordenFound;
 
-		ordenFound = ordenDAO.findByNumeroOrden(orden.getNumeroOrden());
+		// chequeos para orden
+		ordenFound = ordenDAO.findByNumeroOrden(orden.getNumeroOrden()); // ya hay NUMERO DE ORDEN
 		if (ordenFound.isPresent()) {
-			throw FoundException.builder().message("Ya existe una orden con el número " + orden.getNumeroOrden()).build();
+			throw FoundException.builder().message("Ya existe una orden con el número " + orden.getNumeroOrden())
+					.build();
 		}
 		ordenFound = ordenDAO.findByCamion_PatenteAndEstado(orden.getCamion().getPatente(),
-				Orden.Estado.ESTADO_1_PENDIENTE_PESAJE_INICIAL);
+				Orden.Estado.ESTADO_1_PENDIENTE_PESAJE_INICIAL); //Yya hay ese camion con ese estado
 		if (ordenFound.isPresent()) {
 			throw FoundException.builder().message("Ya existe una orden para el camion id=" + orden.getCamion().getId())
+					.build();
+		}
+		
+		ordenFound = ordenDAO.findOneByCodExt(orden.getCodExt()); //Codigo externo 
+		if (ordenFound.isPresent()) {
+			throw FoundException.builder().message("Ya existe una orden con el codigo externo: " + orden.getCodExt())
 					.build();
 		}
 
@@ -128,7 +136,6 @@ public class OrdenBusiness implements IOrdenBusiness {
 		}
 	}
 
-
 	public Orden registrarPesajeInicial(String patente, float pesoInicial)
 			throws NotFoundException, BusinessException, UnProcessableException {
 		Optional<Orden> ordenFound;
@@ -138,9 +145,9 @@ public class OrdenBusiness implements IOrdenBusiness {
 			throw NotFoundException.builder().message("No se encuentra la orden para el camion de patente = " + patente
 					+ " en el estado ESTADO_1_PENDIENTE_PESAJE_INICIAL").build();
 		}
-		
+
 		Orden orden = ordenFound.get();
-		//String password = generadorPassword.generarPassword();
+		// String password = generadorPassword.generarPassword();
 		orden.setClaveActivacion(1010);
 		orden.setPesoInicial(pesoInicial);
 		orden.setEstado(Orden.Estado.ESTADO_2_PESAJE_INICIAL_REGISTRADO);
@@ -256,6 +263,7 @@ public class OrdenBusiness implements IOrdenBusiness {
 			throw BusinessException.builder().ex(e).build();
 		}
 	}
+
 	public Orden.Estado findEstado(Long ordenId) throws NotFoundException, BusinessException {
 		Orden.Estado r;
 		try {
