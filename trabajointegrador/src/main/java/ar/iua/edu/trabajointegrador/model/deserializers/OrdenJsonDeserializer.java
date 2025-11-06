@@ -2,11 +2,12 @@ package ar.iua.edu.trabajointegrador.model.deserializers;
 
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.CAMION_PATENTE_ATTRIBUTES;
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.CHOFER_DOCUMENTO_ATTRIBUTES;
+import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.CLIENTE_RAZON_SOCIAL_ATTRIBUTES;
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.ORDEN_FECHA_ESTIMADA_ATTRIBUTES;
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.ORDEN_NUMERO_ATTRIBUTES;
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.ORDEN_PESO_INICIAL_ATTRIBUTES;
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.PRODUCTO_NOMBRE_ATTRIBUTES;
-import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.CLIENTE_RAZON_SOCIAL_ATTRIBUTES;
+import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.ORDEN_CODIGO_EXTERNO_ATTRIBUTES;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -62,7 +63,7 @@ public class OrdenJsonDeserializer extends StdDeserializer<Orden>{
     public Orden deserialize(JsonParser jp, DeserializationContext context) {
 	Orden r = new Orden();
 	JsonNode node = jp.getCodec().readTree(jp);
-	String codExt;
+	String codExt = "";
 	Date fecha_estimada;
 	int preset;
 	int numeroOrden;
@@ -80,6 +81,8 @@ public class OrdenJsonDeserializer extends StdDeserializer<Orden>{
 				if (preset < 0) {
                 	throw new BadRequestException("Preset falta o no es válido");
             	}
+				codExt = JsonUtils.getString(node, ORDEN_CODIGO_EXTERNO_ATTRIBUTES, codExt);
+				
 			} catch(BadRequestException e) {
 			 	log.error(e.getMessage(), e);
 	        	 throw new BusinessException(e.getMessage());
@@ -94,6 +97,7 @@ public class OrdenJsonDeserializer extends StdDeserializer<Orden>{
 			r.setFechaEstimada(fecha_estimada);
 			r.setPreset(preset);
 			r.setFechaRecepcionOrden(LocalDateTime.now());
+			r.setCodExt(codExt);
 		
 			if (producto != null && cliente != null && camion != null && chofer != null) {
 				r.setCamion(camion);

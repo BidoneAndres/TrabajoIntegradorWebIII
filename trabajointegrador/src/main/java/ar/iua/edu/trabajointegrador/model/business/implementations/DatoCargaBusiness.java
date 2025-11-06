@@ -61,9 +61,9 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		    //  Validación inicial
 			
 		    if (datoCarga.getOrden() == null) {
-		        log.error("No se encontro la orden con esa clave de activacion");
+		        log.error("No se encontro la orden con ese numero de orden");
 		        throw NotFoundException.builder()
-		                .message("No se encontro la orden con esa clave de activacion")
+		                .message("No se encontro la orden con ese numero de orden")
 		                .build();
 		    }
 

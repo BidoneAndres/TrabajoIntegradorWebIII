@@ -109,9 +109,9 @@ public class OrdenBusiness implements IOrdenBusiness {
 	public Orden add(Orden orden) throws FoundException, BusinessException {
 		Optional<Orden> ordenFound;
 
-		ordenFound = ordenDAO.findOneByCodExt(orden.getCodExt());
+		ordenFound = ordenDAO.findByNumeroOrden(orden.getNumeroOrden());
 		if (ordenFound.isPresent()) {
-			throw FoundException.builder().message("Ya existe una orden con el número " + orden.getCodExt()).build();
+			throw FoundException.builder().message("Ya existe una orden con el número " + orden.getNumeroOrden()).build();
 		}
 		ordenFound = ordenDAO.findByCamion_PatenteAndEstado(orden.getCamion().getPatente(),
 				Orden.Estado.ESTADO_1_PENDIENTE_PESAJE_INICIAL);
@@ -124,7 +124,7 @@ public class OrdenBusiness implements IOrdenBusiness {
 			return ordenDAO.save(orden);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
-			throw BusinessException.builder().ex(e).build();
+			throw BusinessException.builder().ex(e).message(e.getMessage()).build();
 		}
 	}
 
@@ -189,7 +189,7 @@ public class OrdenBusiness implements IOrdenBusiness {
 				return ordenDAO.save(ordenFound.get());
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
-				throw BusinessException.builder().ex(e).build();
+				throw BusinessException.builder().ex(e).message(e.getMessage()).build();
 			}
 		}
 

@@ -90,7 +90,7 @@ public class Orden {
 
 	public void setEstado(Estado nuevoEstado) {
 		 if (this.estado == Estado.ESTADO_4_FINALIZADA) {
-		        throw new IllegalStateException("No se puede cambiar el estado de una orden finalizada");
+		        throw new IllegalStateException("No se puede cambiar el estado de una orden finalizada, NUMERO DE ORDEN: " + this.numeroOrden);
 		    }
 
 		    if (this.estado == Estado.ESTADO_1_PENDIENTE_PESAJE_INICIAL

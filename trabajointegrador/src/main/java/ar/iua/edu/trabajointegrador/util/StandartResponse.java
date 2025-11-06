@@ -23,10 +23,13 @@ public class StandartResponse {
 	@JsonIgnore
 	private HttpStatus httpStatus;
 
+	public String getReasonPhrase() {
+		return httpStatus.toString();
+	}
+	
 	public int getCode() {
 		return httpStatus.value();
 	}
-
 	
 
 	public String getMessage() {
