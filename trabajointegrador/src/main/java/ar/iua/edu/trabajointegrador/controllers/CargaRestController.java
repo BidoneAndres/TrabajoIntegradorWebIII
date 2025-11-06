@@ -93,6 +93,8 @@ public class CargaRestController {
 	            return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
 	        }
 	    }
+	 
+	 
 
 	@PostMapping(value = "")
 	public ResponseEntity<?> add(HttpEntity<String> httpEntity) {

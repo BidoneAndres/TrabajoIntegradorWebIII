@@ -77,19 +77,38 @@ public class JsonUtiles {
 			r = defaultValue;
 		return r;
 	}
+	
+	public static int getInt(JsonNode node, String[] attrs, int defaultValue) {
+	    Integer r = null;
+	    for (String attr : attrs) {
+	        JsonNode valueNode = node.get(attr);
+	        if (valueNode != null && valueNode.isNumber()) {
+	            r = valueNode.asInt(); // convierte float/double a int truncando los decimales
+	            break;
+	        }
+	    }
+	    if (r == null) {
+	        r = defaultValue;
+	    }
+	    return r;
+	}
+
 
 	public static double getDouble(JsonNode node, String[] attrs, double defaultValue) {
-		Double r = null;
-		for (String attr : attrs) {
-			if (node.get(attr) != null && node.get(attr).isDouble()) {
-				r = node.get(attr).asDouble();
-				break;
-			}
-		}
-		if (r == null)
-			r = defaultValue;
-		return r;
+	    Double r = null;
+	    for (String attr : attrs) {
+	        JsonNode valueNode = node.get(attr);
+	        if (valueNode != null && valueNode.isNumber()) {
+	            r = valueNode.asDouble(); // asDouble() convierte int o double sin problema
+	            break;
+	        }
+	    }
+	    if (r == null) {
+	        r = defaultValue;
+	    }
+	    return r;
 	}
+
 	public static long getLong(JsonNode node, String[] attrs, long defaultValue) {
 		Long r = null;
 		for (String attr : attrs) {
