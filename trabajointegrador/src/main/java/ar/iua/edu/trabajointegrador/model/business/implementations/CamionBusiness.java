@@ -18,16 +18,18 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class CamionBusiness implements ICamionBusiness {
-	
+
 	@Autowired
 	private CamionRepository camionDAO;
-	
+
+	@Autowired
+	private SisternaBusiness sisternaBusiness;
 
 	@Override
 	public List<Camion> list() throws BusinessException {
 		try {
 			return camionDAO.findAll();
-		}catch(Exception e){
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw BusinessException.builder().ex(e).build();
 		}
@@ -38,12 +40,12 @@ public class CamionBusiness implements ICamionBusiness {
 		Optional<Camion> camionFound;
 		try {
 			camionFound = camionDAO.findById(id);
-		}catch(Exception e){
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw BusinessException.builder().ex(e).build();
 		}
 		if (camionFound.isEmpty())
-			throw NotFoundException.builder().message("El camion "+ id + "no se encuentra").build();
+			throw NotFoundException.builder().message("El camion " + id + "no se encuentra").build();
 		return camionFound.get();
 	}
 
@@ -52,34 +54,48 @@ public class CamionBusiness implements ICamionBusiness {
 		Optional<Camion> camionFound;
 		try {
 			camionFound = camionDAO.findByPatente(patente);
-		}catch(Exception e){
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw BusinessException.builder().ex(e).build();
 		}
 		if (camionFound.isEmpty())
-			throw NotFoundException.builder().message("El camion con la patente"+ patente + "no se encuentra").build();
+			throw NotFoundException.builder().message("El camion con la patente" + patente + "no se encuentra").build();
 		return camionFound.get();
 	}
-	
-	public Camion addCamion(Camion camion) throws FoundException, BusinessException, NotFoundException{
-	    //Verificar si el Chofer ya existe (Recomendación: Mover la búsqueda al inicio)
-	    Optional<Camion> foundCamion = camionDAO.findByPatente(camion.getPatente());
 
-	    //Controlar la FoundException si ya existe un Chofer con ese documento
-	    if (foundCamion.isPresent()) {
-	        // Si ya existe, lanzamos la excepción específica FoundException
-	        throw new FoundException("Ya existe un camion registrado con la patente: " + camion.getPatente());
-	    }
+	public Camion addCamion(Camion camion) throws FoundException, BusinessException, NotFoundException {
+		// Verificar si el Chofer ya existe (Recomendación: Mover la búsqueda al inicio)
+		Optional<Camion> foundCamion = camionDAO.findByPatente(camion.getPatente());
 
-	    try {
-            for (Sisterna sisterna: camion.getSisternas()) {
-                sisterna.setCamion(camion);
-            }
-            camionDAO.save(camion);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw BusinessException.builder().ex(e).build();
-        }
-        return load(camion.getPatente());
+		// Controlar la FoundException si ya existe un Chofer con ese documento
+		if (foundCamion.isPresent()) {
+			// Si ya existe, lanzamos la excepción específica FoundException
+			throw new FoundException("Ya existe un camion registrado con la patente: " + camion.getPatente());
+		}
+
+		for (Sisterna sisterna : camion.getSisternas()) {
+			try {
+			if (sisternaBusiness.load(sisterna.getLicencia()) != null) {
+
+				throw FoundException.builder()
+						.message("Se encontro una sisterna con la licencia " + sisterna.getLicencia()).build();
+			}
+			}
+			//el load de sisternas arroja una excepcion si no encuentra, por lo tanto no hacemos nada
+			catch(NotFoundException e) {
+				sisterna.setCamion(camion);
+				
+			}
+		}
+		try {
+			camionDAO.save(camion);
+		}
+		
+		catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).message(e.getMessage()).build();
+		}
+		
+		return load(camion.getPatente());
 	}
 }

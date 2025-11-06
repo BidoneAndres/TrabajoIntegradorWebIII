@@ -27,6 +27,7 @@ import ar.iua.edu.trabajointegrador.model.Cliente;
 import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.Producto;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.ICamionBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IChoferBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IClienteBusiness;
@@ -34,71 +35,74 @@ import ar.iua.edu.trabajointegrador.model.business.interfaces.IProductoBusiness;
 import ar.iua.edu.trabajointegrador.util.JsonUtils;
 import lombok.SneakyThrows;
 
-public class OrdenJsonDeserializer extends StdDeserializer<Orden>{
-	
+public class OrdenJsonDeserializer extends StdDeserializer<Orden> {
+
 	private static final long serialVersionUID = -3881285352118964728L;
 	private static final Logger log = LoggerFactory.getLogger(OrdenJsonDeserializer.class);
-	
+
 	protected OrdenJsonDeserializer(Class<?> vc) {
 		super(vc);
 	}
-	
+
 	private IChoferBusiness choferBusiness;
-	
+
 	private ICamionBusiness camionBusiness;
-	
+
 	private IClienteBusiness clienteBusiness;
-	
+
 	private IProductoBusiness productoBusiness;
-	
-	public OrdenJsonDeserializer(Class<?> vc, IChoferBusiness choferBusiness, ICamionBusiness camionBusiness, IClienteBusiness clienteBusiness, IProductoBusiness productoBusiness) {
-		 super(vc);
-	        this.choferBusiness = choferBusiness;
-	        this.camionBusiness = camionBusiness;
-	        this.clienteBusiness = clienteBusiness;
-	        this.productoBusiness = productoBusiness;
+
+	public OrdenJsonDeserializer(Class<?> vc, IChoferBusiness choferBusiness, ICamionBusiness camionBusiness,
+			IClienteBusiness clienteBusiness, IProductoBusiness productoBusiness) {
+		super(vc);
+		this.choferBusiness = choferBusiness;
+		this.camionBusiness = camionBusiness;
+		this.clienteBusiness = clienteBusiness;
+		this.productoBusiness = productoBusiness;
 	}
+
 	@SneakyThrows
-    @Override
-    public Orden deserialize(JsonParser jp, DeserializationContext context) {
-	Orden r = new Orden();
-	JsonNode node = jp.getCodec().readTree(jp);
-	String codExt = "";
-	Date fecha_estimada;
-	int preset;
-	int numeroOrden;
-	try {
+	@Override
+	public Orden deserialize(JsonParser jp, DeserializationContext context) {
+		Orden r = new Orden();
+		JsonNode node = jp.getCodec().readTree(jp);
+		String codExt = "";
+		Date fecha_estimada;
+		int preset;
+		int numeroOrden;
+		try {
 			try {
 				numeroOrden = JsonUtils.getInt(node, ORDEN_NUMERO_ATTRIBUTES, 0);
 				if (numeroOrden == 0) {
-                	throw new BadRequestException("Número de orden inexistente o inválido");
-            	}
+					throw new BadRequestException("Número de orden inexistente o inválido");
+				}
 				fecha_estimada = JsonUtils.getFecha(node, ORDEN_FECHA_ESTIMADA_ATTRIBUTES, String.valueOf(new Date()));
 				if (fecha_estimada == null) {
-                	throw new BadRequestException("Fecha estimada inexistente");
-            	}
+					throw new BadRequestException("Fecha estimada inexistente");
+				}
 				preset = (int) JsonUtils.getValue(node, ORDEN_PRESET_ATTRIBUTES, 0);
 				if (preset < 0) {
-                	throw new BadRequestException("Preset falta o no es válido");
-            	}
+					throw new BadRequestException("Preset falta o no es válido");
+				}
 				codExt = JsonUtils.getString(node, ORDEN_CODIGO_EXTERNO_ATTRIBUTES, codExt);
-				
-			} catch(BadRequestException e) {
-			 	log.error(e.getMessage(), e);
-	        	 throw new BusinessException(e.getMessage());
+
+			} catch (BadRequestException e) {
+				log.error(e.getMessage(), e);
+				throw new BusinessException(e.getMessage());
 			}
-		
+
 			Chofer chofer = JsonUtils.getChofer(node, CHOFER_DOCUMENTO_ATTRIBUTES, choferBusiness);
 			Camion camion = JsonUtils.getCamion(node, CAMION_PATENTE_ATTRIBUTES, camionBusiness);
 			Cliente cliente = JsonUtils.getCliente(node, CLIENTE_RAZON_SOCIAL_ATTRIBUTES, clienteBusiness);
 			Producto producto = JsonUtils.getProducto(node, PRODUCTO_NOMBRE_ATTRIBUTES, productoBusiness);
-		
-			r.setNumeroOrden(numeroOrden);;
+
+			r.setNumeroOrden(numeroOrden);
+			;
 			r.setFechaEstimada(fecha_estimada);
 			r.setPreset(preset);
 			r.setFechaRecepcionOrden(LocalDateTime.now());
 			r.setCodExt(codExt);
-		
+
 			if (producto != null && cliente != null && camion != null && chofer != null) {
 				r.setCamion(camion);
 				r.setChofer(chofer);
@@ -106,7 +110,10 @@ public class OrdenJsonDeserializer extends StdDeserializer<Orden>{
 				r.setProducto(producto);
 			}
 			return r;
-		}catch (Exception e) {
+		} catch (FoundException e) {
+			log.error(e.getMessage(), e);
+			throw new FoundException(e.getMessage());
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new BusinessException(e.getMessage());
 		}
