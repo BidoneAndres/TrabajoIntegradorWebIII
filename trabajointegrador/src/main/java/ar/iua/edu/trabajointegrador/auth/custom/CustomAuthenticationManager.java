@@ -48,9 +48,18 @@ public class CustomAuthenticationManager implements AuthenticationManager {
 			throw new AuthenticationServiceException(e.getMessage());
 		}
 		String validation = user.validate();
+		if (validation.equals(User.VALIDATION_ACCOUNT_EXPIRED))
+			throw new AccountExpiredException(User.VALIDATION_ACCOUNT_EXPIRED);
+		if (validation.equals(User.VALIDATION_CREDENTIALS_EXPIRED))
+			throw new CredentialsExpiredException(User.VALIDATION_CREDENTIALS_EXPIRED);
+		if (validation.equals(User.VALIDATION_DISABLED))
+			throw new DisabledException(User.VALIDATION_DISABLED);
+		if (validation.equals(User.VALIDATION_LOCKED))
+			throw new LockedException(User.VALIDATION_LOCKED);
 		if (!pEncoder.matches(password, user.getPassword()))
 			throw new BadCredentialsException("Invalid password");
 		return new UsernamePasswordAuthenticationToken(user, null,user.getAuthorities());
+
 
 		
 	}

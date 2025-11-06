@@ -22,4 +22,7 @@
     <fullyQualifiedTypeName name="ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException"/>
     <fullyQualifiedTypeName name="ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException"/>
     <fullyQualifiedTypeName name="org.springframework.beans.factory.annotation.Autowired"/>
+    <fullyQualifiedTypeName name="org.springframework.context.annotation.Configuration"/>
+    <fullyQualifiedTypeName name="org.springframework.security.config.annotation.web.configuration.EnableWebSecurity"/>
+    <fullyQualifiedTypeName name="org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity"/>
 </qualifiedTypeNameHistroy>

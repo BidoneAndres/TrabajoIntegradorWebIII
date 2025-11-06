@@ -15,6 +15,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -66,6 +67,55 @@ public class AuthRestController extends BaseRestController {
 		
 
 		return new ResponseEntity<String>(token, HttpStatus.OK);
+	}
+
+	/**
+	 * JSON login endpoint. Accepts { "username": "..", "password": ".." } in the body.
+	 * Returns plain text JWT on success.
+	 */
+	@PostMapping(value = Constants.URL_LOGIN + "/json", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+	public ResponseEntity<?> loginJson(@RequestBody LoginRequest body, HttpServletRequest request) {
+		if (body == null || body.getUsername() == null || body.getPassword() == null) {
+			return new ResponseEntity<>(response.build(HttpStatus.BAD_REQUEST, null, "username and password are required"),
+					HttpStatus.BAD_REQUEST);
+		}
+		String username = body.getUsername();
+		String password = body.getPassword();
+		Authentication auth = null;
+		try {
+			auth = authManager.authenticate(((CustomAuthenticationManager) authManager).authWrap(username, password));
+		} catch (AuthenticationServiceException e0) {
+			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e0, e0.getMessage()),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (AuthenticationException e) {
+			return new ResponseEntity<>(response.build(HttpStatus.UNAUTHORIZED, e, e.getMessage()),
+					HttpStatus.UNAUTHORIZED);
+		}
+
+		User user = (User) auth.getPrincipal();
+		String token = JWT.create().withSubject(user.getUsername())
+				.withClaim("internalId", user.getIdUser())
+				.withClaim("roles", new ArrayList<String>(user.getAuthoritiesStr()))
+				.withClaim("email", user.getEmail())
+				.withClaim("version", "1.0.0")
+				.withExpiresAt(new Date(System.currentTimeMillis() + AuthConstants.EXPIRATION_TIME))
+				.sign(Algorithm.HMAC512(AuthConstants.SECRET.getBytes()));
+
+
+
+		return new ResponseEntity<String>(token, HttpStatus.OK);
+	}
+	@Autowired
+	private PasswordEncoder pEncoder;
+
+	@GetMapping(value = "/demo/encodepass", produces = MediaType.TEXT_PLAIN_VALUE)
+	public ResponseEntity<?> encodepass(@RequestParam String password) {
+		try {
+			return new ResponseEntity<String>(pEncoder.encode(password), HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 }

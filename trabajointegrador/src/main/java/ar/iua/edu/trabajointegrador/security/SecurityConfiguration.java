@@ -2,9 +2,12 @@ package ar.iua.edu.trabajointegrador.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,6 +21,10 @@ import ar.iua.edu.trabajointegrador.auth.custom.CustomAuthenticationManager;
 import ar.iua.edu.trabajointegrador.auth.filters.JWTAuthorizationFilter;
 import ar.iua.edu.trabajointegrador.controllers.Constants;
 
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled=true)
 public class SecurityConfiguration {
 	@Bean
 	PasswordEncoder bCryptPasswordEncoder() {
@@ -38,7 +45,7 @@ public class SecurityConfiguration {
 	private IUserBusiness userBusiness;
 
 	@Bean
-	AuthenticationManager authenticationManager() {
+	public AuthenticationManager authenticationManager() {
 		return new CustomAuthenticationManager(bCryptPasswordEncoder(), userBusiness);
 	}
 
@@ -50,7 +57,11 @@ public class SecurityConfiguration {
 		 *  tambien permitimos las documentaciones y todo eso con los permit all 
 		*/
 		http.csrf(AbstractHttpConfigurer::disable);
-		http.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, Constants.URL_LOGIN).permitAll() 
+		// Use the global CORS configuration declared in the WebMvcConfigurer
+
+		// Allow access to the login endpoint regardless of HTTP method (tolerant to client mistakes)
+		http.authorizeHttpRequests(auth -> auth.requestMatchers(Constants.URL_LOGIN).permitAll()
+
 				.requestMatchers("/v3/api-docs/**").permitAll().requestMatchers("/swagger-ui.html").permitAll()
 				.requestMatchers("/swagger-ui/**").permitAll().requestMatchers("/ui/**").permitAll() //Todo esto es la documentacion, que nos va a hacer una pagina web
 				.requestMatchers("/demo/**").permitAll().anyRequest().authenticated());
