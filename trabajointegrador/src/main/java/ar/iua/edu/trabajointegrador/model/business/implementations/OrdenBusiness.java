@@ -118,7 +118,7 @@ public class OrdenBusiness implements IOrdenBusiness {
 		ordenFound = ordenDAO.findByCamion_PatenteAndEstado(orden.getCamion().getPatente(),
 				Orden.Estado.ESTADO_1_PENDIENTE_PESAJE_INICIAL); //Yya hay ese camion con ese estado
 		if (ordenFound.isPresent()) {
-			throw FoundException.builder().message("Ya existe una orden para el camion id=" + orden.getCamion().getId())
+			throw FoundException.builder().message("Ya existe una orden en estado: " + orden.getEstado()  + " para el camion con patente :" + orden.getCamion().getPatente())
 					.build();
 		}
 		
@@ -131,7 +131,6 @@ public class OrdenBusiness implements IOrdenBusiness {
 		try {
 			return ordenDAO.save(orden);
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
 			throw BusinessException.builder().ex(e).message(e.getMessage()).build();
 		}
 	}
