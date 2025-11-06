@@ -147,7 +147,7 @@ public class OrdenBusiness implements IOrdenBusiness {
 
 		Orden orden = ordenFound.get();
 		int password = generadorPassword.generarPassword();
-		orden.setClaveActivacion(1010);
+		orden.setClaveActivacion(password);
 		orden.setPesoInicial(pesoInicial);
 		orden.setEstado(Orden.Estado.ESTADO_2_PESAJE_INICIAL_REGISTRADO);
 		try {
