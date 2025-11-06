@@ -24,6 +24,12 @@ import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaHeaderBu
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IOrdenBusiness;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 @RestController
 @RequestMapping(Constants.URL_CARGA)
 public class CargaRestController {
@@ -42,6 +48,16 @@ public class CargaRestController {
 	@Autowired
 	private IStandartResponseBusiness response;
 
+	@Operation(
+    	operationId = "listar-datos-carga",
+	    summary = "Lista todos los datos de carga",
+    	description = "Devuelve una lista completa de datos de carga registrados en el sistema."
+	)
+	@ApiResponses(value = {
+    	@ApiResponse(responseCode = "200", description = "Lista obtenida correctamente."),
+	    @ApiResponse(responseCode = "404", description = "No se encontraron datos de carga."),
+    	@ApiResponse(responseCode = "500", description = "Error interno del servidor.")
+	})
 	@GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> list() {
 		try {
@@ -54,7 +70,17 @@ public class CargaRestController {
 			 * HttpStatus.FOUND); }
 			 */
 	}
-	
+
+	@Operation(
+    	operationId = "listar-datos-carga-por-orden",
+	    summary = "Lista los datos de carga por número de orden",
+    	description = "Devuelve los datos de carga asociados a un número de orden específico."
+	)
+	@ApiResponses(value = {
+    	@ApiResponse(responseCode = "200", description = "Datos obtenidos correctamente."),
+	    @ApiResponse(responseCode = "404", description = "No se encontraron datos para la orden indicada."),
+    	@ApiResponse(responseCode = "500", description = "Error interno del servidor.")
+	})	
 	@GetMapping(value = "/{numeroOrden}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> listNumeroOrden(@PathVariable(value="numeroOrden") int numeroOrden) {
 		try {
@@ -68,6 +94,16 @@ public class CargaRestController {
 			 */
 	}
 	
+	@Operation(
+    	operationId = "listar-cabeceras-carga",
+    	summary = "Lista todas las cabeceras de carga",
+    	description = "Devuelve todas las cabeceras de carga registradas en el sistema."
+	)
+	@ApiResponses(value = {
+    	@ApiResponse(responseCode = "200", description = "Cabeceras obtenidas correctamente."),
+	    @ApiResponse(responseCode = "404", description = "No se encontraron cabeceras."),
+    	@ApiResponse(responseCode = "500", description = "Error interno del servidor.")
+	})
 	@GetMapping(value = "/carga-header", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> listHeaders() {
 		try {
@@ -81,7 +117,17 @@ public class CargaRestController {
 			 */
 	}
 	
-	 @GetMapping(value = "/carga-header/orden/{ordenId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@Operation(
+    	operationId = "obtener-header-por-orden",
+    	summary = "Obtiene una cabecera de carga por ID de orden",
+    	description = "Devuelve la cabecera de carga asociada a una orden específica."
+	)
+	@ApiResponses(value = {
+    	@ApiResponse(responseCode = "200", description = "Cabecera encontrada."),
+    	@ApiResponse(responseCode = "404", description = "No se encontró la cabecera."),
+    	@ApiResponse(responseCode = "500", description = "Error interno del servidor.")
+	})
+	@GetMapping(value = "/carga-header/orden/{ordenId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	    public ResponseEntity<?> loadHeader(@PathVariable(value="ordenId") long ordenId) {
 	    	try {
 	            return new ResponseEntity<>(datoCargaHeaderBusiness.findByOrdenId(ordenId), HttpStatus.OK);
@@ -93,7 +139,19 @@ public class CargaRestController {
 	            return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
 	        }
 	    }
-
+	
+	@Operation(
+    	operationId = "crear-dato-carga",
+	    summary = "Registra un nuevo dato de carga",
+    	description = "Permite crear un nuevo registro de carga a partir de un JSON enviado en el cuerpo de la petición."
+	)
+	@ApiResponses(value = {
+    	@ApiResponse(responseCode = "201", description = "Dato de carga creado correctamente."),
+    	@ApiResponse(responseCode = "404", description = "Orden asociada no encontrada."),
+    	@ApiResponse(responseCode = "409", description = "Estado inválido para registrar la carga."),
+    	@ApiResponse(responseCode = "422", description = "Datos de entrada inválidos."),
+    	@ApiResponse(responseCode = "500", description = "Error interno del servidor.")
+	})
 	@PostMapping(value = "")
 	public ResponseEntity<?> add(HttpEntity<String> httpEntity) {
 		try {
@@ -124,6 +182,17 @@ public class CargaRestController {
 
 	}
 
+
+	@Operation(
+    	operationId = "activar-carga",
+    	summary = "Activa una orden de carga",
+    	description = "Activa la orden de carga correspondiente al número y clave de activación provistos."
+	)
+	@ApiResponses(value = {
+    	@ApiResponse(responseCode = "201", description = "Carga activada correctamente."),
+    	@ApiResponse(responseCode = "404", description = "Orden no encontrada."),
+    	@ApiResponse(responseCode = "500", description = "Error interno del servidor.")
+	})
 	@PostMapping(value = "/activacion")
 	public ResponseEntity<?> activate(@RequestParam Integer numeroOrden, @RequestParam Integer claveActivacion) {
 		try {
@@ -146,6 +215,16 @@ public class CargaRestController {
 		}
 	}
 	
+	@Operation(
+		operationId = "desactivar-carga",
+		summary = "Desactiva una orden de carga",
+		description = "Desactiva la orden de carga correspondiente al número de orden provisto."
+	)
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "202", description = "Carga desactivada correctamente."),
+		@ApiResponse(responseCode = "404", description = "Orden no encontrada."),
+		@ApiResponse(responseCode = "500", description = "Error interno del servidor.")
+	})	
 	@PostMapping(value = "/desactivacion")
 	public ResponseEntity<?> desactivate(@RequestParam int numeroOrden) {
 		try {

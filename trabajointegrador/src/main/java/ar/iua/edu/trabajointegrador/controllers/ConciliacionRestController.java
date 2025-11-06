@@ -17,6 +17,12 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.StateLoadException
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IConciliacionBusiness;
 import ar.iua.edu.trabajointegrador.model.persistence.OrdenRepository;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
+import ar.iua.edu.trabajointegrador.util.StandartResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 @RequestMapping(Constants.URL_CONCILIACION)
@@ -33,6 +39,37 @@ public class ConciliacionRestController extends BaseRestController {
 	@Autowired
 	private IStandartResponseBusiness response;
 	
+	@Operation(
+    	operationId = "registrar-conciliacion",
+    	summary = "Registra una conciliación final",
+    	description = "Registra el pesaje final asociado a una orden existente y genera la conciliación correspondiente."
+	)
+	@ApiResponses(value = {
+    	@ApiResponse(
+        	responseCode = "201",
+	        description = "Conciliación registrada correctamente.",
+    	    content = @Content(mediaType = "application/json",
+        	        schema = @Schema(implementation = Conciliacion.class))
+	    ),
+    	@ApiResponse(
+        	responseCode = "404",
+	        description = "No se encontró la orden indicada.",
+    	    content = @Content(mediaType = "application/json",
+        	        schema = @Schema(implementation = StandartResponse.class))
+    	),
+    	@ApiResponse(
+        	responseCode = "409",
+	        description = "Estado inválido para registrar la conciliación (conflicto de estado).",
+    	    content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = StandartResponse.class))
+	    ),
+	    @ApiResponse(
+    	    responseCode = "500",
+        	description = "Error interno del servidor.",
+	        content = @Content(mediaType = "application/json",
+    	            schema = @Schema(implementation = StandartResponse.class))
+	    )
+	})
 	@PostMapping(value = "")
 	public ResponseEntity<?> add(@RequestParam Integer numeroOrden, @RequestParam Float pesajeFinal ) {
 		try {

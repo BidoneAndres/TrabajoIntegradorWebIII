@@ -30,6 +30,12 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.UnProcessableExcep
 import ar.iua.edu.trabajointegrador.model.business.implementations.OrdenBusiness;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 import ar.iua.edu.trabajointegrador.util.JsonUtils;
+import ar.iua.edu.trabajointegrador.util.StandartResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,13 +50,36 @@ public class OrdenRestController extends BaseRestController{
 
     @Autowired
     private IStandartResponseBusiness response;
-
+    
+    @Operation(
+            operationId = "listar-ordenes",
+            summary = "Lista ordenes de carga",
+            description = "Lista las ordenes de carga.")
+    @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente.",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = Orden.class))),
+    @ApiResponse(responseCode = "500", description = "Error interno del servidor.",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandartResponse.class)))
+    })
     @SneakyThrows
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> list() {
         return new ResponseEntity<>(ordenBusiness.list(), HttpStatus.OK);
     }
 
+    @Operation(
+        operationId = "obtener-orden-por-codigo-externo",
+        summary = "Obtiene una orden de carga por código externo",
+        description = "Busca y devuelve una orden de carga según su código externo (codExt)."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Orden encontrada correctamente.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Orden.class))),
+        @ApiResponse(responseCode = "404", description = "Orden no encontrada.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandartResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandartResponse.class)))
+    })
     @GetMapping(value = "/codExt/{codExt}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> loadByCodExt(@PathVariable(value = "codExt") String codExt) {
         try {
@@ -64,6 +93,19 @@ public class OrdenRestController extends BaseRestController{
         }
     }
     
+    @Operation(
+        operationId = "obtener-orden-por-id",
+        summary = "Obtiene una orden de carga por ID",
+        description = "Busca y devuelve una orden de carga específica según su ID numérico."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Orden encontrada correctamente.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Orden.class))),
+        @ApiResponse(responseCode = "404", description = "Orden no encontrada.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandartResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandartResponse.class)))
+    }) 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> load(@PathVariable(value="id") long id) {
     	try {
@@ -77,6 +119,23 @@ public class OrdenRestController extends BaseRestController{
         }
     }
 
+    @Operation(
+        operationId = "crear-orden-externa",
+        summary = "Crea una nueva orden de carga externa",
+        description = "Recibe una orden de carga externa en formato JSON y la registra en el sistema."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Orden creada exitosamente.",
+            content = @Content(mediaType = "application/json")),
+        @ApiResponse(responseCode = "302", description = "La orden ya existe.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandartResponse.class))),
+        @ApiResponse(responseCode = "400", description = "Solicitud mal formada.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandartResponse.class))),
+        @ApiResponse(responseCode = "422", description = "Entidad no procesable (datos inválidos).",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandartResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandartResponse.class)))
+    })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> addExternal(HttpEntity<String> httpEntity) {
         try {
@@ -96,7 +155,21 @@ public class OrdenRestController extends BaseRestController{
             return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    @Operation(
+        operationId = "registrar-pesaje-inicial",
+        summary = "Registra el pesaje inicial de una orden",
+        description = "Registra el peso inicial de un camión asociado a una orden de carga, usando la patente y el peso inicial."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Pesaje inicial registrado correctamente.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+        @ApiResponse(responseCode = "404", description = "Orden no encontrada para la patente indicada.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandartResponse.class))),
+        @ApiResponse(responseCode = "422", description = "La orden no está en el estado correcto para registrar pesaje.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandartResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandartResponse.class)))
+    })
     @PostMapping(value = "/pesajeInicial")
         public ResponseEntity<?> registrarPesajeInicial(
             @RequestParam("patente") String patente,
