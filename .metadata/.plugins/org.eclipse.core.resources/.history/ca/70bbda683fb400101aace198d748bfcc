@@ -1,8 +1,0 @@
-package ar.iua.edu.trabajointegrador.util;
-
-/*Esta es una clase utilitaria, la cual tiene como objetivo simplificarnos la serealizacion de deserealizacion*/
-
-public class JsonUtiles {
-	@SuppressWarnings({"unchecked" , "rawtypes"})
-	
-}

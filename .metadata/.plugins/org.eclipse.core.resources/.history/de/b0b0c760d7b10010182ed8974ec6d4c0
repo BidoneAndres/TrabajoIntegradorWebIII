@@ -1,5 +1,0 @@
-package ar.iua.edu.trabajointegrador.auth.custom;
-
-public class CustomAuthenticationManager {
-
-}
