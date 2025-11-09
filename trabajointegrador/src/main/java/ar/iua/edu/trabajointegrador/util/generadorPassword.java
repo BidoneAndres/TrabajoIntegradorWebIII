@@ -1,7 +1,7 @@
 package ar.iua.edu.trabajointegrador.util;
 
 public class generadorPassword {
-    public static String generarPassword() {
+    public static int generarPassword() {
         String caracteres = "0123456789";
         StringBuilder password = new StringBuilder();
         for (int i = 0; i < 5; i++) {
@@ -9,6 +9,6 @@ public class generadorPassword {
             password.append(caracteres.charAt(index));
         }
         System.out.println(password.toString());
-        return password.toString();
+        return Integer.parseInt(password.toString());
     }
 }

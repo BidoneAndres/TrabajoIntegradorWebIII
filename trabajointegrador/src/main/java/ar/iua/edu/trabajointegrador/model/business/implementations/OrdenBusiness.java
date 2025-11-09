@@ -23,7 +23,7 @@ import ar.iua.edu.trabajointegrador.model.persistence.OrdenRepository;
 import lombok.extern.slf4j.Slf4j;
 import ar.iua.edu.trabajointegrador.model.deserializers.OrdenJsonDeserializer;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IProductoBusiness;
-//import ar.iua.edu.trabajointegrador.util.generadorPassword;
+import ar.iua.edu.trabajointegrador.util.generadorPassword;
 
 @Service
 @Slf4j
@@ -146,8 +146,8 @@ public class OrdenBusiness implements IOrdenBusiness {
 		}
 
 		Orden orden = ordenFound.get();
-		// String password = generadorPassword.generarPassword();
-		orden.setClaveActivacion(1010);
+		int password = generadorPassword.generarPassword();
+		orden.setClaveActivacion(password);
 		orden.setPesoInicial(pesoInicial);
 		orden.setEstado(Orden.Estado.ESTADO_2_PESAJE_INICIAL_REGISTRADO);
 		try {
