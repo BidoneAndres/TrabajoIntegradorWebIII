@@ -71,7 +71,7 @@ public class ProductoRestControllers {
 		}
 	}
 	
-
+    /* 
 	@Operation(
         operationId = "agregar-producto",
         summary = "Agrega un nuevo producto",
@@ -112,7 +112,7 @@ public class ProductoRestControllers {
 			return new ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()),
 					HttpStatus.FOUND);
 		}
-	}
+	}*/
 	
 	
 	
