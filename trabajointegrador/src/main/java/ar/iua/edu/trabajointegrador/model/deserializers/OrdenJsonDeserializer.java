@@ -9,8 +9,12 @@ import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.ORDEN_PRE
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.PRODUCTO_NOMBRE_ATTRIBUTES;
 import static ar.iua.edu.trabajointegrador.util.JsonAttributeConstants.ORDEN_CODIGO_EXTERNO_ATTRIBUTES;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.TimeZone;
+
+
 
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
@@ -19,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 import ar.iua.edu.trabajointegrador.model.Camion;
@@ -26,12 +31,14 @@ import ar.iua.edu.trabajointegrador.model.Chofer;
 import ar.iua.edu.trabajointegrador.model.Cliente;
 import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.Producto;
+import java.text.ParseException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.ICamionBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IChoferBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IClienteBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IProductoBusiness;
+import ar.iua.edu.trabajointegrador.model.serializers.FechaJsonSerializer;
 import ar.iua.edu.trabajointegrador.util.JsonUtils;
 import lombok.SneakyThrows;
 
@@ -70,16 +77,27 @@ public class OrdenJsonDeserializer extends StdDeserializer<Orden> {
 		Date fecha_estimada;
 		int preset;
 		int numeroOrden;
+
+		SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    	formato.setTimeZone(TimeZone.getTimeZone("UTC"));	
+
 		try {
 			try {
 				numeroOrden = JsonUtils.getInt(node, ORDEN_NUMERO_ATTRIBUTES, 0);
 				if (numeroOrden == 0) {
 					throw new BadRequestException("Número de orden inexistente o inválido");
 				}
-				fecha_estimada = JsonUtils.getFecha(node, ORDEN_FECHA_ESTIMADA_ATTRIBUTES, String.valueOf(new Date()));
-				if (fecha_estimada == null) {
-					throw new BadRequestException("Fecha estimada inexistente");
-				}
+				String fechaEstimadaStr = JsonUtils.getString(node, ORDEN_FECHA_ESTIMADA_ATTRIBUTES, null);
+				if (fechaEstimadaStr == null || fechaEstimadaStr.trim().isEmpty()) {
+                    throw new BadRequestException("Fecha estimada inexistente o vacía");
+                }
+                try {
+                    fecha_estimada = formato.parse(fechaEstimadaStr);
+                } catch (ParseException e) {
+                    // Si el parseo falla, el formato de entrada es incorrecto
+                    log.error("Formato de fecha estimado inválido: " + fechaEstimadaStr, e);
+                    throw new BadRequestException("El formato de la fecha estimada debe ser yyyy-MM-dd HH:mm");
+                }
 				preset = (int) JsonUtils.getValue(node, ORDEN_PRESET_ATTRIBUTES, 0);
 				if (preset < 0) {
 					throw new BadRequestException("Preset falta o no es válido");
