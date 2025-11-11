@@ -38,8 +38,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-
+@Tag(name = "Ordenes", description = "API para Gestionar Ordenes")
 @Slf4j
 @RestController
 @RequestMapping(Constants.URL_ORDENES)
@@ -136,6 +137,44 @@ public class OrdenRestController extends BaseRestController{
         @ApiResponse(responseCode = "500", description = "Error interno del servidor.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandartResponse.class)))
     })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            required = true,
+            description = "Objeto JSON que representa los datos de la orden de carga",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(
+                            example = """
+            {
+                "numero": int,
+                "codExt" : String,
+                "fecha_estimada": Date,
+                "preset" : 0,
+                "cliente": {
+                    "razon_social": String,
+                    "email": String
+                },
+                "producto": {
+                    "producto_nombre": String
+                },
+                "camion": {
+                    "patente": String,
+                    "descripcion": String,
+                    "sisternas": [
+                        {
+                            "capacidad": int,
+                            "licencia": String
+                        }
+                    ]},
+                    "chofer": {
+                        "nombre": String
+                        "apellido": String
+                        "documento": String
+                        }
+                }
+                    """
+                    )
+            )
+    )
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> addExternal(HttpEntity<String> httpEntity) {
         try {

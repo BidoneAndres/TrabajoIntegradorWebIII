@@ -17,6 +17,7 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
 import ar.iua.edu.trabajointegrador.model.business.implementations.ProductoBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IProductoBusiness;
+
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 import ar.iua.edu.trabajointegrador.util.StandartResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,7 +25,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-
+import io.swagger.v3.oas.annotations.tags.Tag;
+@Tag(name = "Productos", description = "API para Gestionar Productos")
 @RestController
 @RequestMapping(Constants.URL_PRODUCTOS)
 

@@ -5,6 +5,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -36,14 +37,15 @@ public class Orden {
 		ESTADO_3_CERRADA_PARA_CARGA, ESTADO_4_FINALIZADA,
 
 	}
-
+	@Schema(hidden = true)
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
 	@Column(nullable = false, unique = true)
 	private String codExt;
-
+	
+	@Schema(hidden = true)
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Estado estado = Estado.ESTADO_1_PENDIENTE_PESAJE_INICIAL;
