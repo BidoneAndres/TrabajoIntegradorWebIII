@@ -181,7 +181,7 @@ public class OrdenRestController extends BaseRestController{
             Orden ordenCreada = ordenBusiness.cargaExterna(httpEntity.getBody());
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.set("Location", Constants.URL_ORDENES + ordenCreada.getCodExt());
-            return new ResponseEntity<>(responseHeaders, HttpStatus.CREATED);
+            return new ResponseEntity<>(ordenCreada,responseHeaders, HttpStatus.CREATED);
         } catch (FoundException e) {
             return new ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()), HttpStatus.FOUND);
         } catch (BadRequestException e) {

@@ -3,7 +3,10 @@ package ar.iua.edu.trabajointegrador.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -95,6 +98,26 @@ public class ConciliacionRestController extends BaseRestController {
 					HttpStatus.INTERNAL_SERVER_ERROR);
 
 		}
+	}
+	
+	@GetMapping(value = "/{numeroOrden}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> loadConciliacion(@PathVariable(value="numeroOrden") int numeroOrden) {
+    	try {
+            return new ResponseEntity<>(conciliacionBusiness.loadByNumeroOrden(numeroOrden), HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        } 
+	}
+	
+	@GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> loadConciliacion() {
+    	try {
+            return new ResponseEntity<>(conciliacionBusiness.list(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        } 
 	}
 
 

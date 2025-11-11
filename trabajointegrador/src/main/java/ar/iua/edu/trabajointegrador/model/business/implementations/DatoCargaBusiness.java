@@ -77,7 +77,6 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		    }
 		    Integer preset = ordenBusiness.findPreset(ordenId);
 		    Orden.Estado estado = ordenBusiness.findEstado(ordenId);
-		    log.error("sksosks" + preset + ultimaMasa + estado);
 
 		    Double masaActual = datoCarga.getMasaAcumulada();
 		    Double caudalActual = datoCarga.getCaudal();
