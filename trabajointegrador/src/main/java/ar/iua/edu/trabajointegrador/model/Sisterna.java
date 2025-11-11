@@ -10,6 +10,8 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,6 +26,7 @@ import lombok.Setter;
 @Table(name="sisternas")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Sisterna {
+	@Schema(hidden = true)
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;

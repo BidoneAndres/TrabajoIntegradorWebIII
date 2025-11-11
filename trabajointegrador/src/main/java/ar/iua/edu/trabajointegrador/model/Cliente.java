@@ -1,5 +1,6 @@
 package ar.iua.edu.trabajointegrador.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,6 +22,7 @@ import lombok.Setter;
 @Table(name="clientes")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Cliente {
+	@Schema(hidden = true)
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;

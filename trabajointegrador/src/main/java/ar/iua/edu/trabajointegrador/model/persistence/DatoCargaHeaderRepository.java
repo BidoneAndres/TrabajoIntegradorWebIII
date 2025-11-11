@@ -12,5 +12,9 @@ public interface DatoCargaHeaderRepository extends JpaRepository<DatoCargaHeader
 	@Query("SELECT dc FROM DatoCargaHeader dc WHERE dc.orden.claveActivacion = :claveActivacion")
 	DatoCargaHeader findOneByClaveActivacion(Integer claveActivacion);
 	
+
+	@Query("SELECT dc FROM DatoCargaHeader dc WHERE dc.orden.id = :ordenId")
+	Optional<DatoCargaHeader> findByOrdenId(Long ordenId);
+	
 	
 }

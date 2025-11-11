@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -28,6 +31,7 @@ import lombok.Setter;
 @Table(name = "datos_carga_header")
 @EntityListeners(AuditingEntityListener.class) // para las timestamps
 public class DatoCargaHeader  {
+	@Schema(hidden = true)
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
@@ -35,7 +39,7 @@ public class DatoCargaHeader  {
 	//asociamos al numero de orden
 	
 	@ManyToOne(fetch = FetchType.LAZY)  // ->importante, sino me va a traer en cada coNSULTA todas las veces la otden entera
-	@JoinColumn(name="claveActivacion",nullable = false, referencedColumnName = "claveActivacion")//da mas detalles, clave foranea, 
+	@JoinColumn(name="orden_id",nullable = false)//da mas detalles, clave foranea, 
 	private Orden orden;
 	
 	private double ultimaMasaAcumulada;
@@ -47,5 +51,7 @@ public class DatoCargaHeader  {
 
     @CreationTimestamp //  Anotación para la fecha de creación
     @Column(nullable = false, updatable = false) // No se puede actualizar
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+
     private LocalDateTime timestamp;
 }

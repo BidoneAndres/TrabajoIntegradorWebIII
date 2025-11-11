@@ -23,6 +23,7 @@ import ar.iua.edu.trabajointegrador.model.persistence.OrdenRepository;
 import lombok.extern.slf4j.Slf4j;
 import ar.iua.edu.trabajointegrador.model.deserializers.OrdenJsonDeserializer;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IProductoBusiness;
+import ar.iua.edu.trabajointegrador.util.generadorPassword;
 
 @Service
 @Slf4j
@@ -108,29 +109,61 @@ public class OrdenBusiness implements IOrdenBusiness {
 	public Orden add(Orden orden) throws FoundException, BusinessException {
 		Optional<Orden> ordenFound;
 
-		ordenFound = ordenDAO.findOneByCodExt(orden.getCodExt());
+		// chequeos para orden
+		ordenFound = ordenDAO.findByNumeroOrden(orden.getNumeroOrden()); // ya hay NUMERO DE ORDEN
 		if (ordenFound.isPresent()) {
-			throw FoundException.builder().message("Ya existe una orden con el número " + orden.getCodExt()).build();
+			throw FoundException.builder().message("Ya existe una orden con el número " + orden.getNumeroOrden())
+					.build();
 		}
-		ordenFound = ordenDAO.findByCamion_IdAndEstado(orden.getCamion().getId(), Orden.Estado.ESTADO_1_PENDIENTE_PESAJE_INICIAL);
+		ordenFound = ordenDAO.findByCamion_PatenteAndEstado(orden.getCamion().getPatente(),
+				Orden.Estado.ESTADO_1_PENDIENTE_PESAJE_INICIAL); //Yya hay ese camion con ese estado
 		if (ordenFound.isPresent()) {
-			throw FoundException.builder().message("Ya existe una orden para el camion id=" + orden.getCamion().getId())
+			throw FoundException.builder().message("Ya existe una orden en estado: " + orden.getEstado()  + " para el camion con patente :" + orden.getCamion().getPatente())
+					.build();
+		}
+		
+		ordenFound = ordenDAO.findOneByCodExt(orden.getCodExt()); //Codigo externo 
+		if (ordenFound.isPresent()) {
+			throw FoundException.builder().message("Ya existe una orden con el codigo externo: " + orden.getCodExt())
 					.build();
 		}
 
 		try {
 			return ordenDAO.save(orden);
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			throw BusinessException.builder().ex(e).build();
+			throw BusinessException.builder().ex(e).message(e.getMessage()).build();
 		}
 	}
 
-	// esto se usa en carga estado 2
-	public Orden activarCarga(Integer claveActivacion) throws NotFoundException, BusinessException {
+	public Orden registrarPesajeInicial(String patente, float pesoInicial)
+			throws NotFoundException, BusinessException, UnProcessableException {
 		Optional<Orden> ordenFound;
 
-		ordenFound = ordenDAO.findByClaveActivacion(claveActivacion);
+		ordenFound = ordenDAO.findByCamion_PatenteAndEstado(patente, Orden.Estado.ESTADO_1_PENDIENTE_PESAJE_INICIAL);
+		if (ordenFound.isEmpty()) {
+			throw NotFoundException.builder().message("No se encuentra la orden para el camion de patente = " + patente
+					+ " en el estado ESTADO_1_PENDIENTE_PESAJE_INICIAL").build();
+		}
+
+		Orden orden = ordenFound.get();
+		int password = generadorPassword.generarPassword();
+		orden.setClaveActivacion(password);
+		orden.setPesoInicial(pesoInicial);
+		orden.setEstado(Orden.Estado.ESTADO_2_PESAJE_INICIAL_REGISTRADO);
+		try {
+			return ordenDAO.save(orden);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+
+	}// esto se usa en carga estado 2
+
+	public Orden activarCarga(Integer numeroOrden, Integer claveActivacion)
+			throws NotFoundException, BusinessException {
+		Optional<Orden> ordenFound;
+
+		ordenFound = ordenDAO.findByNumeroOrdenAndClaveActivacion(numeroOrden, claveActivacion);
 		if (ordenFound.isPresent()) {
 			ordenFound.get().setEstado(Orden.Estado.ESTADO_2_EN_PROCESO_DE_CARGA);
 
@@ -143,16 +176,18 @@ public class OrdenBusiness implements IOrdenBusiness {
 		}
 
 		else {
-			throw NotFoundException.builder()
-					.message("No se encontro la orden con clave de activacion " + claveActivacion).build();
+			throw NotFoundException.builder().message(
+					"No se encontro la orden con numero " + numeroOrden + " y clave de activacion " + claveActivacion)
+					.build();
 
 		}
 
 	}
-	public Orden desactivarCarga(Integer claveActivacion) throws NotFoundException, BusinessException {
+
+	public Orden desactivarCarga(Integer numeroOrden) throws NotFoundException, BusinessException {
 		Optional<Orden> ordenFound;
 
-		ordenFound = ordenDAO.findByClaveActivacion(claveActivacion);
+		ordenFound = ordenDAO.findByNumeroOrden(numeroOrden);
 		if (ordenFound.isPresent()) {
 			ordenFound.get().setEstado(Orden.Estado.ESTADO_3_CERRADA_PARA_CARGA);
 
@@ -160,19 +195,18 @@ public class OrdenBusiness implements IOrdenBusiness {
 				return ordenDAO.save(ordenFound.get());
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
-				throw BusinessException.builder().ex(e).build();
+				throw BusinessException.builder().ex(e).message(e.getMessage()).build();
 			}
 		}
 
 		else {
-			throw NotFoundException.builder()
-					.message("No se encontro la orden con clave de activacion " + claveActivacion).build();
+			throw NotFoundException.builder().message("No se encontro la orden con numero de orden " + numeroOrden)
+					.build();
 
 		}
 
 	}
 
-	
 	public Orden loadByClaveActivacion(Integer claveActivacion) throws NotFoundException, BusinessException {
 		Optional<Orden> r;
 		try {
@@ -188,5 +222,91 @@ public class OrdenBusiness implements IOrdenBusiness {
 
 	}
 
+	public Optional<Orden> findById(long ordenId) throws NotFoundException, BusinessException {
+		Optional<Orden> r;
+		try {
+			r = ordenDAO.findById(ordenId);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+		if (r.isEmpty()) {
+			throw NotFoundException.builder().message("No se encuentra la orden con clave=" + ordenId).build();
+		}
+		return r;
+
+	}
+
+	public Optional<Orden> findByNumeroOrden(int numeroOrden) throws NotFoundException, BusinessException {
+		Optional<Orden> r;
+		try {
+			r = ordenDAO.findByNumeroOrden(numeroOrden);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+		if (r.isEmpty()) {
+			throw NotFoundException.builder().message("No se encuentra la orden con numero=" + numeroOrden).build();
+		}
+		return r;
+
+	}
+
+	public Integer findPreset(Long ordenId) throws NotFoundException, BusinessException {
+		Integer r;
+		try {
+			r = ordenDAO.findPreset(ordenId);
+			return r;
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+	}
+
+	public Orden.Estado findEstado(Long ordenId) throws NotFoundException, BusinessException {
+		Orden.Estado r;
+		try {
+			r = ordenDAO.findEstado(ordenId);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+		return r;
+	}
+
+	public Optional<Orden> findByIdAndClaveActivacion(long ordenId, int claveActivacion)
+			throws NotFoundException, BusinessException {
+		Optional<Orden> r;
+		try {
+			r = ordenDAO.findByIdAndClaveActivacion(ordenId, claveActivacion);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+		if (r.isEmpty()) {
+			throw NotFoundException.builder().message(
+					"No se encuentra la orden con clave=" + ordenId + " y clave de activacion " + claveActivacion)
+					.build();
+		}
+		return r;
+
+	}
+
+	public Optional<Orden> findByNumeroOrdenAndClaveActivacion(int numeroOrden, int claveActivacion)
+			throws NotFoundException, BusinessException {
+		Optional<Orden> r;
+		try {
+			r = ordenDAO.findByNumeroOrdenAndClaveActivacion(numeroOrden, claveActivacion);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw BusinessException.builder().ex(e).build();
+		}
+		if (r.isEmpty()) {
+			throw NotFoundException.builder().message("No se encuentra la orden con numero de orden=" + numeroOrden
+					+ " y clave de activacion " + claveActivacion).build();
+		}
+		return r;
+
+	}
 
 }

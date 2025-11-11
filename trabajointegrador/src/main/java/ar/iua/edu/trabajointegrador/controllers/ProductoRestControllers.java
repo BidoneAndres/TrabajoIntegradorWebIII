@@ -17,8 +17,16 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
 import ar.iua.edu.trabajointegrador.model.business.implementations.ProductoBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IProductoBusiness;
-import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 
+import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
+import ar.iua.edu.trabajointegrador.util.StandartResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+@Tag(name = "Productos", description = "API para Gestionar Productos")
 @RestController
 @RequestMapping(Constants.URL_PRODUCTOS)
 
@@ -36,6 +44,26 @@ public class ProductoRestControllers {
         this.productoBusiness_1 = productoBusiness_1;
     }
 	
+
+	@Operation(
+        operationId = "listar-productos",
+        summary = "Lista todos los productos",
+        description = "Devuelve una lista completa de productos disponibles en el sistema."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Lista de productos obtenida correctamente.",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = Producto.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "No se encontraron productos.",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = StandartResponse.class))
+        )
+    })
 	@GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> list(){
 		try {
@@ -45,6 +73,32 @@ public class ProductoRestControllers {
 		}
 	}
 	
+    /* 
+	@Operation(
+        operationId = "agregar-producto",
+        summary = "Agrega un nuevo producto",
+        description = "Permite registrar un nuevo producto en el sistema."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "201",
+            description = "Producto creado exitosamente.",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = Producto.class))
+        ),
+        @ApiResponse(
+            responseCode = "302",
+            description = "Producto ya existente.",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = StandartResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Error interno del servidor.",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = StandartResponse.class))
+        )
+    })
 	@PostMapping(value = "")
 	public ResponseEntity<?> add(@RequestBody Producto producto){
 		try {
@@ -60,7 +114,7 @@ public class ProductoRestControllers {
 			return new ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()),
 					HttpStatus.FOUND);
 		}
-	}
+	}*/
 	
 	
 	

@@ -47,7 +47,7 @@ public class DatoCargaJsonDeserializer extends StdDeserializer<DatoCarga> {
 
 		Integer temperatura =  JsonUtils.getInt(node, "temperatura,ultima_temperatura,ultimaTemperatura".split(","), 0);
 		
-		Integer claveActivacion = JsonUtils.getInt(node, "clave_activacion,claveActivacion".split(","), 0); 
+		Integer numeroOrden =  JsonUtils.getInt(node, "orden,numero_orden".split(","), 0); 
 		
 		datoCarga.setDensidadProducto(densidad);
 		datoCarga.setTemperatura(temperatura);
@@ -55,8 +55,7 @@ public class DatoCargaJsonDeserializer extends StdDeserializer<DatoCarga> {
 		datoCarga.setCaudal(caudal);
 		
 		try {
-			Orden ordenEncontrada = ordenBusiness.loadByClaveActivacion(claveActivacion);
-			
+			Orden ordenEncontrada = ordenBusiness.findByNumeroOrden(numeroOrden).get();
 			datoCarga.setOrden(ordenEncontrada);
 		}
 		catch(NotFoundException | BusinessException e) {

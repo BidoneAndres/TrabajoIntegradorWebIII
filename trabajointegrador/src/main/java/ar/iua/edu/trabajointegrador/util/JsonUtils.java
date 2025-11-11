@@ -275,7 +275,8 @@ public class JsonUtils {
 
         SimpleDateFormat[] formats = {
                 new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault()), // Con zona horaria
-                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())   // Sin zona horaria
+                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()),// Sin zona horaria
+                new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())   
         };
 
         for (String attr : attrs) {
