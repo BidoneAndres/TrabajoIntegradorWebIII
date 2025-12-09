@@ -6,11 +6,11 @@ public final class Constants {
 	public static final String URL_BASE = URL_API + URL_API_VERSION;
 	
 	//Agregar las url de los servicios que vayamos creando
-    public static final String URL_PRODUCTOS = URL_BASE + "/productos";
-    public static final String URL_ORDENES = URL_BASE + "/ordenes";
-    public static final String URL_USUARIOS = URL_BASE + "/usuarios";
+    public static final String URL_ORDENES = URL_BASE + "/orden";
     public static final String URL_CARGA = URL_BASE + "/carga";
     public static final String URL_CONCILIACION = URL_BASE + "/conciliacion";
+    public static final String URL_GENERAL = URL_BASE + "/general";
+
     
 	public static final String URL_LOGIN = URL_BASE + "/login";
 	public static final String URL_MAIL = URL_BASE + "/mail";	

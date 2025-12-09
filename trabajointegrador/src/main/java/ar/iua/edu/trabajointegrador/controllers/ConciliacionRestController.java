@@ -34,10 +34,6 @@ public class ConciliacionRestController extends BaseRestController {
 	@Autowired
 	private IConciliacionBusiness conciliacionBusiness;
 	
-	@Autowired
-	private OrdenRepository ordenDAO;
-	
-	
 	// response http
 	@Autowired
 	private IStandartResponseBusiness response;
