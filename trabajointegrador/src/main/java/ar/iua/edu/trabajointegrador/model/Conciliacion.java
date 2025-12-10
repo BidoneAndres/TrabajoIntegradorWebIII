@@ -49,7 +49,7 @@ public class Conciliacion {
 	private double promedioCaudal;
 	
 
-	@ManyToOne(fetch = FetchType.LAZY)  // ->importante, sino me va a traer en cada coNSULTA todas las veces la otden entera
+	@ManyToOne(fetch = FetchType.EAGER)  // ->importante, sino me va a traer en cada coNSULTA todas las veces la otden entera
 	@JoinColumn(name="orden_id",nullable = false)//da mas detalles, clave foranea, 
 	private Orden orden;
 	
