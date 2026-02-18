@@ -40,7 +40,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "Ordenes", description = "API para Gestionar Ordenes")
+@Tag(name = "1. Orden", description = "API para Gestionar Ordenes")
 @Slf4j
 @RestController
 @RequestMapping(Constants.URL_ORDENES)

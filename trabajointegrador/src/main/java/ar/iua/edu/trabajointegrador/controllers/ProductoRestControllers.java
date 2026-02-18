@@ -26,7 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-@Tag(name = "Productos", description = "API para Gestionar Productos")
+@Tag(name = "2. Producto", description = "API para Gestionar Productos")
 @RestController
 @RequestMapping(Constants.URL_PRODUCTOS)
 

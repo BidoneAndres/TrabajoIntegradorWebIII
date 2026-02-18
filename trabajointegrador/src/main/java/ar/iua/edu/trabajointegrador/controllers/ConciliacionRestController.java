@@ -28,7 +28,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-@Tag(name = "Concialiaciones", description = "API para Gestionar Conciliaciones")
+@Tag(name = "4. Conciliacion", description = "API para Gestionar Conciliaciones")
 @RestController
 @RequestMapping(Constants.URL_CONCILIACION)
 public class ConciliacionRestController extends BaseRestController {
