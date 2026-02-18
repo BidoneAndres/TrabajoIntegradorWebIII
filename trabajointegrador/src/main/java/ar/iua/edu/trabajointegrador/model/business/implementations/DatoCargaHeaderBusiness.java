@@ -8,13 +8,10 @@ import org.springframework.stereotype.Service;
 
 import ar.iua.edu.trabajointegrador.model.DatoCarga;
 import ar.iua.edu.trabajointegrador.model.DatoCargaHeader;
-import ar.iua.edu.trabajointegrador.model.Orden;
-import ar.iua.edu.trabajointegrador.model.Orden.Estado;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaHeaderBusiness;
 import ar.iua.edu.trabajointegrador.model.persistence.DatoCargaHeaderRepository;
-import ar.iua.edu.trabajointegrador.model.persistence.OrdenRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -24,8 +21,6 @@ public class DatoCargaHeaderBusiness implements IDatoCargaHeaderBusiness {
 	@Autowired
 	private DatoCargaHeaderRepository datoCargaHeaderDAO;
 
-	@Autowired
-	private OrdenRepository ordenDAO;
 
 	@Override
 	public DatoCargaHeader add(DatoCarga datoCarga) throws BusinessException {

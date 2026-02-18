@@ -12,9 +12,12 @@ import ar.iua.edu.trabajointegrador.model.business.interfaces.IAlarmaBusiness;
 import ar.iua.edu.trabajointegrador.model.persistence.AlarmaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @Slf4j
@@ -128,6 +131,21 @@ public class AlarmaBusiness implements IAlarmaBusiness {
         update(alarmaFound);
 
         return ordenBusiness.update(ordenFound);
+    }
+
+    public Page<Alarma> getAllAlarmasByOrden(Orden orden, Pageable pageable) throws NotFoundException, BusinessException {
+        Optional<Page<Alarma>> alarmas;
+        try {
+            alarmas = alarmaDAO.findAllByOrden(orden, pageable);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw BusinessException.builder().ex(e).build();
+        }
+        if (alarmas.isEmpty()) {
+            throw new NotFoundException("No alarms found for order id = " + orden.getId());
+        }
+
+        return alarmas.orElseGet(Page::empty);
     }
                 
 }

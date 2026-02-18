@@ -13,12 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ar.iua.edu.trabajointegrador.model.Conciliacion;
-import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.StateLoadException;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IConciliacionBusiness;
-import ar.iua.edu.trabajointegrador.model.persistence.OrdenRepository;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 import ar.iua.edu.trabajointegrador.util.StandartResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,10 +33,6 @@ public class ConciliacionRestController extends BaseRestController {
 
 	@Autowired
 	private IConciliacionBusiness conciliacionBusiness;
-	
-	@Autowired
-	private OrdenRepository ordenDAO;
-	
 	
 	// response http
 	@Autowired

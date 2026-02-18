@@ -23,7 +23,7 @@ public class AlarmaJsonSerializer extends StdSerializer<Alarma>{
         gen.writeStringField("user", user);
         String descripcion = value.getDescripcion() != null ? value.getDescripcion() : null;
         gen.writeStringField("descripcion", descripcion);
-        gen.writeNumberField("temperatura", value.getTemperatura() != null ? Double.parseDouble(value.getTemperatura()) : 0);
+        gen.writeNumberField("temperatura", value.getTemperatura());
         gen.writeEndObject();
     }
 }

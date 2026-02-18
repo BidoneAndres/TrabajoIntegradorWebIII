@@ -25,8 +25,6 @@ import ar.iua.edu.trabajointegrador.model.business.interfaces.IOrdenBusiness;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 

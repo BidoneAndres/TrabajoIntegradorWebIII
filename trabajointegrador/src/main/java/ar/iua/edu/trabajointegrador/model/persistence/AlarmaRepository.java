@@ -3,6 +3,9 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import ar.iua.edu.trabajointegrador.model.Alarma;
 
 import ar.iua.edu.trabajointegrador.model.Orden;
@@ -18,5 +21,7 @@ public interface AlarmaRepository extends JpaRepository<Alarma, Long>{
     Optional<Alarma> findAllByOrden(Orden orden);
 
     Optional<Alarma> findByOrdenIdAndEstado(Long idOrden, Alarma.alarmaEstado estadoAlarma);
+
+    Optional<Page<Alarma>> findAllByOrden(Orden orden, Pageable pageable);
 
 }

@@ -42,7 +42,7 @@ public class Alarma {
     private Date tiempo;
 
     @Column(nullable = false)
-    private String temperatura;
+    private float temperatura;
 
     @ManyToOne
     @Column(name = "idUser", nullable = false)

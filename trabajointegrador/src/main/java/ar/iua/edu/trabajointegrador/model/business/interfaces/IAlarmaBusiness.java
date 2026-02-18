@@ -10,6 +10,8 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.ConflictException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface IAlarmaBusiness {
 
@@ -20,4 +22,5 @@ public interface IAlarmaBusiness {
     Boolean alarmaAceptada(Long idOrden) throws BusinessException;
     List<Alarma> revisionPendiente() throws NotFoundException;
     Orden setEstadoAlarma(Alarma alarma, User user, Alarma.alarmaEstado nuevoEstado) throws BusinessException, NotFoundException, ConflictException;
+    Page<Alarma> getAllAlarmasByOrden(Orden orden, Pageable pageable) throws NotFoundException, BusinessException;
 }

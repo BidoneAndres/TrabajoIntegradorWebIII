@@ -1,8 +1,5 @@
 package ar.iua.edu.trabajointegrador.controllers;
 
-import java.io.IOException;
-import java.io.StringWriter;
-
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -13,14 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.http.HttpHeaders;
 
 import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
@@ -29,7 +21,6 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.UnProcessableException;
 import ar.iua.edu.trabajointegrador.model.business.implementations.OrdenBusiness;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
-import ar.iua.edu.trabajointegrador.util.JsonUtils;
 import ar.iua.edu.trabajointegrador.util.StandartResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

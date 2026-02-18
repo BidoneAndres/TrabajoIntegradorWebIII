@@ -1,7 +1,6 @@
 package ar.iua.edu.trabajointegrador.model.business.interfaces;
 
 import java.util.List;
-import java.util.Optional;
 
 import ar.iua.edu.trabajointegrador.model.Conciliacion;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
