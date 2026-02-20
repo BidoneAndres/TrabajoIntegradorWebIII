@@ -98,7 +98,7 @@ public class AlarmaBusiness implements IAlarmaBusiness {
 
     @Override
     public List<Alarma> revisionPendiente() throws NotFoundException {
-        Optional<List<Alarma>> alarma = alarmaDAO.findByAlarmaEstadoAndEstado(Alarma.alarmaEstado.PENDIENTE_REVISION, Orden.Estado.ESTADO_2_PESAJE_INICIAL_REGISTRADO);
+        Optional<List<Alarma>> alarma = alarmaDAO.findByEstadoAndOrdenEstado(Alarma.alarmaEstado.PENDIENTE_REVISION, Orden.Estado.ESTADO_2_PESAJE_INICIAL_REGISTRADO);
         if (alarma.isEmpty()) {
             throw new NotFoundException("No se encontraron alarmas pendientes de revisión");
         }

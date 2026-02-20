@@ -45,7 +45,7 @@ public class Alarma {
     private float temperatura;
 
     @ManyToOne
-    @Column(name = "idUser", nullable = false)
+    @JoinColumn(name = "idUser", nullable = false)
     private User user;
 
     private String descripcion;

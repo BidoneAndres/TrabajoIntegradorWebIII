@@ -14,9 +14,9 @@ import java.util.List;
 
 public interface AlarmaRepository extends JpaRepository<Alarma, Long>{
     
-    Optional<Alarma> findByEstadoAndOrdenId(Alarma.alarmaEstado estadoAlarma,Long idOrden);
+    Optional<Alarma> findByEstadoAndOrdenId(Alarma.alarmaEstado estadoAlarma, Long idOrden);
 
-    Optional<List<Alarma>> findByAlarmaEstadoAndEstado(Alarma.alarmaEstado estadoAlarma, Orden.Estado estadoOrden);
+    Optional<List<Alarma>> findByEstadoAndOrdenEstado(Alarma.alarmaEstado estadoAlarma, Orden.Estado estadoOrden);
 
     Optional<Alarma> findAllByOrden(Orden orden);
 
