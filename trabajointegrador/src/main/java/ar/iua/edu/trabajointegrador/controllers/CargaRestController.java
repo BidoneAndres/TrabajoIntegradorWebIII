@@ -26,15 +26,13 @@ import ar.iua.edu.trabajointegrador.model.business.interfaces.IOrdenBusiness;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-@Tag(name = "Carga", description = "API para Gestionar Carga")
+@Tag(name = "3. Carga", description = "API para Gestionar Carga")
 @RestController
 @RequestMapping(Constants.URL_CARGA)
 @CrossOrigin(origins = "http://localhost:5173")

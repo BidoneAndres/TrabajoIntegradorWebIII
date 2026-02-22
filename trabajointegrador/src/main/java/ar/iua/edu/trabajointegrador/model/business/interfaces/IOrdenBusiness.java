@@ -15,6 +15,8 @@ public interface IOrdenBusiness {
 	public List<Orden> list() throws BusinessException;
 	
 	public Orden load(long id) throws NotFoundException, BusinessException;
+
+	public Orden update(Orden orden) throws NotFoundException, BusinessException, FoundException;
 	
 	public Orden loadByCodExt(String codExt) throws NotFoundException, BusinessException;
 	

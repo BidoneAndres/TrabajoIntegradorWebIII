@@ -69,6 +69,18 @@ public class OrdenBusiness implements IOrdenBusiness {
 	}
 
 	@Override
+    public Orden update(Orden orden) throws NotFoundException, BusinessException {
+        load(orden.getId());
+        try {
+            return ordenDAO.save(orden);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            //throw BusinessException.builder().ex(e).build();
+            throw BusinessException.builder().message("Error al Actualizar Orden").build();
+        }
+    }
+
+	@Override
 	public Orden cargaExterna(String json)
 			throws FoundException, BusinessException, BadRequestException, UnProcessableException {
 
@@ -162,7 +174,6 @@ public class OrdenBusiness implements IOrdenBusiness {
 	public Orden activarCarga(Integer numeroOrden, Integer claveActivacion)
 			throws NotFoundException, BusinessException {
 		Optional<Orden> ordenFound;
-
 		ordenFound = ordenDAO.findByNumeroOrdenAndClaveActivacion(numeroOrden, claveActivacion);
 		if (ordenFound.isPresent()) {
 			ordenFound.get().setEstado(Orden.Estado.ESTADO_2_EN_PROCESO_DE_CARGA);

@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 import ar.iua.edu.trabajointegrador.model.Camion;
@@ -38,7 +37,6 @@ import ar.iua.edu.trabajointegrador.model.business.interfaces.ICamionBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IChoferBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IClienteBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IProductoBusiness;
-import ar.iua.edu.trabajointegrador.model.serializers.FechaJsonSerializer;
 import ar.iua.edu.trabajointegrador.util.JsonUtils;
 import lombok.SneakyThrows;
 
