@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -60,10 +61,13 @@ public class SecurityConfiguration {
 		
 		/*Basicamente estamos diciendo que no hace falta estar autenticado para autenticarse
 		 *  tambien permitimos las documentaciones y todo eso con los permit all 
+		 *  
 		*/
 		http.csrf(AbstractHttpConfigurer::disable);
 		// Use the global CORS configuration declared in the WebMvcConfigurer
-
+		http.cors(CorsConfigurer::disable);
+		http.csrf(AbstractHttpConfigurer::disable);
+		http.authorizeHttpRequests(auth -> auth.requestMatchers("/**").permitAll().anyRequest().authenticated());
 		// Allow access to the login endpoint regardless of HTTP method (tolerant to client mistakes)
 		http.authorizeHttpRequests(auth -> auth.requestMatchers(Constants.URL_LOGIN + "/**").permitAll()
 				.requestMatchers("/temperaturas/**").permitAll() 
