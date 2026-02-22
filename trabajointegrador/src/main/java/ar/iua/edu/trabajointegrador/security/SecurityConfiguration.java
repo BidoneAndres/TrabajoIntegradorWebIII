@@ -1,5 +1,7 @@
 package ar.iua.edu.trabajointegrador.security;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +15,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -60,16 +65,33 @@ public class SecurityConfiguration {
 		// Use the global CORS configuration declared in the WebMvcConfigurer
 
 		// Allow access to the login endpoint regardless of HTTP method (tolerant to client mistakes)
-		http.authorizeHttpRequests(auth -> auth.requestMatchers(Constants.URL_LOGIN).permitAll()
-
+		http.authorizeHttpRequests(auth -> auth.requestMatchers(Constants.URL_LOGIN + "/**").permitAll()
+				.requestMatchers("/temperaturas/**").permitAll() 
 				.requestMatchers("/v3/api-docs/**").permitAll().requestMatchers("/swagger-ui.html").permitAll()
 				.requestMatchers("/swagger-ui/**").permitAll().requestMatchers("/ui/**").permitAll() //Todo esto es la documentacion, que nos va a hacer una pagina web
-				.requestMatchers("/demo/**").permitAll().anyRequest().authenticated());
+				.requestMatchers("/demo/**").permitAll()
+				.requestMatchers("/ui/**").permitAll()
+				.requestMatchers("/demo/**").permitAll()
+				.anyRequest().authenticated());
+				
 		//http.httpBasic(Customizer.withDefaults());
 		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 		http.addFilter(new JWTAuthorizationFilter(authenticationManager()));
 		return http.build();
 
 	}
+	@Bean
+	CorsConfigurationSource corsConfigurationSource() {
+	    CorsConfiguration configuration = new CorsConfiguration();
+	    configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // Tu puerto de Vue
+	    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+	    configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
+	    configuration.setAllowCredentials(true);
+	    
+	    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	    source.registerCorsConfiguration("/**", configuration);
+	    return source;
+	}
+	
 
 }

@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,10 +31,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Carga", description = "API para Gestionar Carga")
 @RestController
 @RequestMapping(Constants.URL_CARGA)
+@CrossOrigin(origins = "http://localhost:5173")
 public class CargaRestController {
 
 	@Autowired
@@ -49,6 +53,9 @@ public class CargaRestController {
 	// response http
 	@Autowired
 	private IStandartResponseBusiness response;
+	
+	@Autowired
+	private SimpMessagingTemplate messagingTemplate;
 
 	@Operation(
     	operationId = "listar-datos-carga",
@@ -158,7 +165,8 @@ public class CargaRestController {
 	public ResponseEntity<?> add(HttpEntity<String> httpEntity) {
 		try {
 			DatoCarga response = datoCargaBusiness.add(httpEntity.getBody());
-
+			
+			messagingTemplate.convertAndSend("/topic/carga" , response);
 			// resposnse
 			HttpHeaders responseHeaders = new HttpHeaders();
 			return new ResponseEntity<>(responseHeaders, HttpStatus.CREATED);
@@ -199,7 +207,7 @@ public class CargaRestController {
 	public ResponseEntity<?> activate(@RequestParam Integer numeroOrden, @RequestParam Integer claveActivacion) {
 		try {
 			Orden response = ordenBusiness.activarCarga(numeroOrden,claveActivacion);
-
+			messagingTemplate.convertAndSend("/topic/carga" + response.getNumeroOrden(), response);
 			// resposnse
 			HttpHeaders responseHeaders = new HttpHeaders();
 
@@ -231,7 +239,7 @@ public class CargaRestController {
 	public ResponseEntity<?> desactivate(@RequestParam int numeroOrden) {
 		try {
 			Orden response = ordenBusiness.desactivarCarga(numeroOrden);
-
+			messagingTemplate.convertAndSend("/topic/carga" + response.getNumeroOrden(), response);
 			// resposnse
 			HttpHeaders responseHeaders = new HttpHeaders();
 

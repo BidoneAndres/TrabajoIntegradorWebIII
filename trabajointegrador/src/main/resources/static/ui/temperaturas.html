@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+
+	<!-- STOMP (válido para navegador) -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+	<!-- Chart.js -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js"></script>
+
+</head>
+
+<body onload="disconnect()">
+
+    <div>
+        <div id="login">
+            <p><input type="text" id="username" placeholder="username" /></p>
+            <p><input type="password" id="password" placeholder="password" /></p>
+            <button onclick="login();">Login</button><br />
+        </div>
+
+        <div id="graph" style="display: none;">
+            <div style="height: 600px; width: 900px;">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        let stompClient = null;
+        let myChart;
+        let token = "";
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const data = new FormData();
+            data.append("username", username);
+            data.append("password", password);
+
+            const xhr = new XMLHttpRequest();
+            xhr.withCredentials = true;
+
+            xhr.addEventListener("readystatechange", function () {
+                if (this.readyState === 4) {
+
+                    token = this.responseText;
+                    console.log("TOKEN:", token);
+
+                    document.getElementById('login').style.display = 'none';
+                    document.getElementById('graph').style.display = 'block';
+
+                    connect();
+                }
+            });
+
+            xhr.open("POST", "http://localhost:8080/api/v1/login");
+            xhr.send(data);
+        }
+
+
+        function disconnect() {
+            if (stompClient != null) {
+                stompClient.disconnect();
+            }
+            console.log("Disconnected");
+        }
+
+
+        function connect() {
+            console.log("Conectando a WS con token:", token);
+
+            let socket = new SockJS(`/temperaturas?authtoken=${token}`);
+            stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function (frame) {
+                console.log("Connected:", frame);
+
+                createChart();
+
+                stompClient.subscribe('/topic/temperaturas', function (message) {
+                    console.log("LLEGA TEMP:", message.body);
+                    updateChart(parseFloat(message.body));
+                });
+            });
+        }
+
+
+        function updateChart(temp) {
+            if (isNaN(temp)) return;
+
+            const nextLabel = "Temp " + (myChart.data.labels.length + 1);
+
+            myChart.data.labels.push(nextLabel);
+            myChart.data.datasets[0].data.push(temp);
+
+            myChart.update();
+        }
+
+
+        function createChart() {
+            let ctx = document.getElementById('myChart').getContext('2d');
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Temperatura',
+                        data: [],
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    animation: false,
+                    scales: {
+                        yAxes: [{
+                            ticks: { beginAtZero: true }
+                        }]
+                    }
+                }
+            });
+        }
+
+    </script>
+
+</body>
+</html>
