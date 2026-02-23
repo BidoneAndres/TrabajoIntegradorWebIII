@@ -28,40 +28,38 @@ import ar.iua.edu.trabajointegrador.controllers.Constants;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
 
+	// si no quiero bloquearle el acceso a ninguna ruta
 	/*
-	 * si no quiero bloquearle el acceso a ninguna ruta
-	 * 
 	 * @Bean SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-	 * // CORS: https://developer.mozilla.org/es/docs/Web/HTTP/CORS // CSRF:0
+	 * // CORS: https://developer.mozilla.org/es/docs/Web/HTTP/CORS // CSRF:0 //
 	 * https://developer.mozilla.org/es/docs/Glossary/CSRF
 	 * http.cors(CorsConfigurer::disable);
 	 * http.csrf(AbstractHttpConfigurer::disable); http.authorizeHttpRequests(auth
 	 * -> auth.requestMatchers("/**").permitAll().anyRequest().authenticated());
 	 * return http.build(); }
 	 */
+
 	@Bean
+
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 		// CORS: https://developer.mozilla.org/es/docs/Web/HTTP/CORS
-
 		// CSRF: https://developer.mozilla.org/es/docs/Glossary/CSRF
-		http.cors(CorsConfigurer::disable); 
+		http.cors(CorsConfigurer::disable);
 		http.csrf(AbstractHttpConfigurer::disable);
-		http.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, Constants.URL_LOGIN + "/**").permitAll()
-				.requestMatchers("/v3/api-docs/**").permitAll().requestMatchers("/swagger-ui.html").permitAll()
-				.requestMatchers("/swagger-ui/**").permitAll().requestMatchers("/ui/**").permitAll()
+		http.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, Constants.URL_LOGIN + "/**")
+				.permitAll().requestMatchers("/v3/api-docs/**").permitAll().requestMatchers("/swagger-ui.html")
+				.permitAll().requestMatchers("/swagger-ui/**").permitAll().requestMatchers("/ui/**").permitAll()
 				.requestMatchers("/demo/**").permitAll()
-				
-				//aca filtramos autorizados
-			    .requestMatchers(Constants.URL_CONCILIACION + "/**").hasRole("ADMIN") //aca spring busca internamente el prefijo ROLE_ADMIN
-				.anyRequest().authenticated()); //esta linea final significa cualquier req no haya sido permitido explicitamente requiere autoenticacion
+				// aca filtramos autorizados
+				.requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION).hasRole("ADMIN")
+				.requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION + "/**").hasRole("ADMIN") // aca spring busca internamente el prefijo ROLE_ADMIN
+				.anyRequest().authenticated()); // esta linea final significa cualquier req no haya sido permitido explicitamente requiere autoenticacion
 		http.httpBasic(Customizer.withDefaults())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 		http.addFilter(new JWTAuthorizationFilter(authenticationManager()));
 		return http.build();
 	}
-
-
 
 	@Bean
 	PasswordEncoder bCryptPasswordEncoder() {
