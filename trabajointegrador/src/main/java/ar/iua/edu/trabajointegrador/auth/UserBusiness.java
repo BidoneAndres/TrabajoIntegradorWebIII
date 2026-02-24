@@ -86,7 +86,7 @@ public class UserBusiness implements IUserBusiness {
 	}
 	
 	@Override
-	public User register(User user, PasswordEncoder pEncoder) throws BusinessException {
+	public User register(User user, PasswordEncoder pEncoder, String role) throws BusinessException {
 		try {
 			// 1. Validar que el usuario o email no existan previamente
 			Optional<User> existingUser = userDAO.findOneByUsernameOrEmail(user.getUsername(), user.getEmail());
@@ -106,8 +106,14 @@ public class UserBusiness implements IUserBusiness {
 			user.setCredentialsNonExpired(true);
 
 			Role roleUser = new Role();
-			roleUser.setId(2);
-			roleUser.setName("ROLE_USER");
+			if(role.equals("admin")) {
+				roleUser.setId(1);
+				roleUser.setName("ROLE_ADMIN");
+			}
+			else {
+				roleUser.setId(2);
+				roleUser.setName("ROLE_USER");	
+			}
 			Set<Role> roles = new HashSet<>();
 			roles.add(roleUser);
 			

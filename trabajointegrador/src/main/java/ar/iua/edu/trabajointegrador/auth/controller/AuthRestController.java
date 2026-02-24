@@ -140,7 +140,7 @@ public class AuthRestController extends BaseRestController {
 			usuario.setUsername(body.getUsername());
 			usuario.setPassword(body.getPassword());
 			usuario.setEmail(body.getEmail());
-			User created = userBusiness.register(usuario, pEncoder);
+			User created = userBusiness.register(usuario, pEncoder, body.getRole());
 			return new ResponseEntity<>(created, HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),

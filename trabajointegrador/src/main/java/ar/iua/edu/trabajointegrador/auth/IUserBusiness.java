@@ -21,6 +21,6 @@ public interface IUserBusiness {
 	
 	public List<User> list() throws BusinessException;
 	
-	public User register(User user, PasswordEncoder pEncoder) throws BusinessException;
+	public User register(User user, PasswordEncoder pEncoder, String role) throws BusinessException;
 
 }
