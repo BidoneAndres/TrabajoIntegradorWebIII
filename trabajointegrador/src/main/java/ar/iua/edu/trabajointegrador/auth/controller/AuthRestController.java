@@ -24,6 +24,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
 import ar.iua.edu.trabajointegrador.auth.User;
+import ar.iua.edu.trabajointegrador.auth.UserBusiness;
 import ar.iua.edu.trabajointegrador.auth.custom.CustomAuthenticationManager;
 import ar.iua.edu.trabajointegrador.auth.filters.AuthConstants;
 import ar.iua.edu.trabajointegrador.controllers.BaseRestController;
@@ -34,6 +35,10 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 public class AuthRestController extends BaseRestController {
+
+	@Autowired
+    private final UserBusiness userBusiness;
+    
 	@Autowired
 	private AuthenticationManager authManager;
 	@Autowired
@@ -42,9 +47,15 @@ public class AuthRestController extends BaseRestController {
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
 	
+	
 
 	@Autowired
 	private PasswordEncoder pEncoder;
+
+
+    AuthRestController(UserBusiness userBusiness) {
+        this.userBusiness = userBusiness;
+    }
 
 
 	@PostMapping(value = Constants.URL_LOGIN, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -116,6 +127,21 @@ public class AuthRestController extends BaseRestController {
 		try {
 			String password = body.getPassword();
 			return new ResponseEntity<String>(pEncoder.encode(password), HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@PostMapping(value = Constants.URL_BASE + "/register", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> createUser(@RequestBody RegisterRequest body) {
+		try {
+			User usuario = new User();
+			usuario.setUsername(body.getUsername());
+			usuario.setPassword(body.getPassword());
+			usuario.setEmail(body.getEmail());
+			User created = userBusiness.register(usuario, pEncoder);
+			return new ResponseEntity<>(created, HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
 					HttpStatus.INTERNAL_SERVER_ERROR);

@@ -47,9 +47,11 @@ public class SecurityConfiguration {
 		// CSRF: https://developer.mozilla.org/es/docs/Glossary/CSRF
 		http.cors(CorsConfigurer::disable);
 		http.csrf(AbstractHttpConfigurer::disable);
-		http.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, Constants.URL_LOGIN + "/**")
-				.permitAll().requestMatchers("/v3/api-docs/**").permitAll().requestMatchers("/swagger-ui.html")
-				.permitAll().requestMatchers("/swagger-ui/**").permitAll().requestMatchers("/ui/**").permitAll()
+		http.authorizeHttpRequests(auth -> 
+			auth.requestMatchers(HttpMethod.POST, Constants.URL_LOGIN + "/**").permitAll()
+				.requestMatchers(HttpMethod.POST, Constants.URL_BASE + "/register/**").permitAll()
+				.requestMatchers("/v3/api-docs/**").permitAll().requestMatchers("/swagger-ui.html").permitAll()
+				.requestMatchers("/swagger-ui/**").permitAll().requestMatchers("/ui/**").permitAll()
 				.requestMatchers("/demo/**").permitAll()
 				// aca filtramos autorizados
 				.requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION).hasRole("ADMIN")

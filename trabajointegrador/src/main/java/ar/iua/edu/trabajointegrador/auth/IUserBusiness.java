@@ -20,5 +20,7 @@ public interface IUserBusiness {
 	public void enable(String usernameOrEmail) throws NotFoundException, BusinessException;
 	
 	public List<User> list() throws BusinessException;
+	
+	public User register(User user, PasswordEncoder pEncoder) throws BusinessException;
 
 }
