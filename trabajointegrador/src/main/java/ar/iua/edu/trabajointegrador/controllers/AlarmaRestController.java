@@ -36,7 +36,7 @@ import java.util.Map;
 
 @Tag(description = "API Interna para Gestionar Alarmas", name = "Alarmas")
 @RestController
-@RequestMapping("/api/alarms")
+@RequestMapping(Constants.URL_ALARMA)
 public class AlarmaRestController extends BaseRestController{
 
     @Autowired
@@ -49,13 +49,12 @@ public class AlarmaRestController extends BaseRestController{
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_OPERATOR')")
     @SneakyThrows
-    public ResponseEntity<?> getAllAlarms(@RequestParam("idOrder") Long idOrder,
+    public ResponseEntity<?> getAllAlarms(@RequestParam("idOrden") Long idOrden,
                                           @RequestParam(value = "page", defaultValue = "0") int page,
-                                          @RequestParam(value = "size", defaultValue = "10") int size,
-                                          @RequestParam(value = "sort", defaultValue = "timeStamp,desc") String sort) {
+                                          @RequestParam(value = "size", defaultValue = "10") int size){
 
         Pageable pageable;
-        if (sort != null && !sort.isEmpty()) {
+        /*if (sort != null && !sort.isEmpty()) {
             String[] sortParams = sort.split(",");
             String sortField = sortParams[0].trim();
             String sortDirection = (sortParams.length > 1 ? sortParams[1].trim().toLowerCase() : "desc"); // Dirección predeterminada
@@ -69,9 +68,9 @@ public class AlarmaRestController extends BaseRestController{
             pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
         } else {
             pageable = PageRequest.of(page, size);
-        }
-
-        Orden orden = ordenBusiness.load(idOrder);
+        }*/
+        pageable = PageRequest.of(page, size);
+        Orden orden = ordenBusiness.load(idOrden);
         Page<Alarma> alarmas = alarmaBusiness.getAllAlarmasByOrden(orden, pageable);
         StdSerializer<Alarma> alarmSerializer = new AlarmaJsonSerializer(Alarma.class, false);
         ObjectMapper mapper = JsonUtils.getObjectMapper(Alarma.class, alarmSerializer, null);

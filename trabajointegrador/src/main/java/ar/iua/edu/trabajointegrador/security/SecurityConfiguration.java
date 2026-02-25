@@ -59,8 +59,9 @@ public class SecurityConfiguration {
 	            .requestMatchers(HttpMethod.POST, Constants.URL_LOGIN + "/**").permitAll()
 	            .requestMatchers(HttpMethod.POST, Constants.URL_BASE + "/register/**").permitAll()
 	            .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
-	            .requestMatchers("/ui/**", "/demo/**","/temperaturas/**").permitAll()
+	            .requestMatchers("/ui/**", "/demo/**","/temperaturas/**", Constants.URL_ALARMA + "/**").permitAll()
 	            
+				.requestMatchers(Constants.URL_ALARMA + "/**").permitAll()
 	            .requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION).hasRole("ADMIN")
 	            .requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION + "/**").hasRole("ADMIN")
 
