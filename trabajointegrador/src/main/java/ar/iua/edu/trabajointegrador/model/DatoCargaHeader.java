@@ -3,6 +3,7 @@ package ar.iua.edu.trabajointegrador.model;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -49,8 +50,8 @@ public class DatoCargaHeader  {
 	
 	// --- TIMESTAMPS AUTOMÁTICOS ---
 
-    @CreationTimestamp //  Anotación para la fecha de creación
-    @Column(nullable = false, updatable = false) // No se puede actualizar
+    @UpdateTimestamp //  Anotación para la fecha de creación
+    @Column(nullable = false) 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
 
     private LocalDateTime timestamp;

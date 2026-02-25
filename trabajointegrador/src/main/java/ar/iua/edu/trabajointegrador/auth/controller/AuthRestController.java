@@ -1,6 +1,7 @@
 package ar.iua.edu.trabajointegrador.auth.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
 import ar.iua.edu.trabajointegrador.auth.User;
+import ar.iua.edu.trabajointegrador.auth.UserBusiness;
 import ar.iua.edu.trabajointegrador.auth.custom.CustomAuthenticationManager;
 import ar.iua.edu.trabajointegrador.auth.filters.AuthConstants;
 import ar.iua.edu.trabajointegrador.controllers.BaseRestController;
@@ -35,6 +37,10 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @CrossOrigin(origins = "*")
 public class AuthRestController extends BaseRestController {
+
+	@Autowired
+    private final UserBusiness userBusiness;
+    
 	@Autowired
 	private AuthenticationManager authManager;
 	@Autowired
@@ -42,9 +48,19 @@ public class AuthRestController extends BaseRestController {
 	
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
+	
+	
+
+	@Autowired
+	private PasswordEncoder pEncoder;
 
 
-	@PostMapping(value = Constants.URL_LOGIN, produces = MediaType.TEXT_PLAIN_VALUE)
+    AuthRestController(UserBusiness userBusiness) {
+        this.userBusiness = userBusiness;
+    }
+
+
+	@PostMapping(value = Constants.URL_LOGIN, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> loginExternalOnlyToken(@RequestParam String username, @RequestParam String password, HttpServletRequest request) {
 		Authentication auth = null;
 		try {
@@ -75,7 +91,7 @@ public class AuthRestController extends BaseRestController {
 	 * JSON login endpoint. Accepts { "username": "..", "password": ".." } in the body.
 	 * Returns plain text JWT on success.
 	 */
-	@PostMapping(value = Constants.URL_LOGIN + "/json", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+	@PostMapping(value = Constants.URL_LOGIN + "/json", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> loginJson(@RequestBody LoginRequest body, HttpServletRequest request) {
 		if (body == null || body.getUsername() == null || body.getPassword() == null) {
 			return new ResponseEntity<>(response.build(HttpStatus.BAD_REQUEST, null, "username and password are required"),
@@ -107,13 +123,27 @@ public class AuthRestController extends BaseRestController {
 
 		return new ResponseEntity<String>(token, HttpStatus.OK);
 	}
-	@Autowired
-	private PasswordEncoder pEncoder;
 
-	@GetMapping(value = "/demo/encodepass", produces = MediaType.TEXT_PLAIN_VALUE)
-	public ResponseEntity<?> encodepass(@RequestParam String password) {
+	@PostMapping(value = "/demo/encodepass", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> encodepass(@RequestBody LoginRequest body) {
 		try {
+			String password = body.getPassword();
 			return new ResponseEntity<String>(pEncoder.encode(password), HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@PostMapping(value = Constants.URL_BASE + "/register", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> createUser(@RequestBody RegisterRequest body) {
+		try {
+			User usuario = new User();
+			usuario.setUsername(body.getUsername());
+			usuario.setPassword(body.getPassword());
+			usuario.setEmail(body.getEmail());
+			User created = userBusiness.register(usuario, pEncoder, body.getRole());
+			return new ResponseEntity<>(created, HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
 					HttpStatus.INTERNAL_SERVER_ERROR);

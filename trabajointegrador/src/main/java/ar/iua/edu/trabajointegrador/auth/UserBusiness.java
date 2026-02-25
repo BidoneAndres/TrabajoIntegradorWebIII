@@ -1,7 +1,9 @@
 package ar.iua.edu.trabajointegrador.auth;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -82,5 +84,55 @@ public class UserBusiness implements IUserBusiness {
 			throw BusinessException.builder().ex(e).build();
 		}
 	}
+	
+	@Override
+	public User register(User user, PasswordEncoder pEncoder, String role) throws BusinessException {
+		try {
+			// 1. Validar que el usuario o email no existan previamente
+			Optional<User> existingUser = userDAO.findOneByUsernameOrEmail(user.getUsername(), user.getEmail());
+			if (existingUser.isPresent()) {
+				throw BusinessException.builder()
+						.message("El nombre de usuario o email ya se encuentra registrado")
+						.build();
+			}
+
+			// 2. Encriptar la contraseña recibida
+			user.setPassword(pEncoder.encode(user.getPassword()));
+
+			// 3. Activar las banderas de Spring Security
+			user.setEnabled(true);
+			user.setAccountNonExpired(true);
+			user.setAccountNonLocked(true);
+			user.setCredentialsNonExpired(true);
+
+			Role roleUser = new Role();
+			if(role.equals("admin")) {
+				roleUser.setId(1);
+				roleUser.setName("ROLE_ADMIN");
+			}
+			else {
+				roleUser.setId(2);
+				roleUser.setName("ROLE_USER");	
+			}
+			Set<Role> roles = new HashSet<>();
+			roles.add(roleUser);
+			
+			user.setRoles(roles);
+			
+			
+			// 5. Guardar en la base de datos
+			// Hibernate guardará primero el User y luego insertará automáticamente 
+			// la relación en la tabla intermedia 'userroles'
+			return userDAO.save(user);
+
+		} catch (BusinessException e) {
+			throw e;
+		} catch (Exception e) {
+			log.error("Error inesperado al registrar usuario: {}", e.getMessage(), e);
+			throw BusinessException.builder().message("Error interno al registrar el usuario").ex(e).build();
+		}
+	}
+
+	
 
 }
