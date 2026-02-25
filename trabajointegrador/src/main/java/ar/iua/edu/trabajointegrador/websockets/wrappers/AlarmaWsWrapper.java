@@ -10,13 +10,11 @@ import java.util.Date;
 @Setter
 public class AlarmaWsWrapper {
 
-    private long id;
-    private long ordenId;
+    private Long id;
+    private Long ordenId;
     private Alarma.alarmaEstado estado;
     private float temperatura;
     private String descripcion;
     private Date fechaCreacion;
     private String user;
-    private float umbralTemperatura;
-    
 }

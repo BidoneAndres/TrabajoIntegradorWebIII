@@ -1,17 +1,24 @@
 package ar.iua.edu.trabajointegrador.controllers;
 
+import java.util.HashMap;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import ar.iua.edu.trabajointegrador.model.DatoCarga;
 import ar.iua.edu.trabajointegrador.model.Orden;
@@ -22,13 +29,26 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.StateLoadException
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaHeaderBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IOrdenBusiness;
+import ar.iua.edu.trabajointegrador.util.FieldValidator;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
-
+import ar.iua.edu.trabajointegrador.util.JsonUtils;
+import ar.iua.edu.trabajointegrador.util.Paginas;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
+import ar.iua.edu.trabajointegrador.model.serializers.DatoCargaJsonSerializer;
+
+import java.util.List;
+import java.util.Map;
+
+
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.SneakyThrows;
 @Tag(name = "3. Carga", description = "API para Gestionar Carga")
 @RestController
 @RequestMapping(Constants.URL_CARGA)
@@ -126,7 +146,7 @@ public class CargaRestController {
     	@ApiResponse(responseCode = "200", description = "Cabecera encontrada."),
     	@ApiResponse(responseCode = "404", description = "No se encontró la cabecera."),
     	@ApiResponse(responseCode = "500", description = "Error interno del servidor.")
-	})
+	})@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_OPERATOR')")
 	@GetMapping(value = "/carga-header/orden/{ordenId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	    public ResponseEntity<?> loadHeader(@PathVariable(value="ordenId") long ordenId) {
 	    	try {
@@ -258,5 +278,81 @@ public class CargaRestController {
 	 * ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()),
 	 * HttpStatus.FOUND); } }
 	 */
+	@GetMapping(value = "/por-orden", produces = MediaType.APPLICATION_JSON_VALUE)
+    @SneakyThrows
+    public ResponseEntity<?> getAllAlarms(@RequestParam Long idOrder,
+                                          @RequestParam(value = "page", defaultValue = "0") int page,
+                                          @RequestParam(value = "size", defaultValue = "10") int size,
+                                          @RequestParam(value = "sort", required = false, defaultValue = "timeStamp,desc") String sort) {
 
+        Pageable pageable;
+        if (sort != null && !sort.isEmpty()) {
+            String[] sortParams = sort.split(",");
+            String sortField = sortParams[0].trim();
+            String sortDirection = (sortParams.length > 1 ? sortParams[1].trim().toLowerCase() : "desc"); // Dirección predeterminada
+            Sort.Direction direction = sortDirection.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+            // Validar el campo de ordenación
+            if (FieldValidator.isValidField(DatoCarga.class, sortField)) {
+                throw new IllegalArgumentException("El campo de ordenación '" + sortField + "' no es válido para la entidad Alarm");
+            }
+
+            pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
+        } else {
+            pageable = PageRequest.of(page, size);
+        }
+
+        Orden orden = ordenBusiness.load(idOrder);
+        Page<DatoCarga> details = datoCargaBusiness.listByOrden(orden, pageable);
+        StdSerializer<DatoCarga> DatoCargaSerializer = new DatoCargaJsonSerializer(DatoCarga.class, false);
+        ObjectMapper mapper = JsonUtils.getObjectMapper(DatoCarga.class, DatoCargaSerializer, null);
+
+        // Convertir cada detalle a JSON y agregarla al resultado
+        List<Object> serializedDetails = details.getContent().stream()
+                .map(detail -> {
+                    try {
+                        return mapper.valueToTree(detail);  // Serializa a JsonNode directamente
+                    } catch (Exception e) {
+                        throw new RuntimeException("Error al serializar el objeto Detail", e);
+                    }
+                }).toList();
+
+        // Crear un objeto de información de paginación
+        Paginas paginationInfo = new Paginas(
+                details.getPageable(),
+                details.getTotalPages(),
+                details.getTotalElements(),
+                details.getNumber(),
+                details.getSize(),
+                details.getNumberOfElements()
+        );
+
+        // Crear la respuesta
+        Map<String, Object> response = new HashMap<>();
+        response.put("details", serializedDetails);
+        response.put("pagination", paginationInfo);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
+    @SneakyThrows
+    public ResponseEntity<?> getAllAlarmas(@RequestParam Long idOrden) {
+        Orden orden = ordenBusiness.load(idOrden);
+        List<DatoCarga> detalles = datoCargaBusiness.listByNumeroOrden(orden.getNumeroOrden());
+        StdSerializer<DatoCarga> DatoCargaSerializer = new DatoCargaJsonSerializer(DatoCarga.class, false);
+        ObjectMapper mapper = JsonUtils.getObjectMapper(DatoCarga.class, DatoCargaSerializer, null);
+
+        // Convertir cada detalle a JSON y agregarla al resultado
+        List<Object> serializedDetalles = detalles.stream()
+                .map(detail -> {
+                    try {
+                        return mapper.valueToTree(detail);  // Serializa a JsonNode directamente
+                    } catch (Exception e) {
+                        throw new RuntimeException("Error al serializar el objeto DatoCarga", e);
+                    }
+                }).toList();
+
+        return new ResponseEntity<>(serializedDetalles, HttpStatus.OK);
+    }
 }
