@@ -25,6 +25,9 @@ import ar.iua.edu.trabajointegrador.model.deserializers.OrdenJsonDeserializer;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IProductoBusiness;
 import ar.iua.edu.trabajointegrador.util.generadorPassword;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 @Service
 @Slf4j
 public class OrdenBusiness implements IOrdenBusiness {
@@ -52,6 +55,18 @@ public class OrdenBusiness implements IOrdenBusiness {
 			log.error(e.getMessage(), e);
 			throw BusinessException.builder().ex(e).build();
 		}
+	}
+
+	@Override
+	public Page<Orden> listPage(Pageable pageable, List<String> estados) throws BusinessException {
+		try {
+            return estados == null || estados.isEmpty()
+                    ? ordenDAO.findAll(pageable) // Si no hay filtro, devuelve todo
+                    : ordenDAO.findByEstados(estados, pageable);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw BusinessException.builder().ex(e).build();
+        }
 	}
 
 	@Override

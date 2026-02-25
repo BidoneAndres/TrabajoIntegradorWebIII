@@ -11,4 +11,5 @@ public interface IConciliacionBusiness {
 	public Conciliacion add(float pesajeFinal, int numeroOrden) throws NotFoundException, BusinessException,StateLoadException;
 	public List<Conciliacion> list() throws BusinessException;
 	public Conciliacion loadByNumeroOrden(int numeroOrden)throws BusinessException, NotFoundException;
+	public Conciliacion loadByIdOrden(int idOrden) throws BusinessException, NotFoundException;
 }
