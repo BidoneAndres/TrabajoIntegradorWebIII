@@ -46,27 +46,33 @@ public class SecurityConfiguration {
 	 */
 
 	@Bean
-
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-		// CORS: https://developer.mozilla.org/es/docs/Web/HTTP/CORS
-		// CSRF: https://developer.mozilla.org/es/docs/Glossary/CSRF
-		http.cors(CorsConfigurer::disable);
-		http.csrf(AbstractHttpConfigurer::disable);
-		http.authorizeHttpRequests(auth -> 
-			auth.requestMatchers(HttpMethod.POST, Constants.URL_LOGIN + "/**").permitAll()
-				.requestMatchers(HttpMethod.POST, Constants.URL_BASE + "/register/**").permitAll()
-				.requestMatchers("/v3/api-docs/**").permitAll().requestMatchers("/swagger-ui.html").permitAll()
-				.requestMatchers("/swagger-ui/**").permitAll().requestMatchers("/ui/**").permitAll()
-				.requestMatchers("/demo/**").permitAll()
-				// aca filtramos autorizados
-				.requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION).hasRole("ADMIN")
-				.requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION + "/**").hasRole("ADMIN") // aca spring busca internamente el prefijo ROLE_ADMIN
-				.anyRequest().authenticated()); // esta linea final significa cualquier req no haya sido permitido explicitamente requiere autoenticacion
-		http.httpBasic(Customizer.withDefaults())
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-		http.addFilter(new JWTAuthorizationFilter(authenticationManager()));
-		return http.build();
+	    http
+	        .cors(Customizer.withDefaults())   
+	        .csrf(AbstractHttpConfigurer::disable) 
+	        .authorizeHttpRequests(auth -> auth
+
+
+	            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+	            .requestMatchers(HttpMethod.POST, Constants.URL_LOGIN + "/**").permitAll()
+	            .requestMatchers(HttpMethod.POST, Constants.URL_BASE + "/register/**").permitAll()
+	            .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+	            .requestMatchers("/ui/**", "/demo/**","/temperaturas/**").permitAll()
+	            
+	            .requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION).hasRole("ADMIN")
+	            .requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION + "/**").hasRole("ADMIN")
+
+	            .anyRequest().authenticated()
+	        )
+	        .sessionManagement(session ->
+	            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+	        );
+
+	    http.addFilter(new JWTAuthorizationFilter(authenticationManager()));
+
+	    return http.build();
 	}
 
 	@Bean
