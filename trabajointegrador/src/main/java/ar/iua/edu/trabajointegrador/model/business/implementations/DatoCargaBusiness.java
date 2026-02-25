@@ -1,5 +1,7 @@
 package ar.iua.edu.trabajointegrador.model.business.implementations;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +32,7 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 
 	@Autowired
 	private DatoCargaRepository datoCargaDAO;
-	
+
 	@Autowired
 	private DatoCargaHeaderBusiness datoCargaHeaderBusiness;
 
@@ -56,81 +58,92 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		// Masa acumulada <= 0 o menor que el valor anterior
 
 		try {
-		    //  Validación inicial
-			
-		    if (datoCarga.getOrden() == null) {
-		        log.error("No se encontro la orden con ese numero de orden");
-		        throw NotFoundException.builder()
-		                .message("No se encontro la orden con ese numero de orden")
-		                .build();
-		    }
+			// Validación inicial
 
-		    Long ordenId = datoCarga.getOrden().getId();
-		    
-		    Double ultimaMasa = null;
-		    Optional<DatoCargaHeader> headerAnterior = datoCargaHeaderBusiness.findByOrdenId(ordenId);
-		    if (headerAnterior.isPresent()) {
-		    	ultimaMasa=headerAnterior.get().getUltimaMasaAcumulada();
-		    	
-		    }
-		    Integer preset = ordenBusiness.findPreset(ordenId);
-		    Orden.Estado estado = ordenBusiness.findEstado(ordenId);
+			if (datoCarga.getOrden() == null) {
+				log.error("No se encontro la orden con ese numero de orden");
+				throw NotFoundException.builder().message("No se encontro la orden con ese numero de orden").build();
+			}
 
-		    Double masaActual = datoCarga.getMasaAcumulada();
-		    Double caudalActual = datoCarga.getCaudal();
+			Long ordenId = datoCarga.getOrden().getId();
 
-		    if (estado != Estado.ESTADO_2_EN_PROCESO_DE_CARGA) {
-		        log.error("La orden no está en el estado LISTO_PARA_CARGA");
-		        throw StateLoadException.builder()
-		                .message("ERROR: La orden no está en el estado LISTO_PARA_CARGA (actual: " + estado + ")")
-		                .build();
-		    }
+			log.error("hora " + datoCarga.getTimestamp());
+			Double ultimaMasa = null;
+			Optional<DatoCargaHeader> headerAnterior = datoCargaHeaderBusiness.findByOrdenId(ordenId);
+			if (headerAnterior.isPresent()) {
+				ultimaMasa = headerAnterior.get().getUltimaMasaAcumulada();
+				LocalDateTime ultimoTimestamp = headerAnterior.get().getTimestamp();
+				LocalDateTime timestampActual = LocalDateTime.now();
+				
+				if (ultimoTimestamp != null && timestampActual != null) {
+                    long milisegundosTranscurridos = Duration.between(ultimoTimestamp, timestampActual).toMillis();
+                    
+                    if (milisegundosTranscurridos < 5000) {
+                        log.info("Se ignoró el dato de carga. Solo pasaron {} ms desde el último registro.", milisegundosTranscurridos);
+                        
+                        // Aquí decides qué hacer si no pasaron 5000ms. 
+                        // Opción 1: Salir silenciosamente retornando null o el dato sin guardar.
+                        //return null; 
+                        
+                        // Opción 2: Lanzar una excepción si tu cliente API necesita saber que fue rechazado.
+                         throw InvalidLoadException.builder()
+                               .message("ERROR: Deben pasar al menos 5000ms entre cargas")
+                               .build();
+                    }
+                }
+				
+				
 
-		    if (caudalActual == null || caudalActual <= 0) {
-		        log.error("Se recibió un caudal inválido: " + caudalActual);
-		        throw InvalidLoadException.builder()
-		                .message("ERROR: Caudal inválido (" + caudalActual + ")")
-		                .build();
-		    }
+			}
+			Integer preset = ordenBusiness.findPreset(ordenId);
+			Orden.Estado estado = ordenBusiness.findEstado(ordenId);
 
-		    if (masaActual == null || masaActual <= 0) {
-		        log.error("Se recibió una masa inválida: " + masaActual);
-		        throw InvalidLoadException.builder()
-		                .message("ERROR: Masa acumulada inválida (" + masaActual + ")")
-		                .build();
-		    }
+			Double masaActual = datoCarga.getMasaAcumulada();
+			Double caudalActual = datoCarga.getCaudal();
 
-		    //  Validación de consistencia con la masa anterior
-		    if (ultimaMasa!= null && masaActual < ultimaMasa) {
-		        log.error("Masa acumulada menor a la anterior: actual=" + masaActual + ", anterior=" + ultimaMasa);
-		        throw InvalidLoadException.builder()
-		                .message("ERROR: Masa acumulada menor a la anterior (" + masaActual + " < " + ultimaMasa + ")")
-		                .build();
-		    }
+			if (estado != Estado.ESTADO_2_EN_PROCESO_DE_CARGA) {
+				log.error("La orden no está en el estado LISTO_PARA_CARGA");
+				throw StateLoadException.builder()
+						.message("ERROR: La orden no está en el estado LISTO_PARA_CARGA (actual: " + estado + ")")
+						.build();
+			}
 
-		
-		    //  Guardado final
-		    try {
-		    	datoCargaHeaderBusiness.add(datoCarga);
-		        return datoCargaDAO.save(datoCarga);
-		    } catch (Exception e) {
-		        log.error("Error al guardar DatoCarga", e);
-		        throw BusinessException.builder()
-		                .message("Error interno al guardar el dato de carga")
-		                .ex(e)
-		                .build();
-		    }
+			if (caudalActual == null || caudalActual <= 0) {
+				log.error("Se recibió un caudal inválido: " + caudalActual);
+				throw InvalidLoadException.builder().message("ERROR: Caudal inválido (" + caudalActual + ")").build();
+			}
+
+			if (masaActual == null || masaActual <= 0) {
+				log.error("Se recibió una masa inválida: " + masaActual);
+				throw InvalidLoadException.builder().message("ERROR: Masa acumulada inválida (" + masaActual + ")")
+						.build();
+			}
+
+			// Validación de consistencia con la masa anterior
+			if (ultimaMasa != null && masaActual < ultimaMasa) {
+				log.error("Masa acumulada menor a la anterior: actual=" + masaActual + ", anterior=" + ultimaMasa);
+				throw InvalidLoadException.builder()
+						.message("ERROR: Masa acumulada menor a la anterior (" + masaActual + " < " + ultimaMasa + ")")
+						.build();
+			}
+
+			// Guardado final
+			try {
+				datoCargaHeaderBusiness.add(datoCarga);
+				return datoCargaDAO.save(datoCarga);
+
+			} catch (Exception e) {
+				log.error("Error al guardar DatoCarga", e);
+				throw BusinessException.builder().message("Error interno al guardar el dato de carga").ex(e).build();
+			}
 
 		} catch (NotFoundException | InvalidLoadException | StateLoadException | BusinessException e) {
-		    // Excepciones esperadas (controladas)
-		    throw e;
+			// Excepciones esperadas (controladas)
+			throw e;
 		} catch (Exception e) {
-		    // Cualquier otro error inesperado
-		    log.error("Error inesperado en el proceso de carga", e);
-		    throw BusinessException.builder()
-		            .message("Error inesperado en el proceso de carga")
-		            .ex(e)
-		            .build();
+			// Cualquier otro error inesperado
+			log.error("Error inesperado en el proceso de carga", e);
+			throw BusinessException.builder().message("Error inesperado en el proceso de carga").ex(e).build();
 		}
 
 	}
@@ -157,7 +170,7 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		}
 
 	}
-	
+
 	@Override
 	public List<DatoCarga> listByNumeroOrden(int numeroOrden) throws BusinessException {
 
@@ -181,7 +194,7 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		}
 
 	}
-	
+
 	@Override
 	public Optional<Double> calculateDensidadProductoAvg(Integer numeroOrden) throws BusinessException {
 
@@ -193,7 +206,7 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		}
 
 	}
-	
+
 	@Override
 	public Optional<Double> calculateTemperaturaAvg(Integer numeroOrden) throws BusinessException {
 
@@ -205,7 +218,7 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		}
 
 	}
-	
+
 	@Override
 	public Optional<Double> calculateCaudalAvg(Integer numeroOrden) throws BusinessException {
 

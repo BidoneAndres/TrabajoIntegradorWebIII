@@ -1,5 +1,6 @@
 package ar.iua.edu.trabajointegrador.auth.custom;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.springframework.security.authentication.AccountExpiredException;
@@ -14,12 +15,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
 import ar.iua.edu.trabajointegrador.auth.IUserBusiness;
 import ar.iua.edu.trabajointegrador.auth.User;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
+
 
 @Slf4j
 public class CustomAuthenticationManager implements AuthenticationManager {
@@ -56,8 +59,10 @@ public class CustomAuthenticationManager implements AuthenticationManager {
 			throw new DisabledException(User.VALIDATION_DISABLED);
 		if (validation.equals(User.VALIDATION_LOCKED))
 			throw new LockedException(User.VALIDATION_LOCKED);
-		if (!pEncoder.matches(password, user.getPassword()))
+		if (!pEncoder.matches(password, user.getPassword())) {			
 			throw new BadCredentialsException("Invalid password");
+			
+		}
 		return new UsernamePasswordAuthenticationToken(user, null,user.getAuthorities());
 
 

@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -32,6 +33,42 @@ import ar.iua.edu.trabajointegrador.controllers.Constants;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled=true)
 public class SecurityConfiguration {
+
+	// si no quiero bloquearle el acceso a ninguna ruta
+	/*
+	 * @Bean SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	 * // CORS: https://developer.mozilla.org/es/docs/Web/HTTP/CORS // CSRF:0 //
+	 * https://developer.mozilla.org/es/docs/Glossary/CSRF
+	 * http.cors(CorsConfigurer::disable);
+	 * http.csrf(AbstractHttpConfigurer::disable); http.authorizeHttpRequests(auth
+	 * -> auth.requestMatchers("/**").permitAll().anyRequest().authenticated());
+	 * return http.build(); }
+	 */
+
+	@Bean
+
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+		// CORS: https://developer.mozilla.org/es/docs/Web/HTTP/CORS
+		// CSRF: https://developer.mozilla.org/es/docs/Glossary/CSRF
+		http.cors(CorsConfigurer::disable);
+		http.csrf(AbstractHttpConfigurer::disable);
+		http.authorizeHttpRequests(auth -> 
+			auth.requestMatchers(HttpMethod.POST, Constants.URL_LOGIN + "/**").permitAll()
+				.requestMatchers(HttpMethod.POST, Constants.URL_BASE + "/register/**").permitAll()
+				.requestMatchers("/v3/api-docs/**").permitAll().requestMatchers("/swagger-ui.html").permitAll()
+				.requestMatchers("/swagger-ui/**").permitAll().requestMatchers("/ui/**").permitAll()
+				.requestMatchers("/demo/**").permitAll()
+				// aca filtramos autorizados
+				.requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION).hasRole("ADMIN")
+				.requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION + "/**").hasRole("ADMIN") // aca spring busca internamente el prefijo ROLE_ADMIN
+				.anyRequest().authenticated()); // esta linea final significa cualquier req no haya sido permitido explicitamente requiere autoenticacion
+		http.httpBasic(Customizer.withDefaults())
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+		http.addFilter(new JWTAuthorizationFilter(authenticationManager()));
+		return http.build();
+	}
+
 	@Bean
 	PasswordEncoder bCryptPasswordEncoder() {
 		return new BCryptPasswordEncoder();
@@ -55,15 +92,7 @@ public class SecurityConfiguration {
 		return new CustomAuthenticationManager(bCryptPasswordEncoder(), userBusiness);
 	}
 
-	@Bean
-	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		// CORS: https://developer.mozilla.org/es/docs/Web/HTTP/CORS
-		// CSRF:0 https://developer.mozilla.org/es/docs/Glossary/CSRF
-		http.cors(CorsConfigurer::disable);
-		http.csrf(AbstractHttpConfigurer::disable);
-		http.authorizeHttpRequests(auth -> auth.requestMatchers("/**").permitAll().anyRequest().authenticated());
-		return http.build();
-	}
+
 	
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
