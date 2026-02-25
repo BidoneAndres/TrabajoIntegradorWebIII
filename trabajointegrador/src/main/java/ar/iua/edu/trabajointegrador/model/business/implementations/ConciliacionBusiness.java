@@ -103,4 +103,21 @@ public class ConciliacionBusiness implements IConciliacionBusiness {
 
 	}
 
+	@Override
+	public Conciliacion loadByIdOrden(int idOrden) throws BusinessException, NotFoundException {
+		try {
+			Optional<Conciliacion> c = concilacionDAO.findByOrdenId(idOrden);
+			if (c.isEmpty()) {
+				throw NotFoundException.builder().message("No se encontro la conciliacion para la orden: " + idOrden)
+				.build();
+			}
+			return c.get();
+		}
+		 catch (NotFoundException e) {
+				throw NotFoundException.builder().message(e.getMessage()).build();
+			}
+		catch (Exception e) {
+			throw BusinessException.builder().message(e.getMessage()).build();
+		}
+	}
 }

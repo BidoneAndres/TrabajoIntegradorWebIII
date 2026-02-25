@@ -1,12 +1,18 @@
 package ar.iua.edu.trabajointegrador.model.persistence;
 
 import java.util.Optional;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.Orden.Estado;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 
 public interface OrdenRepository extends JpaRepository<Orden, Long>{
 	public Optional<Orden> findByClaveActivacion(Integer claveActivacion);
@@ -26,5 +32,6 @@ public interface OrdenRepository extends JpaRepository<Orden, Long>{
 	public Optional<Orden> findByIdAndClaveActivacion(long id, int claveActivacion);
 	public Optional<Orden> findByNumeroOrden(int numeroOrden);
 	public Optional<Orden> findByNumeroOrdenAndClaveActivacion(Integer numeroOrden, Integer claveActivacion);
-
+	@Query("SELECT o FROM Orden o WHERE (:estados IS NULL OR o.estado IN :estados)")
+    Page<Orden> findByEstados(@Param("estados") List<String> estados, Pageable pageable);
 }

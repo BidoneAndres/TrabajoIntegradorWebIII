@@ -1,7 +1,12 @@
 package ar.iua.edu.trabajointegrador.controllers;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,12 +21,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+
 import ar.iua.edu.trabajointegrador.front.OrdenMonitorDTO;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.security.core.context.SecurityContextHolder;
 import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.Alarma;
 import ar.iua.edu.trabajointegrador.auth.User;
+import ar.iua.edu.trabajointegrador.model.serializers.OrdenJsonSerializer;
 import ar.iua.edu.trabajointegrador.model.business.implementations.AlarmaBusiness;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.ConflictException;
@@ -29,7 +37,10 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.UnProcessableException;
 import ar.iua.edu.trabajointegrador.model.business.implementations.OrdenBusiness;
+import ar.iua.edu.trabajointegrador.util.FieldValidator;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
+import ar.iua.edu.trabajointegrador.util.JsonUtils;
+import ar.iua.edu.trabajointegrador.util.Paginas;
 import ar.iua.edu.trabajointegrador.util.StandartResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -39,6 +50,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @Tag(name = "1. Orden", description = "API para Gestionar Ordenes")
 @Slf4j
@@ -279,5 +293,62 @@ public class OrdenRestController extends BaseRestController{
         } catch (Exception e) {
             return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping(value = "/pages", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_OPERATOR')")
+    @SneakyThrows
+    public ResponseEntity<?> getAll(@RequestParam(value = "page", defaultValue = "0") int page,
+                                    @RequestParam(value = "size", defaultValue = "10") int size,
+                                    @RequestParam(value = "filter", required = false) String filter) {
+
+        Pageable pageable;
+        /*if (sort != null && !sort.isEmpty()) {
+            String[] sortParams = sort.split(",");
+            String sortField = sortParams[0].trim();
+            String sortDirection = (sortParams.length > 1 ? sortParams[1].trim().toLowerCase() : "desc"); // Dirección predeterminada
+            Sort.Direction direction = sortDirection.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+            // Validar el campo de ordenación
+            if (FieldValidator.isValidField(Orden.class, sortField)) {
+                throw new IllegalArgumentException("El campo de ordenación '" + sortField + "' no es válido para la entidad Order");
+            }
+            pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
+        } else {
+            pageable = PageRequest.of(page, size);
+        }*/
+        pageable = PageRequest.of(page, size);
+        final List<String> statusFilters = (filter != null && !filter.isEmpty())
+                ? List.of(filter.split(","))
+                : null;
+
+        Page<Orden> orders = ordenBusiness.listPage(pageable, statusFilters);
+
+        StdSerializer<Orden> orderSerializer = new OrdenJsonSerializer(Orden.class, false);
+        ObjectMapper mapper = JsonUtils.getObjectMapper(Orden.class, orderSerializer, null);
+
+        List<Object> serializedOrders = orders.getContent().stream()
+                .map(orden -> {
+                    try {
+                        return mapper.valueToTree(orden);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Error al serializar el objeto Orden", e);
+                    }
+                }).toList();
+
+        Paginas paginationInfo = new Paginas(
+                orders.getPageable(),
+                orders.getTotalPages(),
+                orders.getTotalElements(),
+                orders.getNumber(),
+                orders.getSize(),
+                orders.getNumberOfElements()
+        );
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("orders", serializedOrders);
+        response.put("pagination", paginationInfo);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

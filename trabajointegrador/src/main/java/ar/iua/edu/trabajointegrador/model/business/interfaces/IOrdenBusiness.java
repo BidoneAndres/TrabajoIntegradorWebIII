@@ -11,8 +11,13 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.UnProcessableException;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 public interface IOrdenBusiness {
 	public List<Orden> list() throws BusinessException;
+
+	public Page<Orden> listPage(Pageable pageable, List<String> estados) throws BusinessException;
 	
 	public Orden load(long id) throws NotFoundException, BusinessException;
 
