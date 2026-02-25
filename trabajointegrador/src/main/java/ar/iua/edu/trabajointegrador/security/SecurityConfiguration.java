@@ -56,34 +56,15 @@ public class SecurityConfiguration {
 	}
 
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-		
-		/*Basicamente estamos diciendo que no hace falta estar autenticado para autenticarse
-		 *  tambien permitimos las documentaciones y todo eso con los permit all 
-		 *  
-		*/
-		http.csrf(AbstractHttpConfigurer::disable);
-		// Use the global CORS configuration declared in the WebMvcConfigurer
+	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		// CORS: https://developer.mozilla.org/es/docs/Web/HTTP/CORS
+		// CSRF:0 https://developer.mozilla.org/es/docs/Glossary/CSRF
 		http.cors(CorsConfigurer::disable);
 		http.csrf(AbstractHttpConfigurer::disable);
 		http.authorizeHttpRequests(auth -> auth.requestMatchers("/**").permitAll().anyRequest().authenticated());
-		// Allow access to the login endpoint regardless of HTTP method (tolerant to client mistakes)
-		http.authorizeHttpRequests(auth -> auth.requestMatchers(Constants.URL_LOGIN + "/**").permitAll()
-				.requestMatchers("/temperaturas/**").permitAll() 
-				.requestMatchers("/v3/api-docs/**").permitAll().requestMatchers("/swagger-ui.html").permitAll()
-				.requestMatchers("/swagger-ui/**").permitAll().requestMatchers("/ui/**").permitAll() //Todo esto es la documentacion, que nos va a hacer una pagina web
-				.requestMatchers("/demo/**").permitAll()
-				.requestMatchers("/ui/**").permitAll()
-				.requestMatchers("/demo/**").permitAll()
-				.anyRequest().authenticated());
-				
-		//http.httpBasic(Customizer.withDefaults());
-		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-		http.addFilter(new JWTAuthorizationFilter(authenticationManager()));
 		return http.build();
-
 	}
+	
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 	    CorsConfiguration configuration = new CorsConfiguration();

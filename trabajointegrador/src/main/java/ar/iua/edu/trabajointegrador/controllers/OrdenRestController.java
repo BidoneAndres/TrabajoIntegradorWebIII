@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import ar.iua.edu.trabajointegrador.front.OrdenMonitorDTO;
 import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
@@ -43,6 +45,8 @@ public class OrdenRestController extends BaseRestController{
     @Autowired
     private IStandartResponseBusiness response;
     
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
     @Operation(
             operationId = "listar-ordenes",
             summary = "Lista ordenes de carga",
@@ -208,10 +212,19 @@ public class OrdenRestController extends BaseRestController{
             try {
             // La línea que lanza las excepciones:
             Orden orden = ordenBusiness.registrarPesajeInicial(patente, pesoInicial);
-            
+            OrdenMonitorDTO dto = new OrdenMonitorDTO(
+            	    orden.getNumeroOrden(),
+            	    orden.getEstado(),
+            	    orden.getFechaInicioCarga(),
+            	    orden.getFechaFinCarga(),
+            	    orden.getFechaPesajeFinal(),
+            	    pesoInicial
+            	    
+            	);
             // Si tiene éxito:
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.set("idOrden", String.valueOf(orden.getId()));
+            messagingTemplate.convertAndSend("/topic/monitor/" + orden.getId(), dto);
             return new ResponseEntity<>(orden.getClaveActivacion(), responseHeaders, HttpStatus.OK); 
 
         } catch (NotFoundException e) {
