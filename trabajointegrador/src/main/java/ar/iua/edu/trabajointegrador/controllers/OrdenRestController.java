@@ -7,14 +7,19 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import ar.iua.edu.trabajointegrador.model.Orden;
+import ar.iua.edu.trabajointegrador.model.Alarma;
+import ar.iua.edu.trabajointegrador.auth.User;
+import ar.iua.edu.trabajointegrador.model.business.implementations.AlarmaBusiness;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
@@ -39,6 +44,9 @@ public class OrdenRestController extends BaseRestController{
     
     @Autowired
     private OrdenBusiness ordenBusiness;
+
+    @Autowired 
+    private AlarmaBusiness alarmaBusiness;
 
     @Autowired
     private IStandartResponseBusiness response;
@@ -230,5 +238,16 @@ public class OrdenRestController extends BaseRestController{
             // 500 Internal Server Error: Cualquier otra excepción no esperada
             return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @SneakyThrows
+    @PostMapping(value = "/set-estado-alarma")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> setEstadoAlarma(@RequestBody Alarma alarma, @RequestParam Alarma.alarmaEstado estado) {
+        User user = getUserLogged();
+        Orden orden = alarmaBusiness.setEstadoAlarma(alarma, user, estado);
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("Location", Constants.URL_ORDENES + "/orden/set-estado-alarma/" + orden.getId());
+         return new ResponseEntity<>(responseHeaders, HttpStatus.CREATED);
     }
 }

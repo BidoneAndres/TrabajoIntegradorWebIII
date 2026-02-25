@@ -59,19 +59,16 @@ public class AlarmaBusiness implements IAlarmaBusiness {
 
     @Override
     public Alarma add(Alarma alarma) throws FoundException, BusinessException {
+        // Si la alarma no tiene id es nueva: no intentar cargar por id (evita findById(null))
+        if (alarma.getId() != null) {
+            try {
+                load(alarma.getId());
+                throw FoundException.builder().message("Ya existe la Alarma id = " + alarma.getId()).build();
+            } catch (NotFoundException e) {
+                // no existe: seguir
+            }
+        }
 
-        try {
-            load(alarma.getId());
-            throw FoundException.builder().message("Ya existe la Alarma id = " + alarma.getId()).build();
-        } catch (NotFoundException e) {
-            // log.trace(e.getMessage(), e);
-        }
-        try {
-            load(alarma.getId());
-            throw FoundException.builder().message("Ya existe la Alarma = " + alarma.getId()).build();
-        } catch (NotFoundException e) {
-            // log.trace(e.getMessage(), e);
-        }
         try {
             return alarmaDAO.save(alarma);
         } catch (Exception e) {

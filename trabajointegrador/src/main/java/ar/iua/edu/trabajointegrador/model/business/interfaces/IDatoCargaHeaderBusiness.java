@@ -12,7 +12,6 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.StateLoadException
 public interface IDatoCargaHeaderBusiness {
 	public DatoCargaHeader add(DatoCarga datoCarga) throws  BusinessException,StateLoadException, NotFoundException;
 	public List<DatoCargaHeader> listHeaders() throws BusinessException;
-
 	public Optional<DatoCargaHeader> findByOrdenId(long ordenId) throws BusinessException, NotFoundException;
-
+	
 }
