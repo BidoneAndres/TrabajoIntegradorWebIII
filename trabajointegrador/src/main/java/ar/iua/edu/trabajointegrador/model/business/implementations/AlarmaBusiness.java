@@ -59,19 +59,16 @@ public class AlarmaBusiness implements IAlarmaBusiness {
 
     @Override
     public Alarma add(Alarma alarma) throws FoundException, BusinessException {
+        // Si la alarma no tiene id es nueva: no intentar cargar por id (evita findById(null))
+        if (alarma.getId() != null) {
+            try {
+                load(alarma.getId());
+                throw FoundException.builder().message("Ya existe la Alarma id = " + alarma.getId()).build();
+            } catch (NotFoundException e) {
+                // no existe: seguir
+            }
+        }
 
-        try {
-            load(alarma.getId());
-            throw FoundException.builder().message("Ya existe la Alarma id = " + alarma.getId()).build();
-        } catch (NotFoundException e) {
-            // log.trace(e.getMessage(), e);
-        }
-        try {
-            load(alarma.getId());
-            throw FoundException.builder().message("Ya existe la Alarma = " + alarma.getId()).build();
-        } catch (NotFoundException e) {
-            // log.trace(e.getMessage(), e);
-        }
         try {
             return alarmaDAO.save(alarma);
         } catch (Exception e) {
@@ -93,7 +90,7 @@ public class AlarmaBusiness implements IAlarmaBusiness {
 
     @Override
     public Boolean alarmaAceptada(Long ordenId) {
-        return alarmaDAO.findByEstadoAndOrdenId(Alarma.alarmaEstado.PENDIENTE_REVISION, ordenId).isPresent();
+        return alarmaDAO.findByEstadoAndOrdenId(Alarma.alarmaEstado.ACEPTADA, ordenId).isPresent();
     }
 
     @Override
@@ -114,7 +111,8 @@ public class AlarmaBusiness implements IAlarmaBusiness {
         if (alarmaFound.getEstado() != Alarma.alarmaEstado.PENDIENTE_REVISION) {
             throw ConflictException.builder().message("La alarma ya fue manejada").build();
         }
-        if (ordenFound.getEstado() != Orden.Estado.ESTADO_2_PESAJE_INICIAL_REGISTRADO) {
+        if (ordenFound.getEstado() != Orden.Estado.ESTADO_2_PESAJE_INICIAL_REGISTRADO && 
+            ordenFound.getEstado() != Orden.Estado.ESTADO_2_EN_PROCESO_DE_CARGA) {
             throw ConflictException.builder().message("La orden no se encuentra en estado de carga").build();
         }
 

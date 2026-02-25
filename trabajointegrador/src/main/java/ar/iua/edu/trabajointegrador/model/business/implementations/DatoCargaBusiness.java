@@ -16,6 +16,7 @@ import ar.iua.edu.trabajointegrador.model.DatoCargaHeader;
 import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.Orden.Estado;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.InvalidLoadException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.StateLoadException;
@@ -24,7 +25,14 @@ import ar.iua.edu.trabajointegrador.model.business.interfaces.IOrdenBusiness;
 import ar.iua.edu.trabajointegrador.model.deserializers.DatoCargaJsonDeserializer;
 import ar.iua.edu.trabajointegrador.model.persistence.DatoCargaRepository;
 import ar.iua.edu.trabajointegrador.util.JsonUtiles;
+import org.springframework.context.ApplicationEventPublisher;
+import ar.iua.edu.trabajointegrador.events.Evento;
+import ar.iua.edu.trabajointegrador.model.business.interfaces.IAlarmaBusiness;
+
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @Slf4j
@@ -38,6 +46,12 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 
 	@Autowired
 	private IOrdenBusiness ordenBusiness;
+
+	@Autowired
+	private IAlarmaBusiness alarmaBusiness;
+
+	@Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
 	@Override
 	public DatoCarga add(String json)
@@ -67,11 +81,17 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 
 			Long ordenId = datoCarga.getOrden().getId();
 
+			// Asignar timestamp si es null
+			if (datoCarga.getTimestamp() == null) {
+				datoCarga.setTimestamp(LocalDateTime.now());
+			}
+			
 			log.error("hora " + datoCarga.getTimestamp());
 			Double ultimaMasa = null;
 			Optional<DatoCargaHeader> headerAnterior = datoCargaHeaderBusiness.findByOrdenId(ordenId);
 			if (headerAnterior.isPresent()) {
 				ultimaMasa = headerAnterior.get().getUltimaMasaAcumulada();
+				int ultimaTemperatura = headerAnterior.get().getUltimaTemperatura();
 				LocalDateTime ultimoTimestamp = headerAnterior.get().getTimestamp();
 				LocalDateTime timestampActual = LocalDateTime.now();
 				
@@ -100,6 +120,13 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 
 			Double masaActual = datoCarga.getMasaAcumulada();
 			Double caudalActual = datoCarga.getCaudal();
+			int temperaturaActual = datoCarga.getTemperatura();
+
+			 // Validación de preset
+			if (preset == null) {
+				log.error("No se encontró el preset para la orden id={}", ordenId);
+				throw NotFoundException.builder().message("No se encontró el preset para la orden id=" + ordenId).build();
+			}
 
 			if (estado != Estado.ESTADO_2_EN_PROCESO_DE_CARGA) {
 				log.error("La orden no está en el estado LISTO_PARA_CARGA");
@@ -118,8 +145,15 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 				throw InvalidLoadException.builder().message("ERROR: Masa acumulada inválida (" + masaActual + ")")
 						.build();
 			}
+			try {
+    			datoCargaHeaderBusiness.add(datoCarga);
+			    datoCarga = datoCargaDAO.save(datoCarga); // Actualizamos la referencia con el objeto persistido
+			} catch (Exception e) {
+			    log.error("Error al guardar DatoCarga", e);
+			    throw BusinessException.builder().message("Error interno al guardar el dato de carga").ex(e).build();
+			}
 
-			// Validación de consistencia con la masa anterior
+						// Validación de consistencia con la masa anterior
 			if (ultimaMasa != null && masaActual < ultimaMasa) {
 				log.error("Masa acumulada menor a la anterior: actual=" + masaActual + ", anterior=" + ultimaMasa);
 				throw InvalidLoadException.builder()
@@ -127,15 +161,23 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 						.build();
 			}
 
-			// Guardado final
 			try {
-				datoCargaHeaderBusiness.add(datoCarga);
-				return datoCargaDAO.save(datoCarga);
-
+			    datoCargaHeaderBusiness.add(datoCarga);
+			    datoCarga = datoCargaDAO.save(datoCarga); // Actualizamos la referencia con el objeto persistido
 			} catch (Exception e) {
-				log.error("Error al guardar DatoCarga", e);
-				throw BusinessException.builder().message("Error interno al guardar el dato de carga").ex(e).build();
+			    log.error("Error al guardar DatoCarga", e);
+			    throw BusinessException.builder().message("Error interno al guardar el dato de carga").ex(e).build();
 			}
+
+			// 2. DESPUÉS DISPARAMOS EL EVENTO (con el objeto ya guardado)
+			if(temperaturaActual < -20 || temperaturaActual > 1) {
+			    if (!alarmaBusiness.alarmaAceptada(ordenId)) {
+			        applicationEventPublisher.publishEvent(new Evento(datoCarga, Evento.TipoEvento.TEMPERATURA_ALTA));
+			    }
+			}
+
+			return datoCarga;
+			
 
 		} catch (NotFoundException | InvalidLoadException | StateLoadException | BusinessException e) {
 			// Excepciones esperadas (controladas)
@@ -230,5 +272,47 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 		}
 
 	}
+
+	@Override
+    public DatoCarga load(Integer id) throws NotFoundException, BusinessException {
+        List<DatoCarga> datoCargaFound;
+
+        try {
+            datoCargaFound = datoCargaDAO.findAllByNumeroOrden(id);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw BusinessException.builder().ex(e).build();
+        }
+        if (datoCargaFound.isEmpty())
+            throw NotFoundException.builder().message("No se encuentra el DatoCarga id= " + id).build();
+        return datoCargaFound.get(0);
+    }
+
+	@Override
+    public Page<DatoCarga> listByOrden(Orden orden, Pageable pageable) {
+        Optional<Page<DatoCarga>> datoCarga = datoCargaDAO.findAllByOrden(orden, pageable);
+
+        return datoCarga.orElseGet(Page::empty);
+    }
+
+	@Override
+	public DatoCarga add(DatoCarga datoCarga) throws FoundException, BusinessException {
+		try {
+			load((int) datoCarga.getId());
+            throw FoundException.builder().message("Ya existe el dato de carga id = " + datoCarga.getId()).build();
+        } catch (NotFoundException e) {
+            // log.trace(e.getMessage(), e);
+        }
+
+        try {
+            return datoCargaDAO.save(datoCarga);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw BusinessException.builder().message("Error al Crear Nuevo DatoCarga").build();
+        }
+
+    }
+
+
 
 }

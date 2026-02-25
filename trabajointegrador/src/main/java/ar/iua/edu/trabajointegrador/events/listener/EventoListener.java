@@ -1,8 +1,10 @@
 package ar.iua.edu.trabajointegrador.events.listener;
 
+import ar.iua.edu.trabajointegrador.auth.User;
+import ar.iua.edu.trabajointegrador.auth.IUserBusiness;
 import ar.iua.edu.trabajointegrador.events.Evento;
 import ar.iua.edu.trabajointegrador.model.Alarma;
-import ar.iua.edu.trabajointegrador.model.Detalle;
+import ar.iua.edu.trabajointegrador.model.DatoCarga;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IAlarmaBusiness;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
@@ -24,8 +27,8 @@ public class EventoListener implements ApplicationListener<Evento>{
 
     @Override
     public void onApplicationEvent(Evento evento) {
-        if (evento.getTipoEvento().equals(Evento.TipoEvento.TEMPERATURA_ALTA) && evento.getSource() instanceof Detalle) {
-            manejoTemperaturaAlta((Detalle) evento.getSource());
+        if (evento.getTipoEvento().equals(Evento.TipoEvento.TEMPERATURA_ALTA) && evento.getSource() instanceof DatoCarga) {
+            manejoTemperaturaAlta((DatoCarga) evento.getSource());
         }
     }
 
@@ -36,11 +39,14 @@ public class EventoListener implements ApplicationListener<Evento>{
     private IAlarmaBusiness alarmaBusiness;
 
     @Autowired
+    private IUserBusiness userBusiness;
+
+    @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
     @Value("${mail.temperature.exceeded.send.to}")
     private String to;
-    private void manejoTemperaturaAlta(Detalle detalle) {
+    private void manejoTemperaturaAlta(DatoCarga detalle) {
         Date now = new Date(System.currentTimeMillis());
 
         // Guardado de alerta en db
@@ -49,11 +55,20 @@ public class EventoListener implements ApplicationListener<Evento>{
         alarma.setTiempo(now);
         alarma.setTemperatura(detalle.getTemperatura());
         alarma.setEstado(Alarma.alarmaEstado.PENDIENTE_REVISION);
-
+        
+        // Obtener usuario logueado
+        try {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            User usuarioLogueado = userBusiness.load(username);
+            alarma.setUser(usuarioLogueado);
+        } catch (Exception e) {
+            log.warn("No se pudo obtener el usuario logueado: " + e.getMessage());
+        }
         try {
             alarma = alarmaBusiness.add(alarma);
         } catch (BusinessException | FoundException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error al guardar alarma", e);
+            return;  // ← Detiene aquí si falló
         }
 
         // Envío de alerta a clientes (WebSocket)
@@ -63,7 +78,6 @@ public class EventoListener implements ApplicationListener<Evento>{
         alarmaWsWrapper.setEstado(alarma.getEstado());
         alarmaWsWrapper.setTemperatura(alarma.getTemperatura());
         alarmaWsWrapper.setFechaCreacion(alarma.getTiempo());
-        //alarmWsWrapper.setThresholdTemperatura(alarm.getOrden().getProduct().getThresholdTemperatura()); //todo tira null pointer ver que onda
         alarmaWsWrapper.setDescripcion(alarma.getDescripcion() != null ? alarma.getDescripcion() : null);
         alarmaWsWrapper.setUser(
                 alarma.getUser() != null && alarma.getUser().getUsername() != null
@@ -88,7 +102,7 @@ public class EventoListener implements ApplicationListener<Evento>{
                         ---------------------------------
                         Orden ID: %s
                         Fecha/Hora del Evento: %s
-                        Temperatura Registrada: %.2f °C
+                        Temperatura Registrada: %d °C
                         Masa Acumulada: %.2f kg
                         Densidad: %.2f kg/m³
                         Caudal: %.2f Kg/h
@@ -104,15 +118,18 @@ public class EventoListener implements ApplicationListener<Evento>{
                 new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(now),
                 detalle.getTemperatura(),
                 detalle.getMasaAcumulada(),
-                detalle.getDensidad(),
+                detalle.getDensidadProducto(),
                 detalle.getCaudal()
         );
 
+        log.info("Preparando envío de email a: {} con asunto: {}", to, subject);
         try {
             emailBusiness.sendSimpleMessage(to, subject, mensaje);
-            log.info("Enviando mensaje '{}'", mensaje);
+            log.info("Email enviado exitosamente a: {}", to);
         } catch (BusinessException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error BusinessException al enviar email: " + e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("Error inesperado al enviar email: " + e.getMessage(), e);
         }
     }
 

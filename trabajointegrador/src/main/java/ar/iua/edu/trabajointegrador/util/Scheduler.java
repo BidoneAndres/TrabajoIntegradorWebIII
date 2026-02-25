@@ -26,7 +26,7 @@ public class Scheduler {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
-    @Scheduled(fixedDelay = 15, initialDelay = 15, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedDelay = 60, initialDelay = 60, timeUnit = TimeUnit.SECONDS)
     public void redordatorioAlarma() {
 
         try {
