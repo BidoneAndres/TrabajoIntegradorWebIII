@@ -90,7 +90,7 @@ public class AlarmaBusiness implements IAlarmaBusiness {
 
     @Override
     public Boolean alarmaAceptada(Long ordenId) {
-        return alarmaDAO.findByEstadoAndOrdenId(Alarma.alarmaEstado.PENDIENTE_REVISION, ordenId).isPresent();
+        return alarmaDAO.findByEstadoAndOrdenId(Alarma.alarmaEstado.ACEPTADA, ordenId).isPresent();
     }
 
     @Override
@@ -111,7 +111,8 @@ public class AlarmaBusiness implements IAlarmaBusiness {
         if (alarmaFound.getEstado() != Alarma.alarmaEstado.PENDIENTE_REVISION) {
             throw ConflictException.builder().message("La alarma ya fue manejada").build();
         }
-        if (ordenFound.getEstado() != Orden.Estado.ESTADO_2_PESAJE_INICIAL_REGISTRADO) {
+        if (ordenFound.getEstado() != Orden.Estado.ESTADO_2_PESAJE_INICIAL_REGISTRADO && 
+            ordenFound.getEstado() != Orden.Estado.ESTADO_2_EN_PROCESO_DE_CARGA) {
             throw ConflictException.builder().message("La orden no se encuentra en estado de carga").build();
         }
 

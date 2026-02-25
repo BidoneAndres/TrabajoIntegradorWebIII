@@ -15,12 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
-
+import org.springframework.security.core.context.SecurityContextHolder;
 import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.Alarma;
 import ar.iua.edu.trabajointegrador.auth.User;
 import ar.iua.edu.trabajointegrador.model.business.implementations.AlarmaBusiness;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.BusinessException;
+import ar.iua.edu.trabajointegrador.model.business.exceptions.ConflictException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.UnProcessableException;
@@ -240,14 +241,29 @@ public class OrdenRestController extends BaseRestController{
         }
     }
 
-    @SneakyThrows
     @PostMapping(value = "/set-estado-alarma")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> setEstadoAlarma(@RequestBody Alarma alarma, @RequestParam Alarma.alarmaEstado estado) {
-        User user = getUserLogged();
-        Orden orden = alarmaBusiness.setEstadoAlarma(alarma, user, estado);
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set("Location", Constants.URL_ORDENES + "/orden/set-estado-alarma/" + orden.getId());
-         return new ResponseEntity<>(responseHeaders, HttpStatus.CREATED);
+    public ResponseEntity<?> setEstadoAlarma(
+        @RequestBody Alarma alarma, 
+        @RequestParam Alarma.alarmaEstado estado) {
+        try {
+            User user = getUserLogged();
+            if (user == null) {
+                return new ResponseEntity<>(response.build(HttpStatus.UNAUTHORIZED, null, "Usuario no autenticado"), HttpStatus.UNAUTHORIZED);
+            }
+            
+            Orden orden = alarmaBusiness.setEstadoAlarma(alarma, user, estado);
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.set("Location", Constants.URL_ORDENES + "/orden/set-estado-alarma/" + orden.getId());
+            return new ResponseEntity<>(responseHeaders, HttpStatus.CREATED);
+        } catch (ConflictException e) {
+            return new ResponseEntity<>(response.build(HttpStatus.CONFLICT, e, e.getMessage()), HttpStatus.CONFLICT);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
+        } catch (BusinessException e) {
+            return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
