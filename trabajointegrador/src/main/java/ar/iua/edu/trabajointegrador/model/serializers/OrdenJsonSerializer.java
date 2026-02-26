@@ -13,7 +13,7 @@ import ar.iua.edu.trabajointegrador.model.Orden;
 
 public class OrdenJsonSerializer extends StdSerializer<Orden>{
     
-    protected OrdenJsonSerializer(Class<Orden> t){
+    public OrdenJsonSerializer(Class<Orden> t, boolean dummy) {
         super (t);
     }
 
@@ -27,7 +27,7 @@ public class OrdenJsonSerializer extends StdSerializer<Orden>{
         gen.writeNumberField("peso inicial",value.getPesoFinal()); //"peso inicial" :
 
         gen.writeNumberField("peso final",value.getPesoFinal()); //"peso final" :
-        
+
         if(value.getCliente() != null){
                 /*
                 * "cliente": {
@@ -78,7 +78,11 @@ public class OrdenJsonSerializer extends StdSerializer<Orden>{
             //Aca tenemos que poner que tire una excepcion
         }
 
-        gen.writeNumberField("clave", value.getClaveActivacion()); // "clave: "
+        if(value.getClaveActivacion() != null){
+            gen.writeNumberField("clave", value.getClaveActivacion()); // "clave: "
+        }else{
+            gen.writeNullField("clave");
+        }
 
         gen.writeEndObject(); //}
 

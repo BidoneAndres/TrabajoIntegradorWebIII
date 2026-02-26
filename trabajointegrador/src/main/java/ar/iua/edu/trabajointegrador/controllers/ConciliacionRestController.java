@@ -104,6 +104,17 @@ public class ConciliacionRestController extends BaseRestController {
             return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         } 
 	}
+
+	@GetMapping(value = "/orden/{idOrden}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> loadConciliacionByIdOrden(@PathVariable(value="idOrden") int idOrden) {
+		try {
+			return new ResponseEntity<>(conciliacionBusiness.loadByIdOrden(idOrden), HttpStatus.OK);
+		} catch (NotFoundException e) {
+			return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+		} 
+	}
 	
 	@GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> loadConciliacion() {
