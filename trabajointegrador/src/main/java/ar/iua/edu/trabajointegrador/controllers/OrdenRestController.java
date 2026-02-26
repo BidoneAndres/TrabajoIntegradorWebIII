@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
+
 import ar.iua.edu.trabajointegrador.front.OrdenMonitorDTO;
 import org.springframework.web.bind.annotation.RequestBody;
 import ar.iua.edu.trabajointegrador.model.Orden;
@@ -198,8 +199,14 @@ public class OrdenRestController extends BaseRestController{
     public ResponseEntity<?> addExternal(HttpEntity<String> httpEntity) {
         try {
             Orden ordenCreada = ordenBusiness.cargaExterna(httpEntity.getBody());
+
+            
+
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.set("Location", Constants.URL_ORDENES + ordenCreada.getCodExt());
+            
+ 
+            messagingTemplate.convertAndSend("/topic/orden", ordenCreada.getNumeroOrden());
             return new ResponseEntity<>(ordenCreada,responseHeaders, HttpStatus.CREATED);
         } catch (FoundException e) {
             return new ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()), HttpStatus.FOUND);
