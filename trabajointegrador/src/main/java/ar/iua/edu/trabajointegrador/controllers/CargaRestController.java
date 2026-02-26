@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Parameter;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
@@ -35,13 +37,15 @@ import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 import ar.iua.edu.trabajointegrador.util.JsonUtils;
 import ar.iua.edu.trabajointegrador.util.Paginas;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 import ar.iua.edu.trabajointegrador.model.serializers.DatoCargaJsonSerializer;
 
@@ -285,15 +289,36 @@ public class CargaRestController {
 	 * ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()),
 	 * HttpStatus.FOUND); } }
 	 */
+
+	@Operation(
+        summary = "Listar detalles de carga por orden",
+        description = "Retorna una lista paginada y ordenada de los datos de carga (DatoCarga) asociados a una orden. " +
+                      "Útil para reconstruir la curva de carga y telemetría.",
+        operationId = "getDetallesPorOrden"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", 
+            description = "Lista de detalles obtenida correctamente.",
+            content = @Content(mediaType = "application/json", 
+            schema = @Schema(example = "{\"details\": [...], \"pagination\": {...}}"))
+        ),
+        @ApiResponse(responseCode = "400", description = "Parámetro de ordenación (sort) no válido."),
+        @ApiResponse(responseCode = "404", description = "Orden no encontrada."),
+        @ApiResponse(responseCode = "500", description = "Error interno al serializar los datos.")
+    })
 	@GetMapping(value = "/por-orden", produces = MediaType.APPLICATION_JSON_VALUE)
     @SneakyThrows
-    public ResponseEntity<?> getAllAlarms(@RequestParam Long idOrder,
-                                          @RequestParam(value = "page", defaultValue = "0") int page,
-                                          @RequestParam(value = "size", defaultValue = "10") int size,
-                                          @RequestParam(value = "sort", required = false, defaultValue = "timeStamp,desc") String sort) {
+    public ResponseEntity<?> getAllAlarms(
+		@Parameter(description = "ID de la orden a consultar", required = true, example = "1006")	
+		@RequestParam Long idOrder,
+		@Parameter(description = "Página a recuperar (0..N)", example = "0")
+		@RequestParam(value = "page", defaultValue = "0") int page,
+		@Parameter(description = "Cantidad de registros por página", example = "10")
+		@RequestParam(value = "size", defaultValue = "10") int size) {
 
         Pageable pageable;
-        if (sort != null && !sort.isEmpty()) {
+        /*if (sort != null && !sort.isEmpty()) {
             String[] sortParams = sort.split(",");
             String sortField = sortParams[0].trim();
             String sortDirection = (sortParams.length > 1 ? sortParams[1].trim().toLowerCase() : "desc"); // Dirección predeterminada
@@ -307,8 +332,8 @@ public class CargaRestController {
             pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
         } else {
             pageable = PageRequest.of(page, size);
-        }
-
+        }*/
+		pageable = PageRequest.of(page, size);
         Orden orden = ordenBusiness.load(idOrder);
         Page<DatoCarga> details = datoCargaBusiness.listByOrden(orden, pageable);
         StdSerializer<DatoCarga> DatoCargaSerializer = new DatoCargaJsonSerializer(DatoCarga.class, false);
@@ -342,9 +367,29 @@ public class CargaRestController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+
+
+	@Operation(
+        summary = "Obtener todos los detalles de carga",
+        description = "Retorna la lista completa de datos de carga (DatoCarga) para una orden específica, sin paginación. " + 
+                      "Recomendado para la generación de gráficos de telemetría.",
+        operationId = "getAllDetallesCarga"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", 
+            description = "Lista completa de detalles obtenida exitosamente.",
+            content = @Content(mediaType = "application/json", 
+            array = @ArraySchema(schema = @Schema(implementation = DatoCarga.class)))
+        ),
+        @ApiResponse(responseCode = "404", description = "Orden no encontrada."),
+        @ApiResponse(responseCode = "500", description = "Error interno durante la serialización de los datos.")
+    })
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     @SneakyThrows
-    public ResponseEntity<?> getAllAlarmas(@RequestParam Long idOrden) {
+    public ResponseEntity<?> getAllAlarmas(
+			@Parameter(description = "ID de la orden (base de datos)", required = true, example = "1006")
+			@RequestParam Long idOrden) {
         Orden orden = ordenBusiness.load(idOrden);
         List<DatoCarga> detalles = datoCargaBusiness.listByNumeroOrden(orden.getNumeroOrden());
         StdSerializer<DatoCarga> DatoCargaSerializer = new DatoCargaJsonSerializer(DatoCarga.class, false);

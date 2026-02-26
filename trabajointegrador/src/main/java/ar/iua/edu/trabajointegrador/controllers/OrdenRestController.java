@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Parameter;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
@@ -37,7 +39,6 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.FoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.NotFoundException;
 import ar.iua.edu.trabajointegrador.model.business.exceptions.UnProcessableException;
 import ar.iua.edu.trabajointegrador.model.business.implementations.OrdenBusiness;
-import ar.iua.edu.trabajointegrador.util.FieldValidator;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 import ar.iua.edu.trabajointegrador.util.JsonUtils;
 import ar.iua.edu.trabajointegrador.util.Paginas;
@@ -52,8 +53,6 @@ import lombok.extern.slf4j.Slf4j;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
 @Tag(name = "1. Orden", description = "API para Gestionar Ordenes")
 @Slf4j
 @RestController
@@ -269,11 +268,33 @@ public class OrdenRestController extends BaseRestController{
         }
     }
 
+    @Operation(
+        summary = "Cambiar el estado de una alarma",
+        description = "Permite a un administrador modificar el estado de una alarma específica. " +
+                      "El sistema registra qué usuario realizó el cambio y retorna la ubicación de la orden afectada.",
+        operationId = "setEstadoAlarma"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "201", 
+            description = "Estado actualizado correctamente. Se incluye la URL de la orden en el header 'Location'.",
+            content = @Content
+        ),
+        @ApiResponse(responseCode = "401", description = "No autorizado - El usuario no está autenticado."),
+        @ApiResponse(responseCode = "403", description = "Prohibido - Se requiere el rol ROLE_ADMIN."),
+        @ApiResponse(responseCode = "404", description = "No encontrado - La alarma o el recurso solicitado no existe."),
+        @ApiResponse(responseCode = "409", description = "Conflicto - El cambio de estado no es válido para el estado actual."),
+        @ApiResponse(responseCode = "500", description = "Error interno - Error en la lógica de negocio o del servidor.")
+    })
     @PostMapping(value = "/set-estado-alarma")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> setEstadoAlarma(
-        @RequestBody Alarma alarma, 
-        @RequestParam Alarma.alarmaEstado estado) {
+        @RequestBody 
+        @Parameter(description = "Objeto Alarma completo o con ID necesario para identificarla") 
+        Alarma alarma, 
+        @RequestParam 
+        @Parameter(description = "Nuevo estado de la alarma (Enum)", example = "ACEPTADA")
+        Alarma.alarmaEstado estado) {
         try {
             User user = getUserLogged();
             if (user == null) {
@@ -295,12 +316,33 @@ public class OrdenRestController extends BaseRestController{
         }
     }
 
+    @Operation(
+        summary = "Listar órdenes paginadas",
+        description = "Obtiene una lista de órdenes con soporte para paginación y filtrado por estado. " +
+                      "Requiere roles ROLE_ADMIN o ROLE_OPERATOR.",
+        operationId = "getAllOrders"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", 
+            description = "Listado de órdenes y metadatos de paginación obtenidos.",
+            content = @Content(mediaType = "application/json", 
+            schema = @Schema(example = "{\"orders\": [...], \"pagination\": {...}}"))
+        ),
+        @ApiResponse(responseCode = "401", description = "No autenticado."),
+        @ApiResponse(responseCode = "403", description = "No tiene permisos suficientes."),
+        @ApiResponse(responseCode = "500", description = "Error interno al procesar la solicitud.")
+    })
     @GetMapping(value = "/pages", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_OPERATOR')")
     @SneakyThrows
-    public ResponseEntity<?> getAll(@RequestParam(value = "page", defaultValue = "0") int page,
-                                    @RequestParam(value = "size", defaultValue = "10") int size,
-                                    @RequestParam(value = "filter", required = false) String filter) {
+    public ResponseEntity<?> getAll(
+            @Parameter(description = "Número de página (inicia en 0)", example = "0")
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @Parameter(description = "Cantidad de registros por página", example = "10")
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @Parameter(description = "Filtro de estados separados por coma (ej: 'PENDIENTE,EN_PROCESO')", example = "PENDIENTE")
+            @RequestParam(value = "filter", required = false) String filter) {
 
         Pageable pageable;
         /*if (sort != null && !sort.isEmpty()) {
