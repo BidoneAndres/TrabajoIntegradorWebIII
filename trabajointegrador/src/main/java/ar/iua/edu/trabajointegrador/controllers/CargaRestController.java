@@ -32,7 +32,6 @@ import ar.iua.edu.trabajointegrador.model.business.exceptions.StateLoadException
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IDatoCargaHeaderBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IOrdenBusiness;
-import ar.iua.edu.trabajointegrador.util.FieldValidator;
 import ar.iua.edu.trabajointegrador.util.IStandartResponseBusiness;
 import ar.iua.edu.trabajointegrador.util.JsonUtils;
 import ar.iua.edu.trabajointegrador.util.Paginas;
@@ -55,7 +54,7 @@ import java.util.Map;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.SneakyThrows;
-@Tag(name = "3. Carga", description = "API para Gestionar Carga")
+@Tag(name = "Carga", description = "API para Gestionar Carga")
 @RestController
 @RequestMapping(Constants.URL_CARGA)
 @CrossOrigin(origins = "http://localhost:5173")

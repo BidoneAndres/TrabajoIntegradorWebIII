@@ -53,7 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-@Tag(name = "1. Orden", description = "API para Gestionar Ordenes")
+@Tag(name = "Orden", description = "API para Gestionar Ordenes")
 @Slf4j
 @RestController
 @RequestMapping(Constants.URL_ORDENES)

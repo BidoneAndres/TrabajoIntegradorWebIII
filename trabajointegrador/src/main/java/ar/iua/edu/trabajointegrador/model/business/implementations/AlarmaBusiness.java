@@ -90,7 +90,7 @@ public class AlarmaBusiness implements IAlarmaBusiness {
 
     @Override
     public Boolean alarmaAceptada(Long ordenId) {
-        return alarmaDAO.findByEstadoAndOrdenId(Alarma.alarmaEstado.ACEPTADA, ordenId).isPresent();
+        return alarmaDAO.findByEstadoAndOrdenId(Alarma.alarmaEstado.PENDIENTE_REVISION, ordenId).isPresent();
     }
 
     @Override
