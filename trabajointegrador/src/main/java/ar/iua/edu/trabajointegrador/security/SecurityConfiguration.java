@@ -64,7 +64,8 @@ public class SecurityConfiguration {
 				.requestMatchers(Constants.URL_ALARMA + "/**").permitAll()
 	            .requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION).hasRole("ADMIN")
 	            .requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION + "/**").hasRole("ADMIN")
-
+				.requestMatchers(HttpMethod.GET, Constants.URL_USER).hasRole("ADMIN")
+	            .requestMatchers(HttpMethod.GET, Constants.URL_USER + "/**").hasRole("ADMIN")
 	            .anyRequest().authenticated()
 	        )
 	        .sessionManagement(session ->
