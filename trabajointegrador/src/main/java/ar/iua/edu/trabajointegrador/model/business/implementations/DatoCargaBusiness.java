@@ -170,7 +170,7 @@ public class DatoCargaBusiness implements IDatoCargaBusiness {
 			}
 
 			// 2. DESPUÉS DISPARAMOS EL EVENTO (con el objeto ya guardado)
-			if(temperaturaActual < -20 || temperaturaActual > 1) {
+			if(temperaturaActual < -5 || temperaturaActual > 30) {
 			    if (!alarmaBusiness.alarmaAceptada(ordenId)) {
 			        applicationEventPublisher.publishEvent(new Evento(datoCarga, Evento.TipoEvento.TEMPERATURA_ALTA));
 			    }

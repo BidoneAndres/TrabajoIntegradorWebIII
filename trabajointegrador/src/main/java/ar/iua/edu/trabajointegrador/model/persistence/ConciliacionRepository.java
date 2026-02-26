@@ -10,4 +10,6 @@ import ar.iua.edu.trabajointegrador.model.Conciliacion;
 public interface ConciliacionRepository extends JpaRepository<Conciliacion, Long> {
 	@Query("SELECT dc FROM Conciliacion dc WHERE dc.orden.numeroOrden = :numeroOrden")
 	Optional<Conciliacion> findByNumeroOrden(int numeroOrden);
+
+	Optional<Conciliacion> findByOrdenId(int idOrden);
 }
