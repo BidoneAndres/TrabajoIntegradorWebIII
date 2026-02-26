@@ -4,9 +4,14 @@ import ar.iua.edu.trabajointegrador.model.Orden;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IAlarmaBusiness;
 import ar.iua.edu.trabajointegrador.model.business.interfaces.IOrdenBusiness;
 import ar.iua.edu.trabajointegrador.model.serializers.AlarmaJsonSerializer;
-import ar.iua.edu.trabajointegrador.util.FieldValidator;
 import ar.iua.edu.trabajointegrador.util.JsonUtils;
 import ar.iua.edu.trabajointegrador.util.Paginas;
+import ar.iua.edu.trabajointegrador.util.StandartResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.SneakyThrows;
 import ar.iua.edu.trabajointegrador.model.Alarma;
@@ -27,11 +32,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 
 import java.util.List;
 import java.util.Map;
+
+import io.swagger.v3.oas.annotations.Parameter;
 
 
 @Tag(description = "API Interna para Gestionar Alarmas", name = "Alarmas")
@@ -45,13 +51,49 @@ public class AlarmaRestController extends BaseRestController{
     @Autowired
     private IOrdenBusiness ordenBusiness;
 
-    /* ENPOINT PARA OBTENER UNA LISTA DE ALARMAS CORRESPONDIENTES A UNA ORDEN (PAGINABLE) */
+@Operation(
+        summary = "Obtener alarmas por Orden",
+        description = "Retorna una lista paginada de alarmas asociadas a una orden específica. " +
+                      "Requiere roles ROLE_ADMIN o ROLE_OPERATOR.",
+        operationId = "getAllAlarms"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", 
+            description = "Lista de alarmas obtenida exitosamente",
+            content = @Content(mediaType = "application/json", 
+            schema = @Schema(example = "{\"alarmas\": [], \"pagination\": {}}"))
+        ),
+        @ApiResponse(
+            responseCode = "401", 
+            description = "No autorizado - Token faltante o inválido"
+        ),
+        @ApiResponse(
+            responseCode = "403", 
+            description = "Prohibido - No tiene los roles necesarios (ADMIN/OPERATOR)"
+        ),
+        @ApiResponse(
+            responseCode = "404", 
+            description = "Orden no encontrada"
+        ),
+        @ApiResponse(
+            responseCode = "500", 
+            description = "Error interno del servidor",
+            content = @Content(schema = @Schema(implementation = StandartResponse.class))
+        )
+    })
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_OPERATOR')")
     @SneakyThrows
-    public ResponseEntity<?> getAllAlarms(@RequestParam("idOrden") Long idOrden,
-                                          @RequestParam(value = "page", defaultValue = "0") int page,
-                                          @RequestParam(value = "size", defaultValue = "10") int size){
+    public ResponseEntity<?> getAllAlarms(
+            @Parameter(description = "ID de la orden para filtrar alarmas", required = true, example = "1006")
+            @RequestParam("idOrden") Long idOrden,
+            
+            @Parameter(description = "Número de página (0..N)", example = "0")
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            
+            @Parameter(description = "Cantidad de elementos por página", example = "10")
+            @RequestParam(value = "size", defaultValue = "10") int size){
 
         Pageable pageable;
         /*if (sort != null && !sort.isEmpty()) {
