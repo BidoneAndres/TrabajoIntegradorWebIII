@@ -8,10 +8,13 @@ public final class Constants {
 	//Agregar las url de los servicios que vayamos creando
     public static final String URL_PRODUCTOS = URL_BASE + "/producto";
     public static final String URL_ORDENES = URL_BASE + "/orden";
-    public static final String URL_USUARIOS = URL_BASE + "/usuarios";
     public static final String URL_CARGA = URL_BASE + "/carga";
     public static final String URL_CONCILIACION = URL_BASE + "/conciliacion";
 	public static final String URL_ALARMA = URL_BASE + "/alarmas";
+	public static final String URL_USER = URL_BASE + "/user";
+	public static final String URL_CAMIONES = URL_BASE + "/camion";
+	public static final String URL_CHOFERES = URL_BASE + "/chofer";
+	public static final String URL_CLIENTES = URL_BASE + "/cliente";
     
 	public static final String URL_LOGIN = URL_BASE + "/login";
 	public static final String URL_MAIL = URL_BASE + "/mail";	
