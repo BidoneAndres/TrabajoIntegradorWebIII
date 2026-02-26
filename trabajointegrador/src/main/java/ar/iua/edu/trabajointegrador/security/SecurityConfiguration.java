@@ -104,7 +104,8 @@ public class SecurityConfiguration {
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 	    CorsConfiguration configuration = new CorsConfiguration();
-	    configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // Tu puerto de Vue
+	    configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "https://cernikiw3.chickenkiller.com")); // Tu puerto de Vue
+	 
 	    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 	    configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
 	    configuration.setAllowCredentials(true);
