@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-@Tag(name = "User", description = "API para Gestion de usuarios")
+@Tag(name = "Clientes", description = "API para Gestion de Clientes")
 @Slf4j
 @RestController
 @RequestMapping(Constants.URL_CLIENTES)
