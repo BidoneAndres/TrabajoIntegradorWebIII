@@ -83,7 +83,7 @@ public class SecurityConfiguration {
 	        .sessionManagement(session ->
 	            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 	        )
-		// reemplazamos el generador de 	
+		// reemplazamos el generador de jwt y lo cambiamos por el traductor de tokens de keycloack
 	    //http.addFilter(new JWTAuthorizationFilter(authenticationManager()));
 			
 			.oauth2ResourceServer(oauth2 -> oauth2
