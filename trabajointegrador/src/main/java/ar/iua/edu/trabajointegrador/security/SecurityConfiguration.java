@@ -57,6 +57,8 @@ public class SecurityConfiguration {
 	        .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
+            	.requestMatchers("/ui/**", "/demo/**","/temperaturas/**", Constants.URL_ALARMA + "/**").permitAll()
+     		    .requestMatchers(Constants.URL_ALARMA + "/**").permitAll()
                 .requestMatchers(HttpMethod.POST, Constants.URL_LOGIN + "/**").permitAll()
                 .requestMatchers(HttpMethod.POST, Constants.URL_BASE + "/register/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
@@ -128,7 +130,7 @@ public class SecurityConfiguration {
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 	    CorsConfiguration configuration = new CorsConfiguration();
-	    configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // Tu puerto de Vue
+	    configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "https://cernikiw3.chickenkiller.com")); // Tu puerto de Vue
 	    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 	    configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
 	    configuration.setAllowCredentials(true);
