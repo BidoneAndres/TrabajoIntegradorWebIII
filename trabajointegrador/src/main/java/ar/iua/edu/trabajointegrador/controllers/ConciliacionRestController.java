@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -73,6 +74,7 @@ public class ConciliacionRestController extends BaseRestController {
 	    )
 	})
 	@PostMapping(value = "")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<?> add(@RequestParam Integer numeroOrden, @RequestParam Float pesajeFinal ) {
 		try {
 			Conciliacion response = conciliacionBusiness.add(pesajeFinal, numeroOrden);
@@ -119,6 +121,7 @@ public class ConciliacionRestController extends BaseRestController {
         )
     })
 	@GetMapping(value = "/{numeroOrden}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> loadConciliacion(
 		@Parameter(description = "Número identificador de la orden (business key)", required = true, example = "1006")
 		@PathVariable(value="numeroOrden") int numeroOrden) {
@@ -154,6 +157,7 @@ public class ConciliacionRestController extends BaseRestController {
         )
     })
 	@GetMapping(value = "/orden/{idOrden}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<?> loadConciliacionByIdOrden(
 			@Parameter(description = "ID interno de la orden (PK)", required = true, example = "1")
 			@PathVariable(value="idOrden") int idOrden) {
@@ -187,6 +191,7 @@ public class ConciliacionRestController extends BaseRestController {
         )
     })
 	@GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> loadConciliacion() {
     	try {
             return new ResponseEntity<>(conciliacionBusiness.list(), HttpStatus.OK);

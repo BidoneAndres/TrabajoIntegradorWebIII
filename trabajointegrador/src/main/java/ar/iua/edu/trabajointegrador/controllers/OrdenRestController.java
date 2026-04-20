@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import io.swagger.v3.oas.annotations.Parameter;
 
@@ -81,8 +83,11 @@ public class OrdenRestController extends BaseRestController{
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandartResponse.class)))
     })
     @SneakyThrows
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_OPERATOR')")
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> list() {
+    public ResponseEntity<?> list(@AuthenticationPrincipal Jwt jwt) {
+        log.debug("--------------------------------------------------------------------");
+        log.debug(null, jwt);
         return new ResponseEntity<>(ordenBusiness.list(), HttpStatus.OK);
     }
 
