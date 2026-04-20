@@ -22,14 +22,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +31,6 @@ import java.util.stream.Collectors;
 
 import ar.iua.edu.trabajointegrador.auth.IUserBusiness;
 import ar.iua.edu.trabajointegrador.auth.custom.CustomAuthenticationManager;
-import ar.iua.edu.trabajointegrador.auth.filters.JWTAuthorizationFilter;
 import ar.iua.edu.trabajointegrador.controllers.Constants;
 
 
@@ -61,25 +54,18 @@ public class SecurityConfiguration {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 	    http
-	        .cors(Customizer.withDefaults())   
-	        .csrf(AbstractHttpConfigurer::disable) 
-	        .authorizeHttpRequests(auth -> auth
-
-
-	            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-	            .requestMatchers(HttpMethod.POST, Constants.URL_LOGIN + "/**").permitAll()
-	            .requestMatchers(HttpMethod.POST, Constants.URL_BASE + "/register/**").permitAll()
-	            .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
-	            .requestMatchers("/ui/**", "/demo/**","/temperaturas/**", Constants.URL_ALARMA + "/**").permitAll()
-	            
-				.requestMatchers(Constants.URL_ALARMA + "/**").permitAll()
-	            .requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION).hasRole("ADMIN")
-	            .requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION + "/**").hasRole("ADMIN")
-				.requestMatchers(HttpMethod.GET, Constants.URL_USER).hasRole("ADMIN")
-	            .requestMatchers(HttpMethod.GET, Constants.URL_USER + "/**").hasRole("ADMIN")
-	            .anyRequest().authenticated()
-	        )
+	        .cors(Customizer.withDefaults())
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth
+            	.requestMatchers("/ui/**", "/demo/**","/temperaturas/**", Constants.URL_ALARMA + "/**").permitAll()
+     		    .requestMatchers(Constants.URL_ALARMA + "/**").permitAll()
+                .requestMatchers(HttpMethod.POST, Constants.URL_LOGIN + "/**").permitAll()
+                .requestMatchers(HttpMethod.POST, Constants.URL_BASE + "/register/**").permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+                .requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION).hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, Constants.URL_CONCILIACION + "/**").hasRole("ADMIN")
+                .anyRequest().hasAnyRole("ADMIN", "OPERATOR")
+            )
 	        .sessionManagement(session ->
 	            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 	        )
@@ -88,7 +74,7 @@ public class SecurityConfiguration {
 			
 			.oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-            );	
+            );
 	    return http.build();
 	}
 
@@ -144,7 +130,6 @@ public class SecurityConfiguration {
 	CorsConfigurationSource corsConfigurationSource() {
 	    CorsConfiguration configuration = new CorsConfiguration();
 	    configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "https://cernikiw3.chickenkiller.com")); // Tu puerto de Vue
-	 
 	    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 	    configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
 	    configuration.setAllowCredentials(true);
